@@ -6,8 +6,7 @@ import { ArrowLeft, ArrowRight, BookOpen, Bookmark, Camera, Check, CheckCircle2,
 import { allWords, getScene, getWord, scenes, type Word } from '@/lib/lenvocab-data'
 
 export type Screen = 'home' | 'camera' | 'results' | 'word' | 'saved' | 'review' | 'flashcards' | 'quiz' | 'history' | 'profile' | 'onboarding' | 'auth'
-export type ScanObject = { term: string; meaning: string; note: string; box: { x1: number; y1: number; x2: number; y2: number } }
-export type ScanEntry = { sceneId: string; date: string; id: number; image?: string; objects?: ScanObject[] }
+export type ScanEntry = { sceneId: string; date: string; id: number; image?: string }
 
 export type ScreenProps = {
   screen: Screen
@@ -20,14 +19,7 @@ export type ScreenProps = {
   saved: string[]
   toggleSaved: (id: string) => void
   history: ScanEntry[]
-  scan: () => Promise<void>
-  isScanning: boolean
-  scanError: string | null
-  setScanError: (message: string | null) => void
-  scanObjects: ScanObject[] | null
-  setScanObjects: (objects: ScanObject[] | null) => void
-  selectedFile: File | null
-  setSelectedFile: (file: File | null) => void
+  scan: () => void
   customImage: string | null
   setCustomImage: (url: string | null) => void
 }
@@ -58,52 +50,28 @@ export function HomeScreen({ navigate, openWord, saved, toggleSaved }: ScreenPro
   </div>
 }
 
-export function CameraScreen({ navigate, sceneId, setSceneId, scan, isScanning, scanError, setScanError, selectedFile, setSelectedFile, customImage, setCustomImage }: ScreenProps) {
+export function CameraScreen({ navigate, sceneId, setSceneId, scan, customImage, setCustomImage }: ScreenProps) {
   const scene = getScene(sceneId)
-  const chooseImage = (file?: File) => {
-    if (!file) return
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 8 * 1024 * 1024) {
-      setScanError('Chọn ảnh JPG, PNG hoặc WebP dưới 8 MB nhé.')
-      return
-    }
-    setSelectedFile(file)
-    setCustomImage(URL.createObjectURL(file))
-    setScanError(null)
-  }
-  const useSample = (id: string) => {
-    setSceneId(id)
-    setSelectedFile(null)
-    setCustomImage(null)
-    setScanError(null)
-  }
+  const [fileName, setFileName] = useState('')
   return <div className="screen camera-screen"><TopBar title="Quét thế giới" onBack={() => navigate('home')} action={<button className="icon-button" onClick={() => navigate('history')} aria-label="Lịch sử quét"><Clock3 size={20}/></button>} />
-    <div className="camera-intro"><span className="eyebrow">NHÌN · CHỤP · HỌC</span><h1>Mọi thứ đều<br/>có thể thành bài học.</h1><p>Thử cảnh mẫu với 5 vật thể đã đánh dấu, hoặc tải ảnh để AI nhận diện và ghi chú từng vật thể.</p></div>
-    <div className="camera-view"><Image src={customImage ?? scene.image} alt={customImage ? 'Ảnh bạn đã chọn' : scene.title} fill sizes="(max-width: 480px) 100vw, 400px" unoptimized={!!customImage} /><div className="camera-shade"/><span className="camera-top-tag"><span className="live-dot"/> {customImage ? 'ẢNH CỦA BẠN' : 'CẢNH MẪU'}</span><span className="camera-corner c1"/><span className="camera-corner c2"/><span className="camera-corner c3"/><span className="camera-corner c4"/><div className="camera-hint"><Sparkles size={15}/> {isScanning ? 'Đang tìm các vật thể trong ảnh...' : 'Một ảnh · tối đa 5 vật thể'}</div></div>
-    <div className="capture-controls"><label className="gallery-control" aria-label="Chọn ảnh hoặc chụp ảnh"><ImagePlus size={22}/><input type="file" accept="image/jpeg,image/png,image/webp" onChange={e => { chooseImage(e.target.files?.[0]); e.target.value = '' }} /></label><button className="shutter" onClick={scan} disabled={isScanning} aria-label={isScanning ? 'Đang quét ảnh' : 'Quét ảnh'}><span>{isScanning ? <span className="scan-spinner"/> : <Camera size={26}/>}</span></button><button className="gallery-control" onClick={() => useSample(sceneId)} aria-label="Dùng cảnh mẫu"><RotateCcw size={21}/></button></div>
-    <p className="camera-caption">{selectedFile ? `Đã chọn: ${selectedFile.name}` : 'Chọn một cảnh để thử ngay'}</p>
-    {scanError && <p className="scan-error" role="alert">{scanError}</p>}
-    <div className="scene-picker">{scenes.map(item => <button key={item.id} className={`scene-thumb ${sceneId === item.id && !customImage ? 'selected' : ''}`} onClick={() => useSample(item.id)} aria-label={`Chọn cảnh ${item.title}`}><Image src={item.image} alt="" fill sizes="64px"/><span>{item.title}</span></button>)}</div>
+    <div className="camera-intro"><span className="eyebrow">NHÌN · CHỤP · HỌC</span><h1>Mọi thứ đều<br/>có thể thành bài học.</h1><p>Chọn một khung cảnh mẫu hoặc tải ảnh của bạn lên để trải nghiệm.</p></div>
+    <div className="camera-view"><Image src={customImage ?? scene.image} alt={customImage ? 'Ảnh bạn đã chọn' : scene.title} fill sizes="(max-width: 480px) 100vw, 400px" unoptimized={!!customImage} /><div className="camera-shade"/><span className="camera-top-tag"><span className="live-dot"/> {customImage ? 'ẢNH CỦA BẠN' : 'CẢNH MẪU'}</span><span className="camera-corner c1"/><span className="camera-corner c2"/><span className="camera-corner c3"/><span className="camera-corner c4"/><div className="camera-hint"><Sparkles size={15}/> {customImage ? 'Bản demo sẽ hiển thị từ vựng minh họa' : 'Đặt vật thể vào trong khung hình'}</div></div>
+    <div className="capture-controls"><label className="gallery-control" aria-label="Tải ảnh lên"><ImagePlus size={22}/><input type="file" accept="image/*" capture="environment" onChange={e => { const file = e.target.files?.[0]; if (!file) return; if (!file.type.startsWith('image/')) return; setCustomImage(URL.createObjectURL(file)); setFileName(file.name) }} /></label><button className="shutter" onClick={scan} aria-label="Quét ảnh"><span><Camera size={26}/></span></button><button className="gallery-control" onClick={() => { setCustomImage(null); setFileName('') }} aria-label="Dùng cảnh mẫu"><RotateCcw size={21}/></button></div>
+    <p className="camera-caption">{fileName ? `Đã chọn: ${fileName}` : 'Chọn một cảnh để thử ngay'}</p>
+    <div className="scene-picker">{scenes.map(item => <button key={item.id} className={`scene-thumb ${sceneId === item.id && !customImage ? 'selected' : ''}`} onClick={() => { setSceneId(item.id); setCustomImage(null); setFileName('') }} aria-label={`Chọn cảnh ${item.title}`}><Image src={item.image} alt="" fill sizes="64px"/><span>{item.title}</span></button>)}</div>
   </div>
 }
 
-export function ResultsScreen({ navigate, sceneId, customImage, scanObjects }: ScreenProps) {
+export function ResultsScreen({ navigate, sceneId, customImage, saved, toggleSaved, openWord }: ScreenProps) {
   const scene = getScene(sceneId)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [imageRatio, setImageRatio] = useState(768 / 1376)
-  const objects = scanObjects ?? []
-  const active = objects[activeIndex] ?? objects[0]
-  return <div className="screen results-screen"><TopBar title="Kết quả quét" onBack={() => navigate('camera')} action={<span className="practice-counter">{objects.length}/5</span>}/>
-    <div className="scan-result-intro"><span className="eyebrow">{customImage ? 'NHẬN DIỆN ẢNH CỦA BẠN' : 'MINH HỌA TRÊN CẢNH MẪU'}</span><h1>{objects.length ? `${objects.length} vật thể trong ảnh` : 'Chưa tìm thấy vật thể'}</h1><p>{objects.length ? 'Chạm vào từng khung trên ảnh để xem ghi chú.' : 'Thử chụp ảnh rõ hơn hoặc chọn một cảnh khác nhé.'}</p></div>
-    <div className="scan-photo" style={{ aspectRatio: imageRatio }}>
-      <Image src={customImage ?? scene.image} alt={customImage ? 'Ảnh của bạn với các vùng vật thể được đánh dấu' : `${scene.title} với các vùng vật thể được đánh dấu`} fill sizes="(max-width: 480px) 100vw, 400px" unoptimized={!!customImage} onLoad={event => { const image = event.currentTarget; if (image.naturalWidth && image.naturalHeight) setImageRatio(image.naturalWidth / image.naturalHeight) }}/>
-      {objects.map((object, index) => <button key={`${object.term}-${index}`} className={`object-box ${activeIndex === index ? 'active' : ''}`} style={{ left: `${object.box.x1 / 10}%`, top: `${object.box.y1 / 10}%`, width: `${(object.box.x2 - object.box.x1) / 10}%`, height: `${(object.box.y2 - object.box.y1) / 10}%` }} onClick={() => setActiveIndex(index)} aria-label={`Vật thể ${index + 1}: ${object.term}, ${object.meaning}`} aria-pressed={activeIndex === index}><span className="object-box-label"><b>{String(index + 1).padStart(2, '0')}</b> {object.term}</span></button>)}
-      <span className="scan-photo-count"><Sparkles size={13}/> {objects.length} VẬT THỂ</span>
-    </div>
-    {active && <div className="object-detail" aria-live="polite"><span className="object-detail-number">{String(activeIndex + 1).padStart(2, '0')}</span><div><span className="eyebrow">VẬT THỂ ĐANG CHỌN</span><h2>{active.term} <span>· {active.meaning}</span></h2><p>{active.note}</p></div></div>}
-    <div className="result-list-heading"><span>GHI CHÚ TỪNG VẬT THỂ</span><span>{objects.length} VẬT THỂ</span></div>
-    <div className="object-list">{objects.map((object, index) => <button key={`${object.term}-note-${index}`} className={`object-note ${activeIndex === index ? 'active' : ''}`} onClick={() => setActiveIndex(index)}><span className="object-note-index">{String(index + 1).padStart(2, '0')}</span><span><strong>{object.term} <small>· {object.meaning}</small></strong><span>{object.note}</span></span><ChevronRight size={16}/></button>)}</div>
-    <div className="context-note"><Lightbulb size={18}/><span>{customImage ? 'Vùng đánh dấu do AI ước lượng; hãy kiểm tra nếu vật thể bị nhận diện sai.' : 'Đây là vị trí minh họa được chuẩn bị riêng cho cảnh mẫu.'}</span></div>
-    <button className="primary-button result-save" onClick={() => navigate('camera')}>Quét ảnh khác <Camera size={18}/></button>
+  const remaining = scene.words.filter(word => !saved.includes(word.id))
+  return <div className="screen results-screen"><TopBar title="Kết quả quét" onBack={() => navigate('camera')} action={<button className="icon-button" onClick={() => navigate('saved')} aria-label="Xem từ đã lưu"><Bookmark size={19}/></button>}/>
+    <div className="result-photo"><Image src={customImage ?? scene.image} alt={customImage ? 'Ảnh đã tải lên' : scene.title} fill sizes="(max-width: 480px) 100vw, 400px" unoptimized={!!customImage}/><div className="photo-overlay"><span className="photo-tag"><Sparkles size={13}/> {customImage ? 'KẾT QUẢ MINH HỌA' : 'KẾT QUẢ MẪU'}</span><h2>{customImage ? 'Ảnh của bạn' : scene.title}</h2><p>{customImage ? 'Từ vựng mẫu cho trải nghiệm giao diện' : scene.subtitle}</p></div></div>
+    <div className="result-summary"><span className="result-summary-icon"><Sparkles size={21}/></span><div><strong>Khám phá {scene.words.length} từ mới</strong><small>Chạm vào từ để tìm hiểu thêm</small></div><span className="result-count">0{scene.words.length}</span></div>
+    <div className="result-list-heading"><span>TỪ VỰNG TRONG ẢNH</span><span>{scene.words.length} TỪ</span></div>
+    <div className="word-list result-list">{scene.words.map(word => <WordRow key={word.id} word={word} saved={saved.includes(word.id)} onOpen={() => openWord(word.id)} onSave={() => toggleSaved(word.id)} />)}</div>
+    <div className="context-note"><Lightbulb size={18}/><span>Học từ trong ngữ cảnh giúp bạn nhớ lâu hơn và dùng tự nhiên hơn.</span></div>
+    <button className="primary-button result-save" onClick={() => { remaining.forEach(word => toggleSaved(word.id)); navigate('saved') }}>{remaining.length ? `Lưu tất cả ${remaining.length} từ` : 'Xem từ đã lưu'} <ArrowRight size={18}/></button>
   </div>
 }
 
@@ -151,8 +119,8 @@ export function QuizScreen({ navigate }: ScreenProps) {
   return <div className="screen practice-screen"><TopBar title="Quiz nhanh" onBack={() => navigate('review')} action={<span className="practice-counter">{index + 1}/{questions.length}</span>}/><div className="quiz-heading"><span className="eyebrow">CÂU HỎI {String(index + 1).padStart(2, '0')}</span><h1>Từ này có nghĩa là gì?</h1><p>Chọn đáp án đúng nhất nhé.</p></div><div className="progress-track"><span style={{ width: `${((index + 1) / questions.length) * 100}%` }}/></div><div className="quiz-word"><span>ENGLISH WORD</span><strong>{word.term}</strong><small>{word.ipa}</small></div><div className="answer-list">{options.map((option, i) => { const correct = option.id === word.id; const chosen = selected === option.id; return <button key={option.id} disabled={!!selected} className={`${selected && correct ? 'correct' : ''} ${selected && chosen && !correct ? 'incorrect' : ''}`} onClick={() => { setSelected(option.id); if (correct) setScore(value => value + 1) }}><span className="answer-letter">{String.fromCharCode(65 + i)}</span><span>{option.meaning}</span>{selected && correct && <CheckCircle2 size={20}/ >}{selected && chosen && !correct && <X size={19}/>}</button> })}</div>{selected && <div className={`answer-feedback ${selected === word.id ? 'positive' : ''}`}>{selected === word.id ? 'Chính xác! Bạn đang làm rất tốt.' : `Gần đúng rồi! “${word.term}” nghĩa là “${word.meaning}”.`}</div>}<button className="primary-button quiz-next" disabled={!selected} onClick={() => { if (index === questions.length - 1) setDone(true); else { setIndex(value => value + 1); setSelected(null) } }}>{index === questions.length - 1 ? 'Xem kết quả' : 'Câu tiếp theo'} <ArrowRight size={18}/></button></div>
 }
 
-export function HistoryScreen({ navigate, history, setSceneId, setCustomImage, setSelectedFile, setScanObjects }: ScreenProps) {
-  return <div className="screen history-screen"><div className="standard-header"><span className="eyebrow">NHỮNG GÌ BẠN ĐÃ THẤY</span><h1>Hành trình khám phá<span className="heading-period">.</span></h1><p>Mỗi tấm ảnh, một câu chuyện từ vựng.</p></div><div className="history-summary"><span><Camera size={20}/></span><strong>{history.length} lần quét</strong><small>và còn nhiều điều đang chờ bạn</small></div><div className="result-list-heading"><span>GẦN ĐÂY</span><span>THÁNG 10</span></div><div className="history-list">{history.map(entry => { const scene = getScene(entry.sceneId); return <button key={entry.id} className="history-item" onClick={() => { setSceneId(scene.id); setCustomImage(entry.image ?? null); setSelectedFile(null); setScanObjects(entry.objects ?? null); navigate(entry.objects ? 'results' : 'camera') }}><span className="history-image"><Image src={entry.image ?? scene.image} alt="" fill sizes="76px" unoptimized={!!entry.image}/></span><span className="history-copy"><small>{entry.date}</small><strong>{entry.image ? 'Ảnh của bạn' : scene.title}</strong><span>{entry.objects ? `${entry.objects.length} vật thể đã nhận diện` : 'Cảnh mẫu · Chạm để quét'}</span></span><ChevronRight size={19}/></button> })}</div><button className="primary-button" onClick={() => navigate('camera')}>Khám phá thêm <Camera size={18}/></button></div>
+export function HistoryScreen({ navigate, history, setSceneId, setCustomImage }: ScreenProps) {
+  return <div className="screen history-screen"><div className="standard-header"><span className="eyebrow">NHỮNG GÌ BẠN ĐÃ THẤY</span><h1>Hành trình khám phá<span className="heading-period">.</span></h1><p>Mỗi tấm ảnh, một câu chuyện từ vựng.</p></div><div className="history-summary"><span><Camera size={20}/></span><strong>{history.length} lần quét</strong><small>và còn nhiều điều đang chờ bạn</small></div><div className="result-list-heading"><span>GẦN ĐÂY</span><span>THÁNG 10</span></div><div className="history-list">{history.map(entry => { const scene = getScene(entry.sceneId); return <button key={entry.id} className="history-item" onClick={() => { setSceneId(scene.id); setCustomImage(entry.image ?? null); navigate('results') }}><span className="history-image"><Image src={entry.image ?? scene.image} alt="" fill sizes="76px" unoptimized={!!entry.image}/></span><span className="history-copy"><small>{entry.date}</small><strong>{entry.image ? 'Ảnh của bạn' : scene.title}</strong><span>{scene.words.length} từ vựng · {entry.image ? 'Minh họa' : scene.category}</span></span><ChevronRight size={19}/></button> })}</div><button className="primary-button" onClick={() => navigate('camera')}>Khám phá thêm <Camera size={18}/></button></div>
 }
 
 export function ProfileScreen({ navigate, saved, history }: ScreenProps) {
