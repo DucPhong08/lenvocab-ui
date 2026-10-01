@@ -59,6 +59,41 @@ export const scenes: Scene[] = [
   },
 ]
 
+export type SampleObject = { term: string; meaning: string; note: string; box: { x1: number; y1: number; x2: number; y2: number } }
+
+const samplePositions: Record<string, { term: string; meaning: string; note: string; box: [number, number, number, number] }[]> = {
+  desk: [
+    { term: 'notebook', meaning: 'quyển sổ tay', note: 'Cuốn sổ mở trên bàn để ghi ý tưởng và bài học.', box: [210, 440, 970, 820] },
+    { term: 'mug', meaning: 'cốc có quai', note: 'Chiếc cốc lớn có quai, thường dùng uống cà phê hoặc trà.', box: [65, 360, 410, 520] },
+    { term: 'succulent', meaning: 'cây mọng nước', note: 'Cây nhỏ lá dày ở cạnh sổ, dễ chăm sóc trên bàn học.', box: [50, 470, 235, 600] },
+    { term: 'headphones', meaning: 'tai nghe', note: 'Tai nghe chụp tai màu đen giúp tập trung khi học.', box: [720, 320, 995, 505] },
+    { term: 'glasses', meaning: 'kính mắt', note: 'Cặp kính nằm trên bàn; từ này thường dùng dạng số nhiều.', box: [400, 325, 690, 455] },
+  ],
+  kitchen: [
+    { term: 'cutting board', meaning: 'thớt', note: 'Tấm thớt gỗ dùng làm bề mặt cắt nguyên liệu.', box: [20, 575, 940, 925] },
+    { term: 'whisk', meaning: 'cây đánh trứng', note: 'Dụng cụ cầm tay để đánh trứng hoặc trộn hỗn hợp.', box: [5, 555, 395, 720] },
+    { term: 'kettle', meaning: 'ấm đun nước', note: 'Ấm màu đen đặt trên bếp để đun nước.', box: [650, 345, 990, 565] },
+    { term: 'spice jar', meaning: 'lọ gia vị', note: 'Chiếc lọ thủy tinh chứa gia vị khô cạnh cây đánh trứng.', box: [50, 535, 220, 680] },
+    { term: 'lemon', meaning: 'quả chanh vàng', note: 'Những quả chanh vàng được cắt trên thớt.', box: [235, 555, 665, 790] },
+  ],
+  street: [
+    { term: 'crosswalk', meaning: 'vạch qua đường', note: 'Các vạch trắng dành cho người đi bộ băng qua đường.', box: [0, 710, 1000, 990] },
+    { term: 'traffic light', meaning: 'đèn giao thông', note: 'Đèn đỏ báo phương tiện cần dừng lại.', box: [465, 135, 590, 280] },
+    { term: 'lamppost', meaning: 'cột đèn đường', note: 'Cột đèn cao chiếu sáng lối đi và đường phố.', box: [590, 0, 665, 690] },
+    { term: 'awning', meaning: 'mái hiên', note: 'Mái che nhô ra phía trước quán cà phê.', box: [665, 275, 1000, 420] },
+    { term: 'bicycle', meaning: 'xe đạp', note: 'Chiếc xe đạp dựng bên cột gần ngã tư.', box: [555, 550, 945, 700] },
+  ],
+  library: [
+    { term: 'bookshelf', meaning: 'giá sách', note: 'Những kệ gỗ cao xếp đầy sách để đọc.', box: [0, 0, 640, 940] },
+    { term: 'armchair', meaning: 'ghế bành', note: 'Ghế ngồi êm có tay vịn, phù hợp để đọc sách.', box: [210, 420, 970, 855] },
+    { term: 'globe', meaning: 'quả địa cầu', note: 'Mô hình Trái Đất đặt giữa các kệ sách.', box: [160, 275, 330, 365] },
+    { term: 'magazine', meaning: 'tạp chí', note: 'Các cuốn tạp chí nằm trên bàn cạnh ghế.', box: [565, 700, 970, 795] },
+    { term: 'lamp', meaning: 'đèn đọc sách', note: 'Đèn kim loại chiếu sáng cạnh kệ sách.', box: [250, 220, 540, 435] },
+  ],
+}
+
+export const sampleObjects: Record<string, SampleObject[]> = Object.fromEntries(Object.entries(samplePositions).map(([id, objects]) => [id, objects.map(({ box, ...object }) => ({ ...object, box: { x1: box[0], y1: box[1], x2: box[2], y2: box[3] } }))]))
+
 export const allWords = scenes.flatMap((scene) => scene.words)
 export const getScene = (id: string) => scenes.find((scene) => scene.id === id) ?? scenes[0]
 export const getWord = (id: string) => allWords.find((word) => word.id === id) ?? allWords[0]
