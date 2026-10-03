@@ -51,7 +51,7 @@ export class ApiError extends Error {
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   let response: Response;
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), path === '/vision/scan' ? 120000 : 45000);
+  const timer = setTimeout(() => controller.abort(), path.startsWith('/vision/scan') ? 120000 : 45000);
   try {
     response = await fetch(`${API_ORIGIN}${path}`, {
       ...options,
