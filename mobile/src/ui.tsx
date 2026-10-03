@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import type { Asset } from 'react-native-image-picker';
+import type { Flashcard, ReviewCard, ScanResult, User } from './api';
 import {
   Image,
   Pressable,
@@ -67,6 +69,7 @@ export type ScanEntry = {
   sceneId: string;
   imageUri?: string;
   timestamp: number;
+  result?: ScanResult;
 };
 export type ScreenProps = {
   navigate: (next: Screen) => void;
@@ -84,6 +87,20 @@ export type ScreenProps = {
   openHistory: (entry: ScanEntry) => void;
   scrollToEnd: () => void;
   scrollToTop: () => void;
+  asset: Asset | null;
+  selectImage: (asset: Asset | null) => void;
+  scanResult: ScanResult | null;
+  scanning: boolean;
+  saving: boolean;
+  user: User | null;
+  cards: Flashcard[];
+  due: ReviewCard[];
+  loadingData: boolean;
+  wordForId: (id: string) => Word;
+  submitReview: (id: string, quality: number) => Promise<void>;
+  onAuth: (mode: 'login' | 'register', email: string, password: string, name: string) => Promise<void>;
+  onLogout: () => Promise<void>;
+  authBusy: boolean;
 };
 
 export function Brand() {
@@ -263,7 +280,7 @@ export function WordRow({
   word: Word;
   saved: boolean;
   onOpen: () => void;
-  onSave: () => void;
+  onSave?: () => void;
 }) {
   return (
     <View style={styles.wordRow}>
@@ -286,10 +303,11 @@ export function WordRow({
         </View>
         <ChevronRight size={16} color={colors.subtle} />
       </Pressable>
-      <Pressable
+      {onSave && <Pressable
         accessibilityRole="button"
-        accessibilityLabel={saved ? `Bỏ lưu ${word.term}` : `Lưu ${word.term}`}
+        accessibilityLabel={saved ? `Đã lưu ${word.term}` : `Lưu ${word.term}`}
         accessibilityState={{ selected: saved }}
+        disabled={saved}
         onPress={onSave}
         style={({ pressed }) => [styles.bookmark, pressed && styles.pressed]}
       >
@@ -298,7 +316,7 @@ export function WordRow({
           color={saved ? colors.forest : colors.muted}
           fill={saved ? colors.lime : 'none'}
         />
-      </Pressable>
+      </Pressable>}
     </View>
   );
 }

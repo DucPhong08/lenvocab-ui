@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from 'react';
-import { Image, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
-  ArrowRight,
   Bookmark,
   ChevronRight,
   Clock3,
@@ -42,26 +41,26 @@ const slides = [
   },
 ];
 
-export function ProfileScreen({ navigate, saved, history }: ScreenProps) {
+export function ProfileScreen({ navigate, saved, history, user, onLogout }: ScreenProps) {
   return (
     <View style={styles.page}>
       <ScreenTitle
         kicker="GÓC CỦA BẠN"
         title="Hồ sơ của tôi."
-        subtitle="Trải nghiệm phiên bản dùng thử trên thiết bị."
+        subtitle={user ? `Tài khoản ${user.account_tier} · Đồng bộ từ trên máy chủ` : 'Dùng thử không cần tài khoản · Không lưu bộ từ.'}
       />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Xem trạng thái tài khoản"
-        onPress={() => navigate('auth')}
+        onPress={() => { if (!user) navigate('auth'); }}
         style={styles.identity}
       >
         <View style={styles.avatar}>
-          <Text style={styles.avatarLetter}>A</Text>
+          <Text style={styles.avatarLetter}>{(user?.display_name || user?.email || 'K')[0].toUpperCase()}</Text>
         </View>
         <View style={styles.fill}>
-          <Text style={styles.identityName}>Khách tham quan</Text>
-          <Text style={styles.identitySub}>Bản demo · chưa có tài khoản</Text>
+          <Text style={styles.identityName}>{user?.display_name || 'Khách tham quan'}</Text>
+          <Text style={styles.identitySub}>{user ? `${user.email} · ${user.account_tier}` : 'Chạm để đăng nhập hoặc tạo tài khoản'}</Text>
         </View>
         <ChevronRight size={19} color={colors.muted} />
       </Pressable>
@@ -94,30 +93,19 @@ export function ProfileScreen({ navigate, saved, history }: ScreenProps) {
           onPress={() => navigate('onboarding')}
         />
       </View>
-      <Eyebrow>TÙY CHỈNH</Eyebrow>
-      <View style={styles.menu}>
+      {user && <View style={styles.menu}>
         <View style={styles.menuItem}>
-          <View style={styles.menuIcon}>
-            <Volume2 size={19} color={colors.forest} />
-          </View>
+          <View style={styles.menuIcon}><Volume2 size={19} color={colors.forest} /></View>
           <View style={styles.fill}>
-            <Text style={styles.menuText}>Âm thanh giao diện</Text>
-            <Text style={styles.menuHint}>Chưa khả dụng trong bản demo</Text>
+            <Text style={styles.menuText}>Lượt quét còn lại hôm nay</Text>
+            <Text style={styles.menuHint}>{user.daily_quota_left} lượt · gói {user.account_tier}</Text>
           </View>
-          <Switch
-            accessibilityLabel="Âm thanh giao diện chưa khả dụng"
-            value={false}
-            disabled
-            trackColor={{ false: colors.line, true: colors.lime }}
-            thumbColor={colors.surface}
-          />
         </View>
-      </View>
+      </View>}
+      {user ? <PrimaryButton label="Đăng xuất" variant="secondary" onPress={() => onLogout()} /> : <PrimaryButton label="Đăng nhập để đồng bộ" onPress={() => navigate('auth')} />}
       <View style={styles.footer}>
         <Brand />
-        <Text style={styles.footerText}>
-          Bản demo React Native CLI · Dữ liệu chỉ tồn tại trong phiên sử dụng.
-        </Text>
+        <Text style={styles.footerText}>{user ? 'Từ đã lưu và tiến độ ôn tập được giữ trên tài khoản.' : 'Chế độ khách không lưu bộ từ hoặc lịch sử. Ảnh chụp có thể ở bộ nhớ đệm tạm của hệ điều hành.'}</Text>
       </View>
     </View>
   );
@@ -191,29 +179,39 @@ export function OnboardingScreen({ navigate }: ScreenProps) {
     </View>
   );
 }
-export function AuthScreen({ navigate }: ScreenProps) {
+export function AuthScreen({ navigate, onAuth, authBusy }: ScreenProps) {
+  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const submit = async () => {
+    if (!email.trim() || !password || (mode === 'register' && password.length < 6)) {
+      setError('Nhập email và mật khẩu hợp lệ (tối thiểu 6 ký tự khi đăng ký).');
+      return;
+    }
+    setError('');
+    try { await onAuth(mode, email, password, name); }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Không thể đăng nhập. Vui lòng thử lại.'); }
+  };
   return (
     <View style={styles.page}>
       <TopBar title="Tài khoản" onBack={() => navigate('profile')} />
-      <View style={styles.authGraphic}>
-        <Sparkles size={45} color={colors.forest} />
-      </View>
-      <Text style={styles.authTitle}>Học từ vựng,{'\n'}theo cách của bạn.</Text>
-      <Text style={styles.authDescription}>
-        Đăng nhập chưa khả dụng trong bản demo này. Bạn vẫn có thể khám phá các
-        cảnh mẫu và ôn tập ngay.
-      </Text>
+      <View style={styles.authGraphic}><Sparkles size={45} color={colors.forest} /></View>
+      <Text style={styles.authTitle}>{mode === 'login' ? 'Mừng bạn quay lại.' : 'Bắt đầu học cùng lenvocab.'}</Text>
+      <Text style={styles.authDescription}>Đăng nhập để quét ảnh bằng AI, lưu từ trên máy chủ và ôn tập theo lịch của bạn.</Text>
+      {mode === 'register' && <TextInput accessibilityLabel="Tên hiển thị" placeholder="Tên hiển thị" placeholderTextColor={colors.subtle} value={name} onChangeText={setName} autoComplete="name" style={styles.authInput} />}
+      <TextInput accessibilityLabel="Email" placeholder="Email" placeholderTextColor={colors.subtle} value={email} onChangeText={setEmail} autoCapitalize="none" autoCorrect={false} keyboardType="email-address" autoComplete="email" style={styles.authInput} />
+      <TextInput accessibilityLabel="Mật khẩu" placeholder="Mật khẩu" placeholderTextColor={colors.subtle} value={password} onChangeText={setPassword} secureTextEntry autoComplete={mode === 'login' ? 'current-password' : 'new-password'} style={styles.authInput} onSubmitEditing={() => submit()} />
+      {error ? <Text accessibilityLiveRegion="polite" style={styles.authError}>{error}</Text> : null}
+      <PrimaryButton label={authBusy ? 'Đang xử lý...' : mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'} disabled={authBusy} onPress={() => submit()} />
+      <Pressable accessibilityRole="button" onPress={() => { setError(''); setMode(mode === 'login' ? 'register' : 'login'); }} style={styles.authSwitch}>
+        <Text style={styles.authSwitchText}>{mode === 'login' ? 'Chưa có tài khoản? Đăng ký' : 'Đã có tài khoản? Đăng nhập'}</Text>
+      </Pressable>
       <View style={styles.authNotice}>
         <Settings2 size={19} color={colors.forest} />
-        <Text style={styles.authNoticeText}>
-          Không yêu cầu tài khoản · Không lưu dữ liệu khi đóng ứng dụng.
-        </Text>
+        <Text style={styles.authNoticeText}>Không muốn đăng nhập? Bạn vẫn xem được từ vựng minh họa mà không lưu dữ liệu.</Text>
       </View>
-      <PrimaryButton
-        label="Khám phá bản demo"
-        onPress={() => navigate('home')}
-        icon={<ArrowRight size={19} color={colors.surface} />}
-      />
     </View>
   );
 }
@@ -340,6 +338,10 @@ const styles = StyleSheet.create({
     color: colors.muted,
     marginBottom: 30,
   },
+  authInput: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: 13, paddingHorizontal: 16, minHeight: 54, color: colors.ink, fontSize: 15, marginBottom: 12 },
+  authError: { color: colors.error, fontSize: 13, marginBottom: 14 },
+  authSwitch: { padding: 15, alignItems: 'center', marginBottom: 12 },
+  authSwitchText: { color: colors.forest, fontWeight: '700' },
   authNotice: {
     flexDirection: 'row',
     alignItems: 'center',

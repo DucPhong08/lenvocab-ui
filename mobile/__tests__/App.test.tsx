@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { authenticate, confirmFlashcard, gradeReview, scanImage } from '../src/api';
 
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
@@ -14,6 +15,11 @@ jest.mock('lucide-react-native', () => {
     },
   );
 });
+jest.mock('react-native-keychain', () => ({
+  getGenericPassword: jest.fn().mockResolvedValue(false),
+  setGenericPassword: jest.fn().mockResolvedValue(true),
+  resetGenericPassword: jest.fn().mockResolvedValue(true),
+}));
 jest.mock('react-native-image-picker', () => ({
   launchCamera: jest.fn(),
   launchImageLibrary: jest.fn(),
@@ -55,23 +61,8 @@ test('navigates from home to sample image selection', async () => {
   await ReactTestRenderer.act(async () => {
     save?.props.onPress();
   });
-  expect(
-    renderer.root.findAllByProps({ accessibilityLabel: 'Bỏ lưu notebook' })
-      .length,
-  ).toBeGreaterThan(0);
-  const savedTab = renderer.root.findAll(
-    node =>
-      node.props.accessibilityRole === 'tab' &&
-      node.props.accessibilityLabel === 'Từ đã lưu',
-  )[0];
-  await ReactTestRenderer.act(async () => {
-    savedTab.props.onPress();
-  });
-  expect(
-    renderer.root.findAllByProps({
-      accessibilityLabel: 'Xem từ notebook, nghĩa là quyển sổ tay',
-    }).length,
-  ).toBeGreaterThan(0);
+  expect(renderer.root.findAllByProps({ accessibilityLabel: 'Email' }).length).toBeGreaterThan(0);
+  expect(renderer.root.findAllByProps({ accessibilityLabel: 'Đã lưu notebook' }).length).toBe(0);
   await ReactTestRenderer.act(async () => {
     renderer.unmount();
   });
@@ -96,4 +87,25 @@ test('marks chosen photos as examples and opens the quiz', async () => {
   await ReactTestRenderer.act(async () => { quiz?.props.onPress(); });
   expect(renderer.root.findAllByProps({ accessibilityLabel: 'Quay lại' }).length).toBeGreaterThan(0);
   await ReactTestRenderer.act(async () => { renderer.unmount(); });
+});
+
+test('uses the real API root, Bearer token, multipart scan and review rating', async () => {
+  const previousFetch = globalThis.fetch;
+  const fetchMock = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ access_token: 'test-token', status: 'SUCCESS', keyword: 'mug', meaning_vi: 'cốc', example_1: 'A mug is on the table.', example_2: 'I use a mug.', related_words: [], audio_base64: null }) });
+  globalThis.fetch = fetchMock;
+  try {
+    await authenticate('login', 'a@example.com', 'password123', '');
+    await scanImage('test-token', { uri: 'file:///photo.jpg', fileName: 'photo.jpg', type: 'image/jpeg', fileSize: 1024 });
+    await confirmFlashcard('test-token', { status: 'SUCCESS', keyword: 'mug', pronunciation: null, meaning_vi: 'cốc', example_1: 'A mug is on the table.', example_2: 'I use a mug.', related_words: [], audio_base64: null, detected_objects: [], bounding_box: null, message: null });
+    await gradeReview('test-token', 'card-id', 4);
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://app-lensvocab.onrender.com/auth/login',
+      'https://app-lensvocab.onrender.com/vision/scan',
+      'https://app-lensvocab.onrender.com/flashcards/confirm',
+      'https://app-lensvocab.onrender.com/review/card-id',
+    ]);
+    expect(fetchMock.mock.calls[1][1].headers.Authorization).toBe('Bearer test-token');
+    expect(fetchMock.mock.calls[1][1].body).toBeInstanceOf(FormData);
+    expect(JSON.parse(fetchMock.mock.calls[3][1].body)).toEqual({ quality: 4 });
+  } finally { globalThis.fetch = previousFetch; }
 });

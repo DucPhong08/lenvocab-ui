@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import {
+  Alert,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -19,7 +19,8 @@ import {
   Sparkles,
   X,
 } from 'lucide-react-native';
-import { allWords, getScene, getWord } from './data';
+import { allWords, getScene } from './data';
+import { cardWord, type ReviewCard } from './api';
 import {
   colors,
   EmptyState,
@@ -33,37 +34,15 @@ import {
   type ScreenProps,
 } from './ui';
 
-const filters = ['Tất cả', 'Đồ vật', 'Đời sống', 'Ngoài trời'];
-export function SavedScreen({
-  navigate,
-  saved,
-  toggleSaved,
-  openWord,
-}: ScreenProps) {
+export function SavedScreen({ navigate, saved, cards, user, loadingData, openWord }: ScreenProps) {
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState('Tất cả');
-  const words = allWords
-    .filter(word => saved.includes(word.id))
-    .filter(word => {
-      const category = getScene(word.scene).category;
-      const inCategory =
-        filter === 'Tất cả' ||
-        (filter === 'Đồ vật'
-          ? ['Không gian sống', 'Học tập'].includes(category)
-          : category === filter);
-      return (
-        inCategory &&
-        `${word.term} ${word.meaning}`
-          .toLocaleLowerCase()
-          .includes(query.trim().toLocaleLowerCase())
-      );
-    });
+  const words = cards.map(cardWord).filter(word => `${word.term} ${word.meaning}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()));
   return (
     <View style={styles.page}>
       <ScreenTitle
         kicker="BỘ SƯU TẬP CỦA BẠN"
         title="Từ vựng đã lưu."
-        subtitle="Một góc nhỏ lưu lại những điều bạn đã học trong phiên này."
+        subtitle={user ? 'Những từ đã đồng bộ lên tài khoản của bạn.' : 'Đăng nhập để lưu và đồng bộ từ vựng của bạn.'}
       />
       <View style={styles.countCard}>
         <BookOpen size={22} color={colors.forest} />
@@ -83,42 +62,20 @@ export function SavedScreen({
           autoCapitalize="none"
         />
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filters}
-      >
-        {filters.map(item => (
-          <Pressable
-            key={item}
-            accessibilityRole="button"
-            accessibilityState={{ selected: filter === item }}
-            onPress={() => setFilter(item)}
-            style={[styles.filter, filter === item && styles.filterActive]}
-          >
-            <Text
-              style={[
-                styles.filterText,
-                filter === item && styles.filterTextActive,
-              ]}
-            >
-              {item}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+
       <SectionHeader
         kicker="DANH SÁCH TỪ"
         title={`${words.length} từ được tìm thấy`}
       />
-      {words.length ? (
+      {user && loadingData ? (
+        <Text style={styles.hint}>Đang tải kho từ của bạn...</Text>
+      ) : words.length ? (
         words.map(word => (
           <WordRow
             key={word.id}
             word={word}
             saved
             onOpen={() => openWord(word.id)}
-            onSave={() => toggleSaved(word.id)}
           />
         ))
       ) : (
@@ -129,10 +86,10 @@ export function SavedScreen({
           description={
             saved.length
               ? 'Hãy thử tìm bằng từ khác hoặc đổi bộ lọc.'
-              : 'Khám phá cảnh mẫu, rồi lưu những từ bạn thích.'
+              : user ? 'Quét một ảnh thật và xác nhận thẻ để lưu trên tài khoản.' : 'Đăng nhập để giữ lại từ vựng giữa các lần mở ứng dụng.'
           }
-          onPress={() => navigate('camera')}
-          action="Khám phá cảnh mẫu"
+          onPress={() => navigate(user ? 'camera' : 'auth')}
+          action={user ? 'Bắt đầu quét ảnh' : 'Đăng nhập'}
         />
       )}
       {saved.length > 0 && (
@@ -146,7 +103,7 @@ export function SavedScreen({
   );
 }
 
-export function ReviewScreen({ navigate, saved }: ScreenProps) {
+export function ReviewScreen({ navigate, saved, user, due }: ScreenProps) {
   return (
     <View style={styles.page}>
       <ScreenTitle
@@ -155,12 +112,10 @@ export function ReviewScreen({ navigate, saved }: ScreenProps) {
         subtitle="Chọn cách học phù hợp với bạn nhé."
       />
       <View style={styles.progressCard}>
-        <Eyebrow light>TIẾN ĐỘ PHIÊN NÀY</Eyebrow>
+        <Eyebrow light>{user ? 'HÀNG ĐỢI ÔN HÔM NAY' : 'ÔN TẬP MINH HỌA'}</Eyebrow>
         <Text style={styles.progressTitle}>Cứ tiếp tục nhé!</Text>
         <Text style={styles.progressSubtitle}>
-          {saved.length
-            ? `Bạn có ${saved.length} từ sẵn sàng để ôn tập.`
-            : 'Lưu vài từ hoặc thử ngay với bộ từ mẫu.'}
+          {user ? `${due.length} từ đến hạn ôn · ${saved.length} từ đã lưu trên tài khoản.` : 'Bạn có thể thử bộ thẻ mẫu. Đăng nhập để lưu tiến độ học.'}
         </Text>
         <View style={styles.progressDecoration}>
           <Layers3 size={30} color={colors.lime} />
@@ -183,7 +138,7 @@ export function ReviewScreen({ navigate, saved }: ScreenProps) {
             Lật thẻ, ghi nhớ từ theo nhịp của bạn.
           </Text>
           <Text style={styles.modeLink}>
-            {saved.length ? `${saved.length} từ đã lưu` : 'Bộ từ mẫu'} →
+            {user ? `${due.length} từ đến hạn hôm nay` : 'Bộ từ mẫu'} →
           </Text>
         </View>
       </Pressable>
@@ -198,9 +153,9 @@ export function ReviewScreen({ navigate, saved }: ScreenProps) {
         </View>
         <View style={styles.fill}>
           <Eyebrow>02 / THỬ THÁCH</Eyebrow>
-          <Text style={styles.modeTitle}>Quiz nhanh</Text>
+          <Text style={styles.modeTitle}>Quiz mẫu</Text>
           <Text style={styles.modeDescription}>
-            Kiểm tra xem bạn nhớ được bao nhiêu.
+            Thử 4 câu hỏi minh họa, không ghi nhận lên tài khoản.
           </Text>
           <Text style={styles.modeLink}>4 câu hỏi →</Text>
         </View>
@@ -212,15 +167,38 @@ export function ReviewScreen({ navigate, saved }: ScreenProps) {
   );
 }
 
-export function FlashcardsScreen({ navigate, saved }: ScreenProps) {
-  const words = saved.length ? saved.map(getWord) : allWords.slice(0, 4);
+export function FlashcardsScreen({ navigate, user, due, loadingData, submitReview }: ScreenProps) {
+  const [queue, setQueue] = useState<ReviewCard[] | null>(null);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const word = words[index % words.length];
-  const next = () => {
-    setIndex(value => (value + 1) % words.length);
-    setFlipped(false);
+  const [submitting, setSubmitting] = useState(false);
+  useEffect(() => {
+    if (user && !loadingData && queue === null) setQueue(due);
+  }, [user, loadingData, due, queue]);
+  const words = user ? (queue ?? []).map(cardWord) : allWords.slice(0, 4);
+  const word = words[index];
+  const next = () => { setIndex(value => (value + 1) % words.length); setFlipped(false); };
+  const grade = async (quality: number) => {
+    if (!user || !queue?.[index] || submitting) return;
+    setSubmitting(true);
+    try {
+      await submitReview(queue[index].user_flashcard_id, quality);
+      setFlipped(false);
+      setIndex(value => value + 1);
+    } catch (error) { Alert.alert('Không thể ghi nhận lần ôn', error instanceof Error ? error.message : 'Vui lòng thử lại.'); }
+    finally { setSubmitting(false); }
   };
+  if (!word) return (
+    <View style={styles.page}>
+      <TopBar title="Flashcards" onBack={() => navigate('review')} />
+      <EmptyState
+        title={user && index > 0 ? 'Hoàn thành buổi ôn!' : 'Chưa có từ cần ôn'}
+        description={loadingData && queue === null ? 'Đang tải thẻ ôn tập...' : user ? 'Bạn đã ôn hết những từ đến hạn hôm nay.' : 'Khám phá bộ thẻ mẫu để bắt đầu.'}
+        onPress={() => navigate('review')}
+        action="Trở lại ôn tập"
+      />
+    </View>
+  );
   return (
     <View style={styles.page}>
       <TopBar
@@ -299,10 +277,18 @@ export function FlashcardsScreen({ navigate, saved }: ScreenProps) {
       </Pressable>
       <Text style={styles.hint}>
         {flipped
-          ? 'Sẵn sàng cho từ tiếp theo?'
+          ? user ? 'Bạn nhớ từ này đến mức nào? Chấm 0–5 để cập nhật lịch ôn.' : 'Sẵn sàng cho từ tiếp theo?'
           : 'Hãy thử nhớ nghĩa của từ trước khi lật nhé.'}
       </Text>
-      <PrimaryButton label="Từ tiếp theo" onPress={next} />
+      {user ? (
+        <View style={styles.grades}>
+          {['Quên sạch', 'Nhớ sai', 'Mơ hồ', 'Khó khăn', 'Nhớ tốt', 'Rất tốt'].map((label, quality) => (
+            <Pressable key={quality} accessibilityRole="button" accessibilityLabel={`${quality} điểm: ${label}`} disabled={!flipped || submitting} onPress={() => grade(quality)} style={[styles.grade, (!flipped || submitting) && styles.gradeDisabled]}>
+              <Text style={styles.gradeText}>{quality} · {label}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : <PrimaryButton label="Từ tiếp theo" onPress={next} />}
       <Pressable
         accessibilityRole="button"
         onPress={() => navigate('quiz')}
@@ -496,7 +482,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
       <ScreenTitle
         kicker="NHỮNG GÌ BẠN ĐÃ THẤY"
         title="Hành trình khám phá."
-        subtitle="Những cảnh bạn đã chọn trong phiên sử dụng này."
+        subtitle="Các lần quét trong phiên này. Lịch sử chưa được backend hỗ trợ lưu lâu dài."
       />
       <View style={styles.countCard}>
         <BookOpen size={22} color={colors.forest} />
@@ -535,7 +521,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
                   {entry.imageUri ? 'Ảnh của bạn' : scene.title}
                 </Text>
                 <Text style={styles.historyCaption}>
-                  {scene.words.length} từ mẫu · {scene.category}
+                  {entry.result ? `Từ nhận diện: ${entry.result.keyword}` : `${scene.words.length} từ mẫu · ${scene.category}`}
                 </Text>
               </View>
               <ArrowRight size={17} color={colors.muted} />
@@ -567,6 +553,10 @@ const styles = StyleSheet.create({
   actionTop18: { marginTop: 18 },
   actionTop20: { marginTop: 20 },
   page: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 32 },
+  grades: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  grade: { width: '31%', minHeight: 48, backgroundColor: colors.pale, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  gradeDisabled: { opacity: 0.45 },
+  gradeText: { color: colors.forest, fontSize: 11, fontWeight: '700', textAlign: 'center' },
   countCard: {
     borderRadius: 18,
     backgroundColor: colors.pale,

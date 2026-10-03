@@ -19,7 +19,8 @@ import {
   RotateCcw,
   Sparkles,
 } from 'lucide-react-native';
-import { allWords, getScene, getWord, scenes } from './data';
+import { allWords, getScene, scenes } from './data';
+import { scanWord } from './api';
 import {
   Brand,
   colors,
@@ -42,6 +43,8 @@ export function HomeScreen({
   saved,
   toggleSaved,
   history,
+  user,
+  due,
 }: ScreenProps) {
   return (
     <View style={styles.page}>
@@ -53,12 +56,12 @@ export function HomeScreen({
           onPress={() => navigate('profile')}
           style={styles.avatar}
         >
-          <Text style={styles.avatarText}>A</Text>
+          <Text style={styles.avatarText}>{(user?.display_name || user?.email || 'K')[0].toUpperCase()}</Text>
         </Pressable>
       </View>
       <View style={styles.greeting}>
         <Eyebrow>MỖI NGÀY MỘT ĐIỀU MỚI</Eyebrow>
-        <Text style={styles.greetingTitle}>Chào bạn,{'\n'}hôm nay học gì?</Text>
+        <Text style={styles.greetingTitle}>Chào {user?.display_name || 'bạn'},{'\n'}hôm nay học gì?</Text>
         <Text style={styles.description}>
           Thế giới quanh bạn luôn có điều mới để học.
         </Text>
@@ -93,7 +96,7 @@ export function HomeScreen({
         </View>
       </Pressable>
       <Text style={styles.demoNote}>
-        BẢN DEMO · TỪ VỰNG ĐƯỢC MINH HỌA BẰNG CẢNH MẪU
+        {user ? 'ẢNH THẬT · NHẬN DIỆN AI KHI ĐĂNG NHẬP' : 'CHẾ ĐỘ KHÁCH · XEM TỪ MẪU, KHÔNG LƯU BỘ TỪ'}
       </Text>
       <View style={styles.stats}>
         <View style={styles.stat}>
@@ -102,7 +105,7 @@ export function HomeScreen({
           </View>
           <View>
             <Text style={styles.statValue}>{saved.length} từ</Text>
-            <Text style={styles.statLabel}>Đã lưu phiên này</Text>
+            <Text style={styles.statLabel}>{user ? 'Trong tài khoản' : 'Đăng nhập để lưu'}</Text>
           </View>
         </View>
         <View style={styles.statSeparator} />
@@ -111,8 +114,8 @@ export function HomeScreen({
             <Camera size={18} color={colors.forest} />
           </View>
           <View>
-            <Text style={styles.statValue}>{history.length} lần</Text>
-            <Text style={styles.statLabel}>Đã quét phiên này</Text>
+            <Text style={styles.statValue}>{user ? `${user.daily_quota_left} lượt` : `${history.length} lần`}</Text>
+            <Text style={styles.statLabel}>{user ? 'Quét còn hôm nay' : 'Quét phiên này'}</Text>
           </View>
         </View>
       </View>
@@ -136,7 +139,7 @@ export function HomeScreen({
         </View>
         <View style={styles.reviewCopy}>
           <Text style={styles.reviewTitle}>5 phút cho trí nhớ</Text>
-          <Text style={styles.reviewSubtitle}>Lật thẻ để ôn từ vựng</Text>
+          <Text style={styles.reviewSubtitle}>{user ? `${due.length} từ cần ôn hôm nay` : 'Thử bộ thẻ minh họa'}</Text>
           <Text style={styles.reviewLink}>Bắt đầu ôn tập →</Text>
         </View>
       </Pressable>
@@ -151,7 +154,7 @@ export function HomeScreen({
           word={word}
           saved={saved.includes(word.id)}
           onOpen={() => openWord(word.id)}
-          onSave={() => toggleSaved(word.id)}
+          onSave={saved.includes(word.id) ? undefined : () => toggleSaved(word.id)}
         />
       ))}
     </View>
@@ -163,8 +166,10 @@ export function CameraScreen({
   sceneId,
   setSceneId,
   imageUri,
-  setImageUri,
+  selectImage,
   scan,
+  scanning,
+  user,
 }: ScreenProps) {
   const scene = getScene(sceneId);
   const pick = async (source: 'camera' | 'library') => {
@@ -189,8 +194,16 @@ export function CameraScreen({
         );
         return;
       }
-      const uri = result.assets?.[0]?.uri;
-      if (uri) setImageUri(uri);
+      const picked = result.assets?.[0];
+      if (picked?.type && !['image/jpeg', 'image/png'].includes(picked.type)) {
+        Alert.alert('Định dạng chưa hỗ trợ', 'Chọn ảnh JPG hoặc PNG để quét.');
+        return;
+      }
+      if (picked?.fileSize && picked.fileSize > 5 * 1024 * 1024) {
+        Alert.alert('Ảnh quá lớn', 'Hãy chọn ảnh JPG/PNG không quá 5 MB.');
+        return;
+      }
+      if (picked?.uri) selectImage(picked);
     } catch {
       Alert.alert(
         'Không thể mở ảnh',
@@ -231,7 +244,7 @@ export function CameraScreen({
         <View style={styles.cameraHint}>
           <Sparkles size={16} color={colors.surface} />
           <Text style={styles.cameraHintText}>
-            Kết quả sẽ dùng từ vựng minh họa
+            {user && imageUri ? 'Ảnh sẽ được quét bằng AI' : 'Chế độ minh họa · không phân tích ảnh'}
           </Text>
         </View>
       </View>
@@ -255,7 +268,7 @@ export function CameraScreen({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Dùng cảnh mẫu"
-          onPress={() => setImageUri(null)}
+          onPress={() => selectImage(null)}
           style={styles.captureSide}
         >
           <RotateCcw size={22} color={colors.forest} />
@@ -263,8 +276,8 @@ export function CameraScreen({
       </View>
       <Text style={styles.cameraCaption}>
         {imageUri
-          ? 'Đã chọn ảnh · chạm Xem từ vựng minh họa bên dưới'
-          : 'Hoặc chọn cảnh mẫu để trải nghiệm ngay'}
+          ? user ? 'Đã chọn ảnh · nhấn Quét ảnh bằng AI' : 'Khách: ảnh chỉ để xem trước. Đăng nhập để quét AI.'
+          : 'Chọn cảnh mẫu để xem từ minh họa, không cần tài khoản'}
       </Text>
       <ScrollView
         horizontal
@@ -278,13 +291,14 @@ export function CameraScreen({
             selected={!imageUri && item.id === sceneId}
             onPress={() => {
               setSceneId(item.id);
-              setImageUri(null);
+              selectImage(null);
             }}
           />
         ))}
       </ScrollView>
       <PrimaryButton
-        label="Xem từ vựng minh họa"
+        label={scanning ? 'Đang nhận diện ảnh...' : user && imageUri ? 'Quét ảnh bằng AI' : 'Xem từ vựng minh họa'}
+        disabled={scanning}
         onPress={scan}
         style={styles.actionTop20}
       />
@@ -299,12 +313,18 @@ export function ResultsScreen({
   saved,
   toggleSaved,
   openWord,
+  scanResult,
+  user,
+  saving,
+  cards,
 }: ScreenProps) {
   const scene = getScene(sceneId);
-  const unsaved = scene.words.filter(word => !saved.includes(word.id));
+  const words = scanResult ? [scanWord(scanResult)] : scene.words;
+  const isStored = (id: string) => saved.includes(id) || !!(scanResult && id.startsWith('scan:') && cards.some(card => card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase()));
+  const unsaved = words.filter(word => !isStored(word.id));
   return (
     <View style={styles.page}>
-      <TopBar title="Kết quả minh họa" onBack={() => navigate('camera')} />
+      <TopBar title={scanResult ? 'Kết quả quét AI' : 'Kết quả minh họa'} onBack={() => navigate('camera')} />
       <View style={styles.resultImageWrap}>
         <Image
           source={imageUri ? { uri: imageUri } : sceneImage(sceneId)}
@@ -314,7 +334,7 @@ export function ResultsScreen({
         />
         <View style={styles.resultOverlay}>
           <Eyebrow light>
-            {imageUri ? 'ẢNH CỦA BẠN · TỪ MẪU' : 'CẢNH MẪU · TỪ MẪU'}
+            {scanResult ? 'ẢNH CỦA BẠN · QUÉT AI' : imageUri ? 'ẢNH CỦA BẠN · TỪ MẪU' : 'CẢNH MẪU · TỪ MẪU'}
           </Eyebrow>
           <Text style={styles.resultImageTitle}>
             {imageUri ? 'Khám phá qua ảnh' : scene.title}
@@ -327,7 +347,7 @@ export function ResultsScreen({
         </View>
         <View style={styles.fill}>
           <Text style={styles.resultInfoTitle}>
-            {scene.words.length} từ vựng để khám phá
+            {words.length} từ vựng để khám phá
           </Text>
           <Text style={styles.resultInfoCaption}>
             Chạm vào một từ để tìm hiểu thêm
@@ -337,28 +357,30 @@ export function ResultsScreen({
       <View style={styles.notice}>
         <Lightbulb size={18} color={colors.forest} />
         <Text style={styles.noticeText}>
-          Đây là danh sách từ vựng mẫu của cảnh {scene.title.toLowerCase()},
-          chưa phải kết quả nhận diện ảnh tự động.
+          {scanResult ? `Nhận diện: ${scanResult.keyword}. ${scanResult.detected_objects?.length ?? 0} vật thể được tìm thấy. Backend hiện trả về một flashcard nháp mỗi lượt quét.` : 'Các câu ví dụ và từ trong cảnh này là nội dung minh họa, không được tạo từ ảnh của bạn.'}
         </Text>
       </View>
-      <SectionHeader kicker="TỪ VỰNG TRONG CẢNH MẪU" title="Khám phá từng từ" />
-      {scene.words.map(word => (
+      {scanResult && scanResult.detected_objects?.length > 0 && <View style={styles.objectList}>
+        {scanResult.detected_objects.map((object, index) => (
+          <View key={`${object.keyword}-${index}`} style={styles.objectTag}>
+            <Text style={styles.objectTagText}>{object.keyword} · {Math.round(object.confidence <= 1 ? object.confidence * 100 : object.confidence)}%</Text>
+          </View>
+        ))}
+      </View>}
+      <SectionHeader kicker={scanResult ? 'TỪ ĐƯỢC NHẬN DIỆN' : 'TỪ TRONG CẢNH MẪU'} title="Khám phá từng từ" />
+      {words.map(word => (
         <WordRow
           key={word.id}
           word={word}
-          saved={saved.includes(word.id)}
+          saved={isStored(word.id)}
           onOpen={() => openWord(word.id)}
-          onSave={() => toggleSaved(word.id)}
+          onSave={isStored(word.id) ? undefined : () => toggleSaved(word.id)}
         />
       ))}
       <PrimaryButton
-        label={
-          unsaved.length ? `Lưu ${unsaved.length} từ chưa lưu` : 'Xem từ đã lưu'
-        }
-        onPress={() => {
-          unsaved.forEach(word => toggleSaved(word.id));
-          navigate('saved');
-        }}
+        label={saving ? 'Đang lưu...' : !user ? 'Đăng nhập để lưu từ' : scanResult ? (unsaved.length ? 'Lưu từ vào tài khoản' : 'Xem từ đã lưu') : 'Chọn ảnh thật để quét AI'}
+        disabled={saving}
+        onPress={() => !user ? navigate('auth') : !scanResult ? navigate('camera') : unsaved.length ? toggleSaved(unsaved[0].id) : navigate('saved')}
         style={styles.actionTop12}
       />
     </View>
@@ -371,28 +393,21 @@ export function WordScreen({
   wordBack,
   saved,
   toggleSaved,
+  wordForId,
+  user,
+  scanResult,
+  saving,
+  cards,
 }: ScreenProps) {
-  const word = getWord(wordId);
+  const word = wordForId(wordId);
   const scene = getScene(word.scene);
-  const isSaved = saved.includes(word.id);
+  const isSaved = saved.includes(word.id) || !!(scanResult && word.id.startsWith('scan:') && cards.some(card => card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase()));
   return (
     <View style={styles.page}>
       <TopBar
         title="Khám phá từ vựng"
         onBack={() => navigate(wordBack)}
-        action={
-          <IconButton
-            label={isSaved ? 'Bỏ lưu từ' : 'Lưu từ'}
-            onPress={() => toggleSaved(word.id)}
-            icon={
-              <Bookmark
-                size={21}
-                color={colors.forest}
-                fill={isSaved ? colors.lime : 'none'}
-              />
-            }
-          />
-        }
+        action={isSaved ? <Bookmark size={21} color={colors.forest} fill={colors.lime} /> : <IconButton label="Lưu từ" onPress={() => toggleSaved(word.id)} icon={<Bookmark size={21} color={colors.forest} />} />}
       />
       <View style={styles.wordFeature}>
         <View style={styles.levelPill}>
@@ -414,7 +429,7 @@ export function WordScreen({
         <Eyebrow>TRONG MỘT CÂU</Eyebrow>
         <View style={styles.example}>
           <Text style={styles.exampleEnglish}>“{word.example}”</Text>
-          <Text style={styles.exampleVietnamese}>{word.translation}</Text>
+          <Text style={styles.exampleVietnamese}>{word.id.startsWith('scan:') || word.id.includes('-') && word.id.length > 30 ? `“${word.translation}”` : word.translation}</Text>
         </View>
       </View>
       <View style={styles.detailBlock}>
@@ -424,7 +439,7 @@ export function WordScreen({
           <Text style={styles.tipText}>{word.note}</Text>
         </View>
       </View>
-      <View style={styles.detailBlock}>
+      {!word.id.startsWith('scan:') && !(word.id.includes('-') && word.id.length > 30) && <View style={styles.detailBlock}>
         <Eyebrow>TỪ NÀY CÓ TRONG</Eyebrow>
         <Pressable
           accessibilityRole="button"
@@ -438,10 +453,11 @@ export function WordScreen({
           </View>
           <ArrowRight size={18} color={colors.forest} />
         </Pressable>
-      </View>
+      </View>}
       <PrimaryButton
-        label={isSaved ? 'Bỏ lưu khỏi bộ từ' : 'Lưu vào bộ từ của tôi'}
-        onPress={() => toggleSaved(word.id)}
+        label={saving ? 'Đang lưu...' : isSaved ? 'Đã lưu trên tài khoản' : user && scanResult && word.id.startsWith('scan:') ? 'Lưu vào tài khoản' : user ? 'Quét ảnh để tạo từ mới' : 'Đăng nhập để lưu từ'}
+        disabled={saving || isSaved}
+        onPress={() => user && !scanResult ? navigate('camera') : toggleSaved(word.id)}
         icon={
           <Bookmark
             size={19}
@@ -725,6 +741,9 @@ const styles = StyleSheet.create({
     marginBottom: 27,
   },
   noticeText: { flex: 1, color: colors.forest, fontSize: 12, lineHeight: 19 },
+  objectList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
+  objectTag: { backgroundColor: colors.surface, borderColor: colors.line, borderWidth: 1, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
+  objectTagText: { color: colors.forest, fontSize: 12, fontWeight: '700' },
   wordFeature: {
     backgroundColor: colors.forest,
     borderRadius: 25,
