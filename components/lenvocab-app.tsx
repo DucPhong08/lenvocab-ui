@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowRight, BookOpen, Bookmark, Camera, ChevronRight, Clock3, Home, Layers3, ScanLine, Sparkles, UserRound } from 'lucide-react'
 import { ScreenContent, type Screen, type ScanEntry } from '@/components/lenvocab-screens'
 import { getWord } from '@/lib/lenvocab-data'
@@ -34,12 +34,23 @@ export default function LenvocabApp() {
   const [saved, setSaved] = useState<string[]>(['notebook', 'mug', 'succulent', 'headphones', 'kettle', 'crosswalk'])
   const [history, setHistory] = useState(initialHistory)
   const [customImage, setCustomImage] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState('')
+
+  useEffect(() => {
+    if (!feedback) return
+    const timer = window.setTimeout(() => setFeedback(''), 2600)
+    return () => window.clearTimeout(timer)
+  }, [feedback])
 
   const navigate = (next: Screen) => {
     setScreen(next)
     document.querySelector('.phone-scroll')?.scrollTo({ top: 0, behavior: 'instant' })
   }
-  const toggleSaved = (id: string) => setSaved(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id])
+  const toggleSaved = (id: string) => {
+    const wasSaved = saved.includes(id)
+    setSaved(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id])
+    setFeedback(`${getWord(id).term}: ${wasSaved ? 'đã bỏ lưu' : 'đã lưu vào bộ từ'}`)
+  }
   const openWord = (id: string) => { setWordBack(screen); setWordId(id); setSceneId(getWord(id).scene); navigate('word') }
   const scan = () => { setHistory(current => [{ sceneId, date: 'VỪA XONG · BẢN DEMO', id: Date.now(), image: customImage ?? undefined }, ...current]); navigate('results') }
   const activeTab = screen === 'word' ? (wordBack === 'results' ? 'camera' : wordBack) : screen === 'results' ? 'camera' : ['flashcards', 'quiz'].includes(screen) ? 'review' : screen
@@ -48,7 +59,7 @@ export default function LenvocabApp() {
   return <main className="experience">
     <div className="ambient-orb orb-a"/><div className="ambient-orb orb-b"/>
     <section className="desktop-intro" aria-label="Giới thiệu Lenvocab"><div className="desktop-brand"><span className="brand-mark"><Sparkles size={18} strokeWidth={2.5}/></span> lenvocab<span>.</span></div><div className="intro-content"><span className="intro-kicker"><span className="kicker-line"/> HỌC TIẾNG ANH THEO CÁCH TỰ NHIÊN</span><h1>See it.<br/>Learn it.<br/><em>Live it.</em></h1><p>Biến những điều bạn nhìn thấy mỗi ngày thành những từ tiếng Anh bạn không bao giờ quên.</p><button onClick={() => navigate('camera')} className="intro-cta">Khám phá ngay <span><ArrowRight size={18}/></span></button></div><div className="intro-bottom"><span className="intro-index">01 <span>/ 03</span></span><span>YOUR WORLD, YOUR WORDS</span><div className="intro-dashes"><i/><i/><i/></div></div></section>
-    <section className="phone-frame" aria-label="Ứng dụng Lenvocab"><div className="phone-status" aria-hidden="true"><span>9:41</span><span className="status-island"/><span className="status-icons"><span className="signal-bars"><i/><i/><i/><i/></span><span className="wifi-icon">◕</span><span className="battery"><i/></span></span></div><div className="phone-scroll"><ScreenContent screen={screen} navigate={navigate} sceneId={sceneId} setSceneId={setSceneId} wordId={wordId} wordBack={wordBack} openWord={openWord} saved={saved} toggleSaved={toggleSaved} history={history} scan={scan} customImage={customImage} setCustomImage={setCustomImage}/></div>{showTabs && <nav className="bottom-nav" aria-label="Điều hướng chính">{tabs.map(tab => { const Icon = tab.icon; return <button key={tab.id} className={`${activeTab === tab.id ? 'active' : ''} ${tab.id === 'camera' ? 'capture-tab' : ''}`} aria-label={tab.label} aria-current={activeTab === tab.id ? 'page' : undefined} onClick={() => navigate(tab.id)}>{tab.id === 'camera' ? <span className="capture-tab-icon"><Icon size={23} strokeWidth={2}/></span> : <Icon size={22} strokeWidth={activeTab === tab.id ? 2.2 : 1.8} fill={activeTab === tab.id && tab.id === 'home' ? 'currentColor' : 'none'}/>}<span>{tab.label}</span></button> })}</nav>}<div className="home-indicator" aria-hidden="true"/></section>
+    <section className="phone-frame" aria-label="Ứng dụng Lenvocab"><div className="phone-status" aria-hidden="true"><span>9:41</span><span className="status-island"/><span className="status-icons"><span className="signal-bars"><i/><i/><i/><i/></span><span className="wifi-icon">◕</span><span className="battery"><i/></span></span></div><div className="phone-scroll"><ScreenContent screen={screen} navigate={navigate} sceneId={sceneId} setSceneId={setSceneId} wordId={wordId} wordBack={wordBack} openWord={openWord} saved={saved} toggleSaved={toggleSaved} history={history} scan={scan} customImage={customImage} setCustomImage={setCustomImage}/></div>{feedback && <div className="status-toast" role="status" aria-live="polite" aria-atomic="true"><Bookmark size={16} aria-hidden="true"/>{feedback}</div>}{showTabs && <nav className="bottom-nav" aria-label="Điều hướng chính">{tabs.map(tab => { const Icon = tab.icon; return <button key={tab.id} className={`${activeTab === tab.id ? 'active' : ''} ${tab.id === 'camera' ? 'capture-tab' : ''}`} aria-label={tab.label} aria-current={activeTab === tab.id ? 'page' : undefined} onClick={() => navigate(tab.id)}>{tab.id === 'camera' ? <span className="capture-tab-icon"><Icon size={23} strokeWidth={2}/></span> : <Icon size={22} strokeWidth={activeTab === tab.id ? 2.2 : 1.8} fill={activeTab === tab.id && tab.id === 'home' ? 'currentColor' : 'none'}/>}<span>{tab.label}</span></button> })}</nav>}<div className="home-indicator" aria-hidden="true"/></section>
     <aside className="desktop-explore" aria-label="Khám phá các màn hình"><div className="explore-heading"><span className="eyebrow">BẢN THIẾT KẾ TƯƠNG TÁC</span><h2>Khám phá<br/>ứng dụng</h2><p>Chọn một màn hình để trải nghiệm.</p></div><div className="explore-groups">{showcaseGroups.map(group => <div className="explore-group" key={group.label}><span>{group.label}</span>{group.items.map(item => { const Icon = item.icon; return <button key={item.id} className={screen === item.id ? 'active' : ''} onClick={() => item.id === 'word' ? openWord(wordId) : navigate(item.id)}><Icon size={17}/><span>{item.label}</span>{screen === item.id && <ChevronRight size={16}/>}</button> })}</div>)}</div><div className="explore-footer"><span><span className="footer-dot"/> INTERACTIVE PROTOTYPE</span><p>Dữ liệu mẫu · Trải nghiệm giao diện</p></div></aside>
   </main>
 }
