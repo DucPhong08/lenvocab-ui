@@ -69,6 +69,8 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   if (!response.ok) {
     const detail = body?.detail;
     const message = response.status === 401 ? 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+      : response.status === 429 && detail === 'GUEST_SLOW_DOWN' ? 'Vui lòng đợi 10 giây trước khi quét tiếp.'
+      : response.status === 429 ? 'Đã hết lượt quét thử của khách hôm nay. Đăng nhập để tiếp tục.'
       : response.status === 403 && (String(JSON.stringify(detail) ?? '').includes('QUOTA_EXCEEDED')) ? 'Bạn đã hết lượt quét hôm nay.'
       : typeof detail === 'string' ? detail
       : typeof detail?.message === 'string' ? detail.message
@@ -106,14 +108,14 @@ export const confirmFlashcard = (token: string, draft: ScanResult) => {
     audio_base64: draft.audio_base64,
   }), token);
 };
-export async function scanImage(token: string, asset: Asset) {
+export async function scanImage(token: string | null, asset: Asset) {
   if (!asset.uri) throw new ApiError('Vui lòng chụp hoặc chọn một ảnh trước.', 0);
   if (asset.type && !['image/jpeg', 'image/png'].includes(asset.type)) throw new ApiError('Chỉ hỗ trợ ảnh JPG hoặc PNG.', 0);
   if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) throw new ApiError('Ảnh vượt quá 5 MB. Hãy chọn ảnh nhỏ hơn.', 0);
   const file = { uri: asset.uri, type: asset.type === 'image/png' ? 'image/png' : 'image/jpeg', name: asset.fileName ?? 'scan.jpg' };
   const form = new FormData();
   form.append('file', file as unknown as Blob);
-  return request<ScanResult>('/vision/scan', { method: 'POST', body: form }, token);
+  return request<ScanResult>(token ? '/vision/scan' : '/vision/scan/guest', { method: 'POST', body: form }, token ?? undefined);
 }
 
 export function scanWord(result: ScanResult): Word {

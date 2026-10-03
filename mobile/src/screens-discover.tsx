@@ -96,7 +96,7 @@ export function HomeScreen({
         </View>
       </Pressable>
       <Text style={styles.demoNote}>
-        {user ? 'ẢNH THẬT · NHẬN DIỆN AI KHI ĐĂNG NHẬP' : 'CHẾ ĐỘ KHÁCH · XEM TỪ MẪU, KHÔNG LƯU BỘ TỪ'}
+        {user ? 'ẢNH THẬT · NHẬN DIỆN AI' : 'CHẾ ĐỘ KHÁCH · QUÉT ẢNH THẬT, KHÔNG LƯU BỘ TỪ'}
       </Text>
       <View style={styles.stats}>
         <View style={styles.stat}>
@@ -244,7 +244,7 @@ export function CameraScreen({
         <View style={styles.cameraHint}>
           <Sparkles size={16} color={colors.surface} />
           <Text style={styles.cameraHintText}>
-            {user && imageUri ? 'Ảnh sẽ được quét bằng AI' : 'Chế độ minh họa · không phân tích ảnh'}
+            {imageUri ? 'Ảnh sẽ được quét bằng AI · không lưu nếu chưa đăng nhập' : 'Chọn ảnh để quét, hoặc khám phá cảnh mẫu'}
           </Text>
         </View>
       </View>
@@ -276,7 +276,7 @@ export function CameraScreen({
       </View>
       <Text style={styles.cameraCaption}>
         {imageUri
-          ? user ? 'Đã chọn ảnh · nhấn Quét ảnh bằng AI' : 'Khách: ảnh chỉ để xem trước. Đăng nhập để quét AI.'
+          ? user ? 'Đã chọn ảnh · nhấn Quét ảnh bằng AI' : 'Đã chọn ảnh · khách có 3 lượt quét thử mỗi ngày'
           : 'Chọn cảnh mẫu để xem từ minh họa, không cần tài khoản'}
       </Text>
       <ScrollView
@@ -297,7 +297,7 @@ export function CameraScreen({
         ))}
       </ScrollView>
       <PrimaryButton
-        label={scanning ? 'Đang nhận diện ảnh...' : user && imageUri ? 'Quét ảnh bằng AI' : 'Xem từ vựng minh họa'}
+        label={scanning ? 'Đang nhận diện ảnh...' : imageUri ? 'Quét ảnh bằng AI' : 'Xem từ vựng minh họa'}
         disabled={scanning}
         onPress={scan}
         style={styles.actionTop20}

@@ -68,25 +68,33 @@ test('navigates from home to sample image selection', async () => {
   });
 });
 
-test('marks chosen photos as examples and opens the quiz', async () => {
-  jest.mocked(launchImageLibrary).mockResolvedValue({ assets: [{ uri: 'file:///photo.jpg' }] });
-  let renderer!: ReactTestRenderer.ReactTestRenderer;
-  await ReactTestRenderer.act(async () => { renderer = ReactTestRenderer.create(<App />); });
-  const cameraTab = renderer.root.findAll(node => node.props.accessibilityRole === 'tab' && node.props.accessibilityLabel === 'Quét ảnh')[0];
-  await ReactTestRenderer.act(async () => { cameraTab.props.onPress(); });
-  const gallery = renderer.root.findAllByProps({ accessibilityLabel: 'Chọn ảnh từ thư viện' }).find(node => typeof node.props.onPress === 'function');
-  await ReactTestRenderer.act(async () => { await gallery?.props.onPress(); });
-  expect(renderer.root.findAllByProps({ accessibilityLabel: 'Ảnh của bạn' }).length).toBeGreaterThan(0);
-  const scan = renderer.root.findAllByProps({ accessibilityLabel: 'Xem từ vựng minh họa' }).find(node => typeof node.props.onPress === 'function');
-  await ReactTestRenderer.act(async () => { scan?.props.onPress(); });
-  expect(renderer.root.findAllByProps({ accessibilityLabel: 'Ảnh đã chọn' }).length).toBeGreaterThan(0);
-  const reviewTab = renderer.root.findAll(node => node.props.accessibilityRole === 'tab' && node.props.accessibilityLabel === 'Ôn tập')[0];
-  await ReactTestRenderer.act(async () => { reviewTab.props.onPress(); });
-  const quiz = renderer.root.findAllByProps({ accessibilityLabel: 'Bắt đầu Quiz nhanh' }).find(node => typeof node.props.onPress === 'function');
-  expect(quiz).toBeDefined();
-  await ReactTestRenderer.act(async () => { quiz?.props.onPress(); });
-  expect(renderer.root.findAllByProps({ accessibilityLabel: 'Quay lại' }).length).toBeGreaterThan(0);
-  await ReactTestRenderer.act(async () => { renderer.unmount(); });
+test('scans chosen photos as a guest and opens the quiz', async () => {
+  const previousFetch = globalThis.fetch;
+  const fetchMock = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ status: 'OK', keyword: 'mug', meaning_vi: 'cốc', example_1: 'A mug.', example_2: 'My mug.', related_words: [], detected_objects: [] }) });
+  globalThis.fetch = fetchMock;
+  try {
+    jest.mocked(launchImageLibrary).mockResolvedValue({ assets: [{ uri: 'file:///photo.jpg' }] });
+    let renderer!: ReactTestRenderer.ReactTestRenderer;
+    await ReactTestRenderer.act(async () => { renderer = ReactTestRenderer.create(<App />); });
+    const cameraTab = renderer.root.findAll(node => node.props.accessibilityRole === 'tab' && node.props.accessibilityLabel === 'Quét ảnh')[0];
+    await ReactTestRenderer.act(async () => { cameraTab.props.onPress(); });
+    const gallery = renderer.root.findAllByProps({ accessibilityLabel: 'Chọn ảnh từ thư viện' }).find(node => typeof node.props.onPress === 'function');
+    await ReactTestRenderer.act(async () => { await gallery?.props.onPress(); });
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Ảnh của bạn' }).length).toBeGreaterThan(0);
+    const scan = renderer.root.findAllByProps({ accessibilityLabel: 'Quét ảnh bằng AI' }).find(node => typeof node.props.onPress === 'function');
+    await ReactTestRenderer.act(async () => { await scan?.props.onPress(); });
+    expect(fetchMock).toHaveBeenCalledWith('https://app-lensvocab.onrender.com/vision/scan/guest', expect.objectContaining({ method: 'POST', body: expect.any(FormData) }));
+    expect(fetchMock.mock.calls[0][1].headers.Authorization).toBeUndefined();
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Ảnh đã chọn' }).length).toBeGreaterThan(0);
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Lưu mug' }).length).toBeGreaterThan(0);
+    const reviewTab = renderer.root.findAll(node => node.props.accessibilityRole === 'tab' && node.props.accessibilityLabel === 'Ôn tập')[0];
+    await ReactTestRenderer.act(async () => { reviewTab.props.onPress(); });
+    const quiz = renderer.root.findAllByProps({ accessibilityLabel: 'Bắt đầu Quiz nhanh' }).find(node => typeof node.props.onPress === 'function');
+    expect(quiz).toBeDefined();
+    await ReactTestRenderer.act(async () => { quiz?.props.onPress(); });
+    expect(renderer.root.findAllByProps({ accessibilityLabel: 'Quay lại' }).length).toBeGreaterThan(0);
+    await ReactTestRenderer.act(async () => { renderer.unmount(); });
+  } finally { globalThis.fetch = previousFetch; }
 });
 
 test('uses the real API root, Bearer token, multipart scan and review rating', async () => {

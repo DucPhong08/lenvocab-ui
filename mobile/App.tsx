@@ -160,7 +160,7 @@ function AppContent() {
   };
   const scan = async () => {
     if (scanning) return;
-    if (!asset || !token) {
+    if (!asset) {
       setScanResult(null);
       navigate('results');
       return;
@@ -173,7 +173,7 @@ function AppContent() {
         return;
       }
       setScanResult(result);
-      reloadUser().catch(() => {});
+      if (token) reloadUser().catch(() => {});
       setHistory(current => [{ id: ++scanId.current, timestamp: Date.now(), sceneId, imageUri: imageUri ?? undefined, result }, ...current]);
       navigate('results');
     } catch (error) { Alert.alert('Không thể quét ảnh', error instanceof Error ? error.message : 'Vui lòng thử lại.'); }
