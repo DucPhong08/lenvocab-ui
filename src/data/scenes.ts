@@ -60,5 +60,4 @@ export const scenes: Scene[] = [
 ]
 
 export const allWords = scenes.flatMap((scene) => scene.words)
-export const getScene = (id: string) => scenes.find((scene) => scene.id === id) ?? scenes[0]
-export const getWord = (id: string) => allWords.find((word) => word.id === id) ?? allWords[0]
+

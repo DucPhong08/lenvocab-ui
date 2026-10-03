@@ -1,1 +1,4 @@
-{}
+{
+  "version": "4.9.0",
+  "ignore_dirs": ["node_modules", ".git", ".hg", ".svn", "build", "coverage"]
+}

@@ -2,7 +2,10 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 import { launchImageLibrary } from 'react-native-image-picker';
-import { authenticate, confirmFlashcard, gradeReview, scanImage } from '../src/api';
+import { authenticate } from '@/api/endpoints/authenticate';
+import { confirmFlashcard } from '@/api/endpoints/confirmFlashcard';
+import { gradeReview } from '@/api/endpoints/gradeReview';
+import { scanImage } from '@/api/endpoints/scanImage';
 
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
