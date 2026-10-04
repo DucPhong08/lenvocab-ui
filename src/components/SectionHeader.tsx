@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { ArrowRight } from 'lucide-react-native';
 import { Eyebrow } from './Eyebrow';
-import { styles } from './headers.styles';
+import { styles } from './styles/headers.styles';
 import { colors } from '@/theme/theme';
 
 export function SectionHeader({

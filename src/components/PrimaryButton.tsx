@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, type StyleProp, type ViewStyle } from 'react-native';
 import { ArrowRight } from 'lucide-react-native';
-import { styles } from './buttons.styles';
+import { styles } from './styles/buttons.styles';
 import { colors } from '@/theme/theme';
 
 export function PrimaryButton({

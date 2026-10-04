@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { Eyebrow } from './Eyebrow';
-import { styles } from './headers.styles';
+import { styles } from './styles/headers.styles';
 
 export function ScreenTitle({
   kicker,

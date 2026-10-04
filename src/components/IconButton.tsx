@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable } from 'react-native';
-import { styles } from './buttons.styles';
+import { styles } from './styles/buttons.styles';
 
 export function IconButton({
   label,

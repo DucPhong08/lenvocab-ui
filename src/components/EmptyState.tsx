@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 import { BookOpen } from 'lucide-react-native';
 import { PrimaryButton } from './PrimaryButton';
-import { styles } from './content.styles';
+import { styles } from './styles/content.styles';
 import { colors } from '@/theme/theme';
 
 export function EmptyState({

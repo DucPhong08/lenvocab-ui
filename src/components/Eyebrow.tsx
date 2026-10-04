@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Text } from 'react-native';
-import { styles } from './branding.styles';
+import { styles } from './styles/branding.styles';
 import { colors } from '@/theme/theme';
 
 export function Eyebrow({

@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { Sparkles } from 'lucide-react-native';
-import { styles } from './branding.styles';
+import { styles } from './styles/branding.styles';
 import { colors } from '@/theme/theme';
 
 export function Brand() {

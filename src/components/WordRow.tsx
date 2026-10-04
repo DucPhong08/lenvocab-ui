@@ -1,7 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { Bookmark, ChevronRight } from 'lucide-react-native';
 import type { Word } from '@/data/scenes';
-import { styles } from './content.styles';
+import { styles } from './styles/content.styles';
 import { colors } from '@/theme/theme';
 
 export function WordRow({

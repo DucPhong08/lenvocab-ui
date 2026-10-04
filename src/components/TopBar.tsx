@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import { IconButton } from './IconButton';
-import { styles } from './headers.styles';
+import { styles } from './styles/headers.styles';
 import { colors } from '@/theme/theme';
 
 export function TopBar({
