@@ -14,12 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bookmark } from 'lucide-react-native';
-import { confirmFlashcard } from '@/api/endpoints/confirmFlashcard';
 import { gradeReview } from '@/api/endpoints/gradeReview';
-import { cardWord } from '@/api/mappers/cardWord';
-import { scanWord } from '@/api/mappers/scanWord';
-import { getWord } from '@/data/getWord';
-import type { Word } from '@/data/scenes';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { scheduleDailyStudyReminder } from '@/services/notifications/scheduleDailyStudyReminder';
@@ -30,6 +25,7 @@ import { ScreenContent } from './ScreenContent';
 import { useLearningData } from './hooks/useLearningData';
 import { useScanFlow } from './hooks/useScanFlow';
 import { useSession } from './hooks/useSession';
+import { useVocabularyLibrary } from './hooks/useVocabularyLibrary';
 import { styles } from './styles';
 
 export function AppContent() {
@@ -37,7 +33,6 @@ export function AppContent() {
   const [sceneId, setSceneId] = useState('desk');
   const [wordId, setWordId] = useState('notebook');
   const [wordBack, setWordBack] = useState<Screen>('results');
-  const [saving, setSaving] = useState(false);
   const { feedback, showFeedback } = useFeedback();
   const scrollRef = useRef<ScrollViewInstance>(null);
   const fade = useRef(new Animated.Value(1)).current;
@@ -87,7 +82,15 @@ export function AppContent() {
     resetScan();
     navigate('home');
   }, [logoutSession, navigate, resetScan]);
-  const saved = cards.map(card => card.user_flashcard_id);
+  const { saved, saving, toggleSaved, wordForId } = useVocabularyLibrary({
+    cards,
+    navigate,
+    reloadCards,
+    reloadDue,
+    scanResult,
+    showFeedback,
+    token,
+  });
   const scrollToEnd = useCallback(
     () => scrollRef.current?.scrollToEnd({ animated: !reduceMotion.current }),
     [reduceMotion],
@@ -102,48 +105,6 @@ export function AppContent() {
   const onAuth: ScreenProps['onAuth'] = async (mode, email, password, name) => {
     await signIn(mode, email, password, name);
     navigate('home');
-  };
-  const wordForId = (id: string): Word => {
-    if (id.startsWith('scan:') && scanResult) return scanWord(scanResult);
-    const card = cards.find(item => item.user_flashcard_id === id);
-    return card ? cardWord(card) : getWord(id);
-  };
-  const toggleSaved = async (id: string) => {
-    if (!token) {
-      showFeedback('Đăng nhập để lưu từ và đồng bộ kho học.');
-      navigate('auth');
-      return;
-    }
-    if (
-      saved.includes(id) ||
-      (scanResult &&
-        id === scanWord(scanResult).id &&
-        cards.some(
-          card =>
-            card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase(),
-        ))
-    ) {
-      showFeedback('Từ này đã có trong kho của bạn.');
-      return;
-    }
-    if (!scanResult || id !== scanWord(scanResult).id) {
-      showFeedback('Hãy quét ảnh thật để tạo thẻ trước khi lưu.');
-      return;
-    }
-    if (saving) return;
-    setSaving(true);
-    try {
-      await confirmFlashcard(token, scanResult);
-      await Promise.all([reloadCards(), reloadDue()]);
-      showFeedback('Đã lưu từ vào tài khoản của bạn.');
-    } catch (error) {
-      Alert.alert(
-        'Không thể lưu từ',
-        error instanceof Error ? error.message : 'Thử lại sau.',
-      );
-    } finally {
-      setSaving(false);
-    }
   };
   const openWord = (id: string) => {
     setWordBack(screen);

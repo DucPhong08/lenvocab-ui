@@ -20,6 +20,14 @@ export function useQuiz({
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+  const questionKey = questions.map(question => question.id).join('|');
+
+  useEffect(() => {
+    setIndex(0);
+    setSelected(null);
+    setScore(0);
+    setDone(false);
+  }, [questionKey]);
 
   useEffect(() => {
     if (selected) {
@@ -28,7 +36,8 @@ export function useQuiz({
     }
   }, [selected, scrollToEnd]);
 
-  const word = questions[index];
+  const currentIndex = Math.min(index, questions.length - 1);
+  const word = questions[currentIndex];
   const optionPool = [word, ...learnedWords, ...allWords].filter(
     (item, itemIndex, items) =>
       items.findIndex(candidate => candidate.term === item.term) === itemIndex,
@@ -54,7 +63,7 @@ export function useQuiz({
   };
   const nextQuestion = () => {
     if (!selected) return;
-    if (index === questions.length - 1) {
+    if (currentIndex === questions.length - 1) {
       setDone(true);
       scrollToTop();
       return;
@@ -66,7 +75,7 @@ export function useQuiz({
 
   return {
     done,
-    index,
+    index: currentIndex,
     nextQuestion,
     options,
     questions,
