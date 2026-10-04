@@ -1,9 +1,10 @@
 import { Pressable, Text, View } from 'react-native';
-import { CheckCircle2, Sparkles, X } from 'lucide-react-native';
+import { CheckCircle2, Sparkles, Volume2, X } from 'lucide-react-native';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { TopBar } from '@/components/TopBar';
+import { useAudio } from '@/hooks/useAudio';
 import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { useQuiz } from './hooks/useQuiz';
@@ -13,6 +14,9 @@ export function QuizScreen({
   navigate,
   scrollToEnd,
   scrollToTop,
+  user,
+  cards,
+  due,
 }: ScreenProps) {
   const {
     done,
@@ -25,7 +29,8 @@ export function QuizScreen({
     selected,
     selectOption,
     word,
-  } = useQuiz({ scrollToEnd, scrollToTop });
+  } = useQuiz({ scrollToEnd, scrollToTop, user, cards, due });
+  const { play } = useAudio();
   if (done)
     return (
       <View style={styles.page}>
@@ -89,7 +94,19 @@ export function QuizScreen({
       </View>
       <View style={styles.question}>
         <Text style={styles.questionLabel}>ENGLISH WORD</Text>
-        <Text style={styles.questionWord}>{word.term}</Text>
+        <View style={styles.questionWordRow}>
+          <Text style={styles.questionWord}>{word.term}</Text>
+          {word.audio && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Nghe phát âm từ"
+              onPress={() => play(word.audio)}
+              style={styles.speakerBtn}
+            >
+              <Volume2 size={18} color={colors.lime} />
+            </Pressable>
+          )}
+        </View>
         <Text style={styles.questionIpa}>{word.ipa}</Text>
       </View>
       <View style={styles.answerList}>

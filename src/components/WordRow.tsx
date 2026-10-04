@@ -1,8 +1,9 @@
 import { Pressable, Text, View } from 'react-native';
-import { Bookmark, ChevronRight } from 'lucide-react-native';
+import { Bookmark, ChevronRight, Volume2 } from 'lucide-react-native';
 import type { Word } from '@/data/scenes';
-import { styles } from './styles/content.styles';
+import { useAudio } from '@/hooks/useAudio';
 import { colors } from '@/theme/theme';
+import { styles } from './styles/content.styles';
 
 export function WordRow({
   word,
@@ -15,6 +16,8 @@ export function WordRow({
   onOpen: () => void;
   onSave?: () => void;
 }) {
+  const { play } = useAudio();
+
   return (
     <View style={styles.wordRow}>
       <Pressable
@@ -36,6 +39,21 @@ export function WordRow({
         </View>
         <ChevronRight size={16} color={colors.subtle} />
       </Pressable>
+
+      {word.audio && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Nghe phát âm từ ${word.term}`}
+          onPress={e => {
+            e.stopPropagation?.();
+            play(word.audio);
+          }}
+          style={({ pressed }) => [styles.audioRowBtn, pressed && styles.pressed]}
+        >
+          <Volume2 size={19} color={colors.forest} />
+        </Pressable>
+      )}
+
       {onSave && (
         <Pressable
           accessibilityRole="button"
@@ -55,4 +73,3 @@ export function WordRow({
     </View>
   );
 }
-

@@ -345,4 +345,20 @@ export const styles = StyleSheet.create({
   sourceImage: { width: 54, height: 54, borderRadius: 11 },
   sourceTitle: { fontSize: 15, fontWeight: '800', color: colors.ink },
   sourceCaption: { fontSize: 12, color: colors.muted, marginTop: 4 },
+  topBarActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  audioBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: colors.pale,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  audioBtnDisabled: { opacity: 0.4 },
+  ipaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 2,
+  },
 });

@@ -1,12 +1,21 @@
 import { useEffect, useState } from 'react';
+import { cardWord } from '@/api/mappers/cardWord';
 import { allWords } from '@/data/scenes';
 import type { ScreenProps } from '@/types/screen';
 
 export function useQuiz({
   scrollToEnd,
   scrollToTop,
-}: Pick<ScreenProps, 'scrollToEnd' | 'scrollToTop'>) {
-  const questions = allWords.slice(0, 4);
+  user,
+  cards,
+  due,
+}: Pick<
+  ScreenProps,
+  'scrollToEnd' | 'scrollToTop' | 'user' | 'cards' | 'due'
+>) {
+  const learnedWords = (due.length ? due : cards).map(cardWord);
+  const questions =
+    user && learnedWords.length ? learnedWords : allWords.slice(0, 4);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -20,11 +29,13 @@ export function useQuiz({
   }, [selected, scrollToEnd]);
 
   const word = questions[index];
+  const optionPool = [word, ...learnedWords, ...allWords].filter(
+    (item, itemIndex, items) =>
+      items.findIndex(candidate => candidate.term === item.term) === itemIndex,
+  );
   const options = [
     word,
-    questions[(index + 1) % 4],
-    questions[(index + 2) % 4],
-    questions[(index + 3) % 4],
+    ...optionPool.filter(item => item.id !== word.id).slice(0, 3),
   ].sort(
     (first, second) =>
       (first.id.charCodeAt(0) % 5) - (second.id.charCodeAt(0) % 5),

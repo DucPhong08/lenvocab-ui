@@ -5,10 +5,15 @@ export type Word = {
   type: string
   meaning: string
   example: string
-  translation: string
+  example2?: string
+  translation?: string
   note: string
   level: string
   scene: string
+  audio?: string | null
+  interval?: number
+  repetitions?: number
+  nextReviewDate?: string
 }
 
 export type Scene = {
@@ -60,4 +65,3 @@ export const scenes: Scene[] = [
 ]
 
 export const allWords = scenes.flatMap((scene) => scene.words)
-

@@ -49,6 +49,8 @@ export type ScreenProps = {
   cards: Flashcard[];
   due: ReviewCard[];
   loadingData: boolean;
+  dataError: string | null;
+  reloadData: () => Promise<void>;
   wordForId: (id: string) => Word;
   submitReview: (id: string, quality: number) => Promise<void>;
   onAuth: (
