@@ -35,11 +35,17 @@ export function useAudio() {
   const stop = useCallback(() => {
     requestRef.current += 1;
     const path = fileRef.current;
+    const sound = soundRef.current;
     fileRef.current = null;
+    soundRef.current = null;
+    if (!sound) {
+      setIsPlaying(false);
+      if (path) RNFS.unlink(path).catch(() => {});
+      return;
+    }
     try {
-      soundRef.current?.stop(() => {
-        soundRef.current?.release();
-        soundRef.current = null;
+      sound.stop(() => {
+        sound.release();
         setIsPlaying(false);
         if (path) RNFS.unlink(path).catch(() => {});
       });
@@ -55,7 +61,8 @@ export function useAudio() {
     const requestId = ++requestRef.current;
     try {
       if (soundRef.current) {
-        soundRef.current.stop(() => soundRef.current?.release());
+        const previousSound = soundRef.current;
+        previousSound.stop(() => previousSound.release());
         soundRef.current = null;
       }
       if (fileRef.current) {
@@ -76,6 +83,9 @@ export function useAudio() {
       const sound = new Sound(`file://${path}`, '', error => {
         if (error) {
           setIsPlaying(false);
+          sound.release();
+          if (soundRef.current === sound) soundRef.current = null;
+          if (fileRef.current === path) fileRef.current = null;
           RNFS.unlink(path).catch(() => {});
           return;
         }
