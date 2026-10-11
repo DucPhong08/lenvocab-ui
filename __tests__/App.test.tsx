@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 import { launchImageLibrary } from 'react-native-image-picker';
+import * as Keychain from 'react-native-keychain';
 import { authenticate } from '@/api/endpoints/authenticate';
 import { confirmFlashcard } from '@/api/endpoints/confirmFlashcard';
 import { gradeReview } from '@/api/endpoints/gradeReview';
@@ -235,7 +236,12 @@ test('uses the real API root, Bearer token, multipart scan and review rating', a
       is_draft: true,
       message: null,
     });
-    await gradeReview('test-token', 'card-id', 4);
+    await gradeReview(
+      'test-token',
+      'card-id',
+      4,
+      '2b671a64-40d5-491e-99b0-da01ff1f3341',
+    );
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       'https://app-lensvocab.onrender.com/auth/login',
       'https://app-lensvocab.onrender.com/vision/scan',
@@ -246,8 +252,133 @@ test('uses the real API root, Bearer token, multipart scan and review rating', a
       'Bearer test-token',
     );
     expect(fetchMock.mock.calls[1][1].body).toBeInstanceOf(FormData);
-    expect(JSON.parse(fetchMock.mock.calls[3][1].body)).toEqual({ quality: 4 });
+    expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual({
+      keyword: 'mug',
+    });
+    expect(JSON.parse(fetchMock.mock.calls[3][1].body)).toEqual({
+      quality: 4,
+      review_id: '2b671a64-40d5-491e-99b0-da01ff1f3341',
+    });
   } finally {
     globalThis.fetch = previousFetch;
+  }
+});
+
+test('does not apply a completed grade after logout', async () => {
+  jest.useFakeTimers();
+  const previousFetch = globalThis.fetch;
+  let resolveGrade!: (value: unknown) => void;
+  const gradeResponse = new Promise(resolve => {
+    resolveGrade = resolve;
+  });
+  const card = {
+    user_flashcard_id: 'card-session',
+    global_flashcard_id: 'global-session',
+    keyword: 'chair',
+    pronunciation: null,
+    meaning_vi: 'cái ghế',
+    example_1: 'This is a chair.',
+    example_2: 'The chair is blue.',
+    related_words: [],
+    audio_base64: null,
+    status: 'CONFIRMED',
+    interval: 1,
+    repetitions: 0,
+    efactor: 2.5,
+    next_review_date: '2026-10-11',
+  };
+  const fetchMock = jest.fn((url: string) => {
+    if (url.endsWith('/auth/me')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({
+          id: 'user-session',
+          email: 'user@example.com',
+          display_name: null,
+          account_tier: 'FREE',
+          daily_quota_left: 2,
+          is_active: true,
+          preferences: {
+            preferred_voice_id: 'Joanna',
+            voice_speed: 1,
+            daily_review_goal: 15,
+            target_language: 'vi',
+            max_detected_objects: 5,
+          },
+        }),
+      });
+    }
+    if (url.endsWith('/flashcards')) {
+      return Promise.resolve({ ok: true, json: async () => [card] });
+    }
+    if (url.endsWith('/review/today')) {
+      return Promise.resolve({ ok: true, json: async () => [card] });
+    }
+    if (url.endsWith('/review/card-session')) return gradeResponse;
+    throw new Error(`Unexpected URL: ${url}`);
+  });
+  globalThis.fetch = fetchMock as typeof fetch;
+  jest.mocked(Keychain.getGenericPassword).mockResolvedValueOnce({
+    username: 'session',
+    password: 'session-token',
+  } as Awaited<ReturnType<typeof Keychain.getGenericPassword>>);
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  try {
+    await ReactTestRenderer.act(async () => {
+      renderer = ReactTestRenderer.create(<App />);
+    });
+    const reviewTab = renderer.root.findByProps({
+      accessibilityLabel: 'Ôn tập',
+    });
+    await ReactTestRenderer.act(async () => reviewTab.props.onPress());
+    const flashcards = renderer.root.findByProps({
+      accessibilityLabel: 'Bắt đầu Flashcards',
+    });
+    await ReactTestRenderer.act(async () => flashcards.props.onPress());
+    const flip = renderer.root.findByProps({
+      accessibilityLabel: 'chair. Chạm để xem nghĩa tiếng Việt',
+    });
+    await ReactTestRenderer.act(async () => flip.props.onPress());
+    const grade = renderer.root.findByProps({
+      accessibilityLabel: '4 điểm: Nhớ tốt',
+    });
+    let pendingGrade!: Promise<void>;
+    ReactTestRenderer.act(() => {
+      pendingGrade = grade.props.onPress();
+    });
+
+    const profileTab = renderer.root.findByProps({
+      accessibilityLabel: 'Cá nhân',
+    });
+    await ReactTestRenderer.act(async () => profileTab.props.onPress());
+    const logout = renderer.root.findByProps({ label: 'Đăng xuất' });
+    await ReactTestRenderer.act(async () => logout.props.onPress());
+    await ReactTestRenderer.act(async () => {
+      resolveGrade({
+        ok: true,
+        json: async () => ({
+          user_flashcard_id: 'card-session',
+          interval_after: 6,
+          repetitions_after: 1,
+          efactor_after: 2.6,
+          next_review_date: '2026-10-17',
+          message: 'saved',
+        }),
+      });
+      await pendingGrade;
+    });
+
+    const getCalls = fetchMock.mock.calls.filter(
+      ([url]) =>
+        url.endsWith('/auth/me') ||
+        url.endsWith('/flashcards') ||
+        url.endsWith('/review/today'),
+    );
+    expect(getCalls).toHaveLength(3);
+  } finally {
+    globalThis.fetch = previousFetch;
+    await ReactTestRenderer.act(async () => renderer?.unmount());
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   }
 });

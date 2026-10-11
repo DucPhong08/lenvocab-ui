@@ -13,6 +13,7 @@ const errorMessages: Record<string, string> = {
     'Đã hết lượt quét thử của khách hôm nay. Đăng nhập để tiếp tục.',
   QUOTA_EXCEEDED: 'Bạn đã hết lượt quét hôm nay.',
   MAINTENANCE_MODE: 'Hệ thống đang bảo trì. Vui lòng thử lại sau.',
+  DRAFT_EXPIRED: 'Thẻ nháp đã hết hạn. Vui lòng quét lại ảnh.',
   REDIS_CONNECTION_FAILED: 'Dịch vụ tạm thời gián đoạn. Vui lòng thử lại.',
   AWS_VISION_UNAVAILABLE: 'Dịch vụ nhận diện ảnh đang bận. Vui lòng thử lại.',
 };

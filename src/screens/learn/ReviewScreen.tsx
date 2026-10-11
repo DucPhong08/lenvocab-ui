@@ -13,13 +13,26 @@ export function ReviewScreen({
   saved,
   user,
   due,
+  loadingData,
   dataError,
   reloadData,
 }: ScreenProps) {
   const goal = user?.preferences?.daily_review_goal ?? 15;
-  const isDoneToday = user && due.length === 0;
+  const hasNoCards = !!user && saved.length === 0;
+  const isDoneToday = !!user && !hasNoCards && due.length === 0;
 
-  if (user && dataError) {
+  if (loadingData) {
+    return (
+      <View style={styles.page}>
+        <EmptyState
+          title="Đang tải lịch ôn"
+          description="Vui lòng chờ trong giây lát."
+        />
+      </View>
+    );
+  }
+
+  if (dataError) {
     return (
       <View style={styles.page}>
         <EmptyState
@@ -27,6 +40,19 @@ export function ReviewScreen({
           description={dataError}
           action="Thử lại"
           onPress={() => reloadData()}
+        />
+      </View>
+    );
+  }
+
+  if (hasNoCards) {
+    return (
+      <View style={styles.page}>
+        <EmptyState
+          title="Chưa có từ để luyện tập"
+          description="Quét và lưu từ đầu tiên để bắt đầu ôn tập."
+          action="Quét từ mới"
+          onPress={() => navigate('camera')}
         />
       </View>
     );

@@ -4,6 +4,7 @@ import { ApiError } from '@/api/client/ApiError';
 import { getMe } from '@/api/endpoints/getMe';
 import { listFlashcards } from '@/api/endpoints/listFlashcards';
 import { reviewToday } from '@/api/endpoints/reviewToday';
+import type { SubmitReviewResponse } from '@/api/contracts';
 
 export function useLearningData(
   token: string | null,
@@ -42,9 +43,35 @@ export function useLearningData(
       dueQuery.mutate(),
     ]);
   };
+  const applyReview = async (result: SubmitReviewResponse) => {
+    const updateCard = <T extends { user_flashcard_id: string }>(card: T) =>
+      card.user_flashcard_id === result.user_flashcard_id
+        ? {
+            ...card,
+            interval: result.interval_after,
+            repetitions: result.repetitions_after,
+            efactor: result.efactor_after,
+            next_review_date: result.next_review_date,
+          }
+        : card;
+
+    await Promise.all([
+      cardsQuery.mutate(cards => cards?.map(updateCard), {
+        revalidate: false,
+      }),
+      dueQuery.mutate(
+        cards =>
+          cards?.filter(
+            card => card.user_flashcard_id !== result.user_flashcard_id,
+          ),
+        { revalidate: false },
+      ),
+    ]);
+  };
 
   return {
     cards: cardsQuery.data ?? [],
+    applyReview,
     dataError:
       error instanceof Error
         ? error.message

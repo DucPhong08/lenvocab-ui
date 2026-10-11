@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bookmark } from 'lucide-react-native';
+import { ApiError } from '@/api/client/ApiError';
 import { gradeReview } from '@/api/endpoints/gradeReview';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
@@ -42,6 +43,8 @@ export function AppContent() {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
   const { authBusy, restoringSession, signIn, signOut, token } = useSession();
+  const currentToken = useRef(token);
+  currentToken.current = token;
   const logoutSession = useCallback(async () => {
     try {
       await signOut();
@@ -55,6 +58,7 @@ export function AppContent() {
     return true;
   }, [signOut]);
   const {
+    applyReview,
     cards,
     dataError,
     due,
@@ -76,7 +80,22 @@ export function AppContent() {
     scanResult,
     selectImage,
     setImageUri,
-  } = useScanFlow({ navigate, reloadUser, sceneId, setSceneId, token });
+  } = useScanFlow({
+    navigate,
+    onUnauthorized: logoutSession,
+    reloadUser,
+    sceneId,
+    setSceneId,
+    token,
+  });
+  const previousToken = useRef(token);
+  useEffect(() => {
+    if (previousToken.current && previousToken.current !== token) {
+      resetScan();
+      navigate('home');
+    }
+    previousToken.current = token;
+  }, [navigate, resetScan, token]);
   const logout = useCallback(async () => {
     if (!(await logoutSession())) return;
     resetScan();
@@ -85,6 +104,7 @@ export function AppContent() {
   const { saved, saving, toggleSaved, wordForId } = useVocabularyLibrary({
     cards,
     navigate,
+    onUnauthorized: logoutSession,
     reloadCards,
     reloadDue,
     scanResult,
@@ -111,10 +131,25 @@ export function AppContent() {
     setWordId(id);
     navigate('word');
   };
-  const submitReview = async (id: string, quality: number) => {
+  const submitReview = async (
+    id: string,
+    quality: number,
+    reviewId: string,
+  ) => {
     if (!token) return;
-    await gradeReview(token, id, quality);
-    await Promise.all([reloadDue(), reloadCards()]);
+    const requestToken = token;
+    try {
+      const result = await gradeReview(token, id, quality, reviewId);
+      if (currentToken.current !== requestToken) return;
+      await applyReview(result);
+      if (due.length <= 1) reloadData().catch(() => {});
+    } catch (error) {
+      if (currentToken.current !== requestToken) return;
+      if (error instanceof ApiError && error.status === 401) {
+        await logoutSession();
+      }
+      throw error;
+    }
   };
   const goBack = useCallback(() => {
     if (screen === 'home') return false;

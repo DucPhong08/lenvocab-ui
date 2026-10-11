@@ -52,7 +52,11 @@ export type ScreenProps = {
   dataError: string | null;
   reloadData: () => Promise<void>;
   wordForId: (id: string) => Word;
-  submitReview: (id: string, quality: number) => Promise<void>;
+  submitReview: (
+    id: string,
+    quality: number,
+    reviewId: string,
+  ) => Promise<void>;
   onAuth: (
     mode: 'login' | 'register',
     email: string,

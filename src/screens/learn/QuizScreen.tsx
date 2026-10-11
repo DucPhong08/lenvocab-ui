@@ -1,6 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { CheckCircle2, Sparkles, Volume2, X } from 'lucide-react-native';
 import { Eyebrow } from '@/components/Eyebrow';
+import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { TopBar } from '@/components/TopBar';
@@ -17,6 +18,9 @@ export function QuizScreen({
   user,
   cards,
   due,
+  loadingData,
+  dataError,
+  reloadData,
 }: ScreenProps) {
   const {
     done,
@@ -29,8 +33,47 @@ export function QuizScreen({
     selected,
     selectOption,
     word,
-  } = useQuiz({ scrollToEnd, scrollToTop, user, cards, due });
+  } = useQuiz({
+    scrollToEnd,
+    scrollToTop,
+    user,
+    cards,
+    due,
+    loadingData,
+    dataError,
+  });
   const { play } = useAudio();
+  if (loadingData || dataError || !word) {
+    return (
+      <View style={styles.page}>
+        <TopBar title="Quiz nhanh" onBack={() => navigate('review')} />
+        <EmptyState
+          title={
+            loadingData
+              ? 'Đang chuẩn bị câu hỏi'
+              : dataError
+              ? 'Không thể tải câu hỏi'
+              : 'Chưa có từ để luyện tập'
+          }
+          description={
+            loadingData
+              ? 'Vui lòng chờ trong giây lát.'
+              : dataError ?? 'Quét và lưu từ đầu tiên để bắt đầu quiz.'
+          }
+          action={
+            dataError ? 'Thử lại' : !loadingData ? 'Quét từ mới' : undefined
+          }
+          onPress={
+            dataError
+              ? () => reloadData()
+              : !loadingData
+              ? () => navigate('camera')
+              : undefined
+          }
+        />
+      </View>
+    );
+  }
   if (done)
     return (
       <View style={styles.page}>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import type { ReviewCard } from '@/api/contracts';
 import { cardWord } from '@/api/mappers/cardWord';
@@ -18,6 +18,10 @@ export function useFlashcards({
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const reviewAttempt = useRef<{ reviewId: string; quality: number } | null>(
+    null,
+  );
 
   useEffect(() => {
     if (user && !loadingData && queue === null) setQueue(due);
@@ -32,10 +36,28 @@ export function useFlashcards({
     setFlipped(false);
   };
   const grade = async (quality: number) => {
-    if (!user || !queue?.[index] || submitting) return;
+    if (!user || !queue?.[index] || submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     try {
-      await submitReview(queue[index].user_flashcard_id, quality);
+      reviewAttempt.current ??= {
+        reviewId: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+          /[xy]/g,
+          character => {
+            const value = Math.floor(Math.random() * 16);
+            return (character === 'x' ? value : (value & 0x3) | 0x8).toString(
+              16,
+            );
+          },
+        ),
+        quality,
+      };
+      await submitReview(
+        queue[index].user_flashcard_id,
+        reviewAttempt.current.quality,
+        reviewAttempt.current.reviewId,
+      );
+      reviewAttempt.current = null;
       setFlipped(false);
       setIndex(value => value + 1);
     } catch (error) {
@@ -44,6 +66,7 @@ export function useFlashcards({
         error instanceof Error ? error.message : 'Vui lòng thử lại.',
       );
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   };

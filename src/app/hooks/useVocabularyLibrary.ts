@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Alert } from 'react-native';
+import { ApiError } from '@/api/client/ApiError';
 import type { Flashcard, ScanResult } from '@/api/contracts';
 import { confirmFlashcard } from '@/api/endpoints/confirmFlashcard';
 import { cardWord } from '@/api/mappers/cardWord';
@@ -11,6 +12,7 @@ import type { Screen } from '@/types/screen';
 type UseVocabularyLibraryOptions = {
   cards: Flashcard[];
   navigate: (screen: Screen) => void;
+  onUnauthorized: () => Promise<unknown>;
   reloadCards: () => Promise<unknown>;
   reloadDue: () => Promise<unknown>;
   scanResult: ScanResult | null;
@@ -21,6 +23,7 @@ type UseVocabularyLibraryOptions = {
 export function useVocabularyLibrary({
   cards,
   navigate,
+  onUnauthorized,
   reloadCards,
   reloadDue,
   scanResult,
@@ -28,6 +31,8 @@ export function useVocabularyLibrary({
   token,
 }: UseVocabularyLibraryOptions) {
   const [saving, setSaving] = useState(false);
+  const currentToken = useRef(token);
+  currentToken.current = token;
   const saved = cards.map(card => card.user_flashcard_id);
 
   const wordForId = (id: string): Word => {
@@ -61,11 +66,19 @@ export function useVocabularyLibrary({
     if (saving) return;
 
     setSaving(true);
+    const requestToken = token;
     try {
       await confirmFlashcard(token, scanResult);
+      if (currentToken.current !== requestToken) return;
       await Promise.all([reloadCards(), reloadDue()]);
+      if (currentToken.current !== requestToken) return;
       showFeedback('Đã lưu từ vào tài khoản của bạn.');
     } catch (error) {
+      if (currentToken.current !== requestToken) return;
+      if (error instanceof ApiError && error.status === 401) {
+        await onUnauthorized();
+        return;
+      }
       Alert.alert(
         'Không thể lưu từ',
         error instanceof Error ? error.message : 'Thử lại sau.',
