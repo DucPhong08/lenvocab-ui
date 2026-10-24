@@ -11,6 +11,7 @@ export type Word = {
   level: string
   scene: string
   audio?: string | null
+  userFlashcardId?: string
   interval?: number
   repetitions?: number
   nextReviewDate?: string

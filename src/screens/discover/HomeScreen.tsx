@@ -1,5 +1,11 @@
 import { Image, Pressable, Text, View } from 'react-native';
-import { ArrowRight, Bookmark, Camera, Check, Sparkles } from 'lucide-react-native';
+import {
+  ArrowRight,
+  Bookmark,
+  Camera,
+  Check,
+  Sparkles,
+} from 'lucide-react-native';
 import { Brand } from '@/components/Brand';
 import { Eyebrow } from '@/components/Eyebrow';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -14,6 +20,7 @@ export function HomeScreen({
   navigate,
   openWord,
   saved,
+  totalSaved,
   toggleSaved,
   history,
   user,
@@ -29,12 +36,16 @@ export function HomeScreen({
           onPress={() => navigate('profile')}
           style={styles.avatar}
         >
-          <Text style={styles.avatarText}>{(user?.display_name || user?.email || 'K')[0].toUpperCase()}</Text>
+          <Text style={styles.avatarText}>
+            {(user?.display_name || user?.email || 'K')[0].toUpperCase()}
+          </Text>
         </Pressable>
       </View>
       <View style={styles.greeting}>
         <Eyebrow>MỖI NGÀY MỘT ĐIỀU MỚI</Eyebrow>
-        <Text style={styles.greetingTitle}>Chào {user?.display_name || 'bạn'},{'\n'}hôm nay học gì?</Text>
+        <Text style={styles.greetingTitle}>
+          Chào {user?.display_name || 'bạn'},{'\n'}hôm nay học gì?
+        </Text>
         <Text style={styles.description}>
           Thế giới quanh bạn luôn có điều mới để học.
         </Text>
@@ -69,7 +80,9 @@ export function HomeScreen({
         </View>
       </Pressable>
       <Text style={styles.demoNote}>
-        {user ? 'ẢNH THẬT · NHẬN DIỆN AI' : 'CHẾ ĐỘ KHÁCH · QUÉT ẢNH THẬT, KHÔNG LƯU BỘ TỪ'}
+        {user
+          ? 'ẢNH THẬT · NHẬN DIỆN AI'
+          : 'CHẾ ĐỘ KHÁCH · QUÉT ẢNH THẬT, KHÔNG LƯU BỘ TỪ'}
       </Text>
       <View style={styles.stats}>
         <View style={styles.stat}>
@@ -77,8 +90,10 @@ export function HomeScreen({
             <Bookmark size={18} color={colors.forest} />
           </View>
           <View>
-            <Text style={styles.statValue}>{saved.length} từ</Text>
-            <Text style={styles.statLabel}>{user ? 'Trong tài khoản' : 'Đăng nhập để lưu'}</Text>
+            <Text style={styles.statValue}>{totalSaved} từ</Text>
+            <Text style={styles.statLabel}>
+              {user ? 'Trong tài khoản' : 'Đăng nhập để lưu'}
+            </Text>
           </View>
         </View>
         <View style={styles.statSeparator} />
@@ -87,8 +102,12 @@ export function HomeScreen({
             <Camera size={18} color={colors.forest} />
           </View>
           <View>
-            <Text style={styles.statValue}>{user ? `${user.daily_quota_left} lượt` : `${history.length} lần`}</Text>
-            <Text style={styles.statLabel}>{user ? 'Quét còn hôm nay' : 'Quét phiên này'}</Text>
+            <Text style={styles.statValue}>
+              {user ? `${user.daily_quota_left} lượt` : `${history.length} lần`}
+            </Text>
+            <Text style={styles.statLabel}>
+              {user ? 'Quét còn hôm nay' : 'Quét phiên này'}
+            </Text>
           </View>
         </View>
       </View>
@@ -112,7 +131,9 @@ export function HomeScreen({
         </View>
         <View style={styles.reviewCopy}>
           <Text style={styles.reviewTitle}>5 phút cho trí nhớ</Text>
-          <Text style={styles.reviewSubtitle}>{user ? `${due.length} từ cần ôn hôm nay` : 'Thử bộ thẻ minh họa'}</Text>
+          <Text style={styles.reviewSubtitle}>
+            {user ? `${due.length} từ cần ôn hôm nay` : 'Thử bộ thẻ minh họa'}
+          </Text>
           <Text style={styles.reviewLink}>Bắt đầu ôn tập →</Text>
         </View>
       </Pressable>
@@ -127,7 +148,9 @@ export function HomeScreen({
           word={word}
           saved={saved.includes(word.id)}
           onOpen={() => openWord(word.id)}
-          onSave={saved.includes(word.id) ? undefined : () => toggleSaved(word.id)}
+          onSave={
+            saved.includes(word.id) ? undefined : () => toggleSaved(word.id)
+          }
         />
       ))}
     </View>

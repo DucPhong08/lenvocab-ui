@@ -106,20 +106,18 @@ test('navigates from home to sample image selection', async () => {
 
 test('scans chosen photos as a guest and opens the quiz', async () => {
   const previousFetch = globalThis.fetch;
-  const fetchMock = jest
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        status: 'OK',
-        keyword: 'mug',
-        meaning_vi: 'cốc',
-        example_1: 'A mug.',
-        example_2: 'My mug.',
-        related_words: [],
-        detected_objects: [],
-      }),
-    });
+  const fetchMock = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({
+      status: 'OK',
+      keyword: 'mug',
+      meaning_vi: 'cốc',
+      example_1: 'A mug.',
+      example_2: 'My mug.',
+      related_words: [],
+      detected_objects: [],
+    }),
+  });
   globalThis.fetch = fetchMock;
   try {
     jest
@@ -193,21 +191,19 @@ test('scans chosen photos as a guest and opens the quiz', async () => {
 
 test('uses the real API root, Bearer token, multipart scan and review rating', async () => {
   const previousFetch = globalThis.fetch;
-  const fetchMock = jest
-    .fn()
-    .mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        access_token: 'test-token',
-        status: 'SUCCESS',
-        keyword: 'mug',
-        meaning_vi: 'cốc',
-        example_1: 'A mug is on the table.',
-        example_2: 'I use a mug.',
-        related_words: [],
-        audio_base64: null,
-      }),
-    });
+  const fetchMock = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({
+      access_token: 'test-token',
+      status: 'SUCCESS',
+      keyword: 'mug',
+      meaning_vi: 'cốc',
+      example_1: 'A mug is on the table.',
+      example_2: 'I use a mug.',
+      related_words: [],
+      audio_base64: null,
+    }),
+  });
   globalThis.fetch = fetchMock;
   try {
     await authenticate('login', 'a@example.com', 'password123', '');
@@ -308,8 +304,11 @@ test('does not apply a completed grade after logout', async () => {
         }),
       });
     }
-    if (url.endsWith('/flashcards')) {
-      return Promise.resolve({ ok: true, json: async () => [card] });
+    if (url.includes('/flashcards/page?')) {
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ items: [card], total: 1, next_offset: null }),
+      });
     }
     if (url.endsWith('/review/today')) {
       return Promise.resolve({ ok: true, json: async () => [card] });
@@ -371,7 +370,7 @@ test('does not apply a completed grade after logout', async () => {
     const getCalls = fetchMock.mock.calls.filter(
       ([url]) =>
         url.endsWith('/auth/me') ||
-        url.endsWith('/flashcards') ||
+        url.includes('/flashcards/page?') ||
         url.endsWith('/review/today'),
     );
     expect(getCalls).toHaveLength(3);

@@ -1,4 +1,6 @@
 const errorMessages: Record<string, string> = {
+  AUDIO_NOT_AVAILABLE: 'Từ này chưa có âm thanh. Vui lòng thử lại sau.',
+  FLASHCARD_NOT_FOUND: 'Không tìm thấy thẻ từ trong tài khoản của bạn.',
   INVALID_CREDENTIALS: 'Email hoặc mật khẩu không đúng.',
   EMAIL_ALREADY_REGISTERED: 'Email này đã được đăng ký.',
   USER_INACTIVE: 'Tài khoản đã bị vô hiệu hóa.',

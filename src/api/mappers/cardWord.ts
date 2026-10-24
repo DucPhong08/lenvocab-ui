@@ -4,6 +4,7 @@ import type { Flashcard, ReviewCard } from '@/api/contracts';
 export function cardWord(card: Flashcard | ReviewCard): Word {
   return {
     id: card.user_flashcard_id,
+    userFlashcardId: card.user_flashcard_id,
     term: card.keyword,
     ipa: card.pronunciation ?? '',
     type: 'từ vựng',

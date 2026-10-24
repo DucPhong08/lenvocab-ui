@@ -36,10 +36,10 @@ export function FlashcardsScreen({
     }).start();
 
     // Tự động phát âm thanh khi lật sang mặt sau (nghĩa) nếu có audio
-    if (flipped && word?.audio) {
-      play(word.audio);
+    if (flipped && (word?.audio || word?.userFlashcardId)) {
+      play(word.audio, word.userFlashcardId);
     }
-  }, [flipped, animatedValue, play, word?.audio]);
+  }, [flipped, animatedValue, play, word?.audio, word?.userFlashcardId]);
 
   // Reset góc xoay khi chuyển từ mới
   useEffect(() => {
@@ -138,13 +138,13 @@ export function FlashcardsScreen({
           <View style={styles.flashcardTop}>
             <Text style={styles.flashcardSmall}>TỪ SỐ {index + 1}</Text>
             <View style={styles.cardTopActions}>
-              {word.audio && (
+              {(word.audio || word.userFlashcardId) && (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Phát âm tiếng Anh chuẩn"
                   onPress={e => {
                     e.stopPropagation?.();
-                    play(word.audio);
+                    play(word.audio, word.userFlashcardId);
                   }}
                   style={[
                     styles.speakerBtn,
@@ -191,13 +191,13 @@ export function FlashcardsScreen({
               NGHĨA CỦA TỪ
             </Text>
             <View style={styles.cardTopActions}>
-              {word.audio && (
+              {(word.audio || word.userFlashcardId) && (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel="Nghe lại phát âm"
                   onPress={e => {
                     e.stopPropagation?.();
-                    play(word.audio);
+                    play(word.audio, word.userFlashcardId);
                   }}
                   style={[
                     styles.speakerBtnBack,

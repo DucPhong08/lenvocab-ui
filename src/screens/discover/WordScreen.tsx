@@ -45,14 +45,26 @@ export function WordScreen({
           <View style={styles.topBarActions}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={word.audio ? 'Phát âm từ' : 'Không có audio'}
-              onPress={() => play(word.audio)}
-              style={[styles.audioBtn, !word.audio && styles.audioBtnDisabled]}
-              disabled={!word.audio}
+              accessibilityLabel={
+                word.audio || word.userFlashcardId
+                  ? 'Phát âm từ'
+                  : 'Không có audio'
+              }
+              onPress={() => play(word.audio, word.userFlashcardId)}
+              style={[
+                styles.audioBtn,
+                !(word.audio || word.userFlashcardId) &&
+                  styles.audioBtnDisabled,
+              ]}
+              disabled={!(word.audio || word.userFlashcardId)}
             >
               <Volume2
                 size={20}
-                color={word.audio ? colors.forest : colors.subtle}
+                color={
+                  word.audio || word.userFlashcardId
+                    ? colors.forest
+                    : colors.subtle
+                }
               />
             </Pressable>
             {isSaved ? (
@@ -79,13 +91,15 @@ export function WordScreen({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Phát âm"
-          onPress={() => play(word.audio)}
-          disabled={!word.audio}
+          onPress={() => play(word.audio, word.userFlashcardId)}
+          disabled={!(word.audio || word.userFlashcardId)}
           style={styles.ipaRow}
         >
           <Volume2
             size={14}
-            color={word.audio ? colors.forest : colors.subtle}
+            color={
+              word.audio || word.userFlashcardId ? colors.forest : colors.subtle
+            }
           />
           <Text style={styles.ipa}>{word.ipa}</Text>
         </Pressable>

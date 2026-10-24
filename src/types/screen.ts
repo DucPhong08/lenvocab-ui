@@ -35,6 +35,12 @@ export type ScreenProps = {
   wordBack: Screen;
   openWord: (id: string) => void;
   saved: string[];
+  totalSaved: number;
+  hasMoreCards: boolean;
+  loadingMoreCards: boolean;
+  loadMoreCards: () => Promise<void>;
+  onVoiceSpeedChange: (speed: number) => Promise<void>;
+  preferencesBusy: boolean;
   toggleSaved: (id: string) => void;
   history: ScanEntry[];
   openHistory: (entry: ScanEntry) => void;

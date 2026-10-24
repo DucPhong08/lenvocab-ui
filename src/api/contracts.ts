@@ -83,6 +83,12 @@ export type Flashcard = {
   next_review_date: string;
 };
 
+export type FlashcardPage = {
+  items: Flashcard[];
+  total: number;
+  next_offset: number | null;
+};
+
 export type ReviewCard = Omit<Flashcard, 'global_flashcard_id' | 'status'>;
 
 export type SubmitReviewResponse = {

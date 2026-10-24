@@ -19,12 +19,16 @@ import { MenuItem } from './components/MenuItem';
 
 export function ProfileScreen({
   navigate,
-  saved,
+  totalSaved,
+  onVoiceSpeedChange,
+  preferencesBusy,
   history,
   user,
   onLogout,
 }: ScreenProps) {
   const prefs = user?.preferences;
+  const displayName =
+    user?.display_name?.trim() || (user ? 'Người học' : 'Khách tham quan');
 
   return (
     <View style={styles.page}>
@@ -48,13 +52,11 @@ export function ProfileScreen({
       >
         <View style={styles.avatar}>
           <Text style={styles.avatarLetter}>
-            {(user?.display_name || user?.email || 'K')[0].toUpperCase()}
+            {displayName[0].toUpperCase()}
           </Text>
         </View>
         <View style={styles.fill}>
-          <Text style={styles.identityName}>
-            {user?.display_name || 'Khách tham quan'}
-          </Text>
+          <Text style={styles.identityName}>{displayName}</Text>
           <Text style={styles.identitySub}>
             {user
               ? `${user.email} · Gói ${user.account_tier}`
@@ -66,7 +68,7 @@ export function ProfileScreen({
 
       <View style={styles.profileStats}>
         <View style={styles.stat}>
-          <Text style={styles.statValue}>{saved.length}</Text>
+          <Text style={styles.statValue}>{totalSaved}</Text>
           <Text style={styles.statCaption}>từ đã lưu</Text>
         </View>
         <View style={styles.verticalLine} />
@@ -113,13 +115,43 @@ export function ProfileScreen({
                 <Headphones size={19} color={colors.forest} />
               </View>
               <View style={styles.fill}>
-                <Text style={styles.menuText}>Giọng phát âm AWS Polly</Text>
+                <Text style={styles.menuText}>Giọng phát âm chuẩn</Text>
                 <Text style={styles.menuHint}>
-                  {prefs?.preferred_voice_id ?? 'Joanna'} · Tốc độ {prefs?.voice_speed ?? 1.0}x
+                  {prefs?.preferred_voice_id ?? 'Joanna'}
                 </Text>
               </View>
             </View>
 
+            <View style={styles.menuItem}>
+              <View style={styles.fill}>
+                <Text style={styles.menuText}>Tốc độ phát âm</Text>
+                <View style={styles.speedOptions}>
+                  {[0.75, 1, 1.25].map(speed => (
+                    <Pressable
+                      key={speed}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Tốc độ ${speed}x`}
+                      accessibilityState={{
+                        selected: (prefs?.voice_speed ?? 1) === speed,
+                      }}
+                      disabled={preferencesBusy}
+                      onPress={() => onVoiceSpeedChange(speed)}
+                      style={styles.speedOption}
+                    >
+                      <Text
+                        style={[
+                          styles.speedText,
+                          (prefs?.voice_speed ?? 1) === speed &&
+                            styles.speedSelected,
+                        ]}
+                      >
+                        {speed}x
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </View>
             <View style={styles.menuItem}>
               <View style={styles.menuIcon}>
                 <Target size={19} color={colors.forest} />
@@ -127,7 +159,8 @@ export function ProfileScreen({
               <View style={styles.fill}>
                 <Text style={styles.menuText}>Mục tiêu ôn mỗi ngày</Text>
                 <Text style={styles.menuHint}>
-                  {prefs?.daily_review_goal ?? 15} từ/ngày (Giới hạn chống nản SM-2)
+                  {prefs?.daily_review_goal ?? 15} từ/ngày (Giới hạn chống nản
+                  SM-2)
                 </Text>
               </View>
             </View>
@@ -139,7 +172,8 @@ export function ProfileScreen({
               <View style={styles.fill}>
                 <Text style={styles.menuText}>Hạn mức quét ảnh</Text>
                 <Text style={styles.menuHint}>
-                  {user.daily_quota_left} lượt còn lại hôm nay (Gói {user.account_tier})
+                  {user.daily_quota_left} lượt còn lại hôm nay (Gói{' '}
+                  {user.account_tier})
                 </Text>
               </View>
             </View>

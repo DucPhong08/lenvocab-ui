@@ -40,15 +40,18 @@ export function WordRow({
         <ChevronRight size={16} color={colors.subtle} />
       </Pressable>
 
-      {word.audio && (
+      {(word.audio || word.userFlashcardId) && (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Nghe phát âm từ ${word.term}`}
           onPress={e => {
             e.stopPropagation?.();
-            play(word.audio);
+            play(word.audio, word.userFlashcardId);
           }}
-          style={({ pressed }) => [styles.audioRowBtn, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.audioRowBtn,
+            pressed && styles.pressed,
+          ]}
         >
           <Volume2 size={19} color={colors.forest} />
         </Pressable>
@@ -57,7 +60,9 @@ export function WordRow({
       {onSave && (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={saved ? `Đã lưu ${word.term}` : `Lưu ${word.term}`}
+          accessibilityLabel={
+            saved ? `Đã lưu ${word.term}` : `Lưu ${word.term}`
+          }
           accessibilityState={{ selected: saved }}
           disabled={saved}
           onPress={onSave}

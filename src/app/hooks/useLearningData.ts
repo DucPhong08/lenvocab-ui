@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import useSWR from 'swr';
+import useSWRInfinite from 'swr/infinite';
 import { ApiError } from '@/api/client/ApiError';
 import { getMe } from '@/api/endpoints/getMe';
 import { listFlashcards } from '@/api/endpoints/listFlashcards';
 import { reviewToday } from '@/api/endpoints/reviewToday';
-import type { SubmitReviewResponse } from '@/api/contracts';
+import type { FlashcardPage, SubmitReviewResponse } from '@/api/contracts';
 
 export function useLearningData(
   token: string | null,
@@ -12,29 +13,54 @@ export function useLearningData(
 ) {
   const handleError = useCallback(
     (error: unknown) => {
-      if (error instanceof ApiError && error.status === 401) {
+      if (error instanceof ApiError && error.status === 401)
         onUnauthorized().catch(() => {});
-      }
     },
     [onUnauthorized],
   );
-
+  const config = { shouldRetryOnError: false, onError: handleError };
   const userQuery = useSWR(
     token ? ['me', token] : null,
     ([, authToken]) => getMe(authToken),
-    { shouldRetryOnError: false, onError: handleError },
+    config,
   );
-  const cardsQuery = useSWR(
-    token ? ['cards', token] : null,
-    ([, authToken]) => listFlashcards(authToken),
-    { shouldRetryOnError: false, onError: handleError },
+  const cardsQuery = useSWRInfinite<FlashcardPage>(
+    (index, previous: FlashcardPage | null) => {
+      if (!token || (previous && previous.next_offset === null)) return null;
+      return [
+        'cards',
+        token,
+        index === 0 ? 0 : previous!.next_offset!,
+      ] as const;
+    },
+    ([, authToken, offset]: readonly [string, string, number]) =>
+      listFlashcards(authToken, offset),
+    { ...config, revalidateFirstPage: false },
   );
   const dueQuery = useSWR(
     token ? ['due', token] : null,
     ([, authToken]) => reviewToday(authToken),
-    { shouldRetryOnError: false, onError: handleError },
+    config,
   );
-
+  const pages = cardsQuery.data ?? [];
+  const cards = [
+    ...new Map(
+      pages
+        .flatMap(page => page.items)
+        .map(card => [card.user_flashcard_id, card]),
+    ).values(),
+  ];
+  const hasMoreCards =
+    pages.length > 0 && pages[pages.length - 1].next_offset !== null;
+  const loadingMoreCards = cardsQuery.isValidating;
+  const loadMoreCards = async () => {
+    if (!hasMoreCards || cardsQuery.isValidating) return;
+    if (cardsQuery.error) {
+      await cardsQuery.mutate();
+      return;
+    }
+    await cardsQuery.setSize(cardsQuery.size + 1);
+  };
   const error = userQuery.error ?? cardsQuery.error ?? dueQuery.error;
   const reloadData = async () => {
     await Promise.all([
@@ -54,23 +80,27 @@ export function useLearningData(
             next_review_date: result.next_review_date,
           }
         : card;
-
     await Promise.all([
-      cardsQuery.mutate(cards => cards?.map(updateCard), {
-        revalidate: false,
-      }),
+      cardsQuery.mutate(
+        data =>
+          data?.map(page => ({ ...page, items: page.items.map(updateCard) })),
+        { revalidate: false },
+      ),
       dueQuery.mutate(
-        cards =>
-          cards?.filter(
+        data =>
+          data?.filter(
             card => card.user_flashcard_id !== result.user_flashcard_id,
           ),
         { revalidate: false },
       ),
     ]);
   };
-
   return {
-    cards: cardsQuery.data ?? [],
+    cards,
+    totalSaved: pages[0]?.total ?? 0,
+    hasMoreCards,
+    loadingMoreCards,
+    loadMoreCards,
     applyReview,
     dataError:
       error instanceof Error

@@ -26,11 +26,23 @@ export function ResultsScreen({
 }: ScreenProps) {
   const scene = getScene(sceneId);
   const words = scanResult ? [scanWord(scanResult)] : scene.words;
-  const isStored = (id: string) => saved.includes(id) || !!(scanResult && id.startsWith('scan:') && cards.some(card => card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase()));
+  const isStored = (id: string) =>
+    saved.includes(id) ||
+    !!(
+      scanResult &&
+      id.startsWith('scan:') &&
+      cards.some(
+        card =>
+          card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase(),
+      )
+    );
   const unsaved = words.filter(word => !isStored(word.id));
   return (
     <View style={styles.page}>
-      <TopBar title={scanResult ? 'Kết quả quét AI' : 'Kết quả minh họa'} onBack={() => navigate('camera')} />
+      <TopBar
+        title={scanResult ? 'Kết quả quét AI' : 'Kết quả minh họa'}
+        onBack={() => navigate('camera')}
+      />
       <View style={styles.resultImageWrap}>
         <Image
           source={imageUri ? { uri: imageUri } : sceneImage(sceneId)}
@@ -40,7 +52,11 @@ export function ResultsScreen({
         />
         <View style={styles.resultOverlay}>
           <Eyebrow light>
-            {scanResult ? 'ẢNH CỦA BẠN · QUÉT AI' : imageUri ? 'ẢNH CỦA BẠN · TỪ MẪU' : 'CẢNH MẪU · TỪ MẪU'}
+            {scanResult
+              ? 'ẢNH CỦA BẠN · QUÉT AI'
+              : imageUri
+              ? 'ẢNH CỦA BẠN · TỪ MẪU'
+              : 'CẢNH MẪU · TỪ MẪU'}
           </Eyebrow>
           <Text style={styles.resultImageTitle}>
             {imageUri ? 'Khám phá qua ảnh' : scene.title}
@@ -63,17 +79,15 @@ export function ResultsScreen({
       <View style={styles.notice}>
         <Lightbulb size={18} color={colors.forest} />
         <Text style={styles.noticeText}>
-          {scanResult ? `Nhận diện: ${scanResult.keyword}. ${scanResult.detected_objects?.length ?? 0} vật thể được tìm thấy. Backend hiện trả về một flashcard nháp mỗi lượt quét.` : 'Các câu ví dụ và từ trong cảnh này là nội dung minh họa, không được tạo từ ảnh của bạn.'}
+          {scanResult
+            ? `Từ chính được nhận diện: ${scanResult.keyword}. Mỗi lần quét tạo một thẻ để bạn học và lưu.`
+            : 'Các câu ví dụ và từ trong cảnh này là nội dung minh họa, không được tạo từ ảnh của bạn.'}
         </Text>
       </View>
-      {scanResult && scanResult.detected_objects?.length > 0 && <View style={styles.objectList}>
-        {scanResult.detected_objects.map((object, index) => (
-          <View key={`${object.keyword}-${index}`} style={styles.objectTag}>
-            <Text style={styles.objectTagText}>{object.keyword} · {Math.round(object.confidence <= 1 ? object.confidence * 100 : object.confidence)}%</Text>
-          </View>
-        ))}
-      </View>}
-      <SectionHeader kicker={scanResult ? 'TỪ ĐƯỢC NHẬN DIỆN' : 'TỪ TRONG CẢNH MẪU'} title="Khám phá từng từ" />
+      <SectionHeader
+        kicker={scanResult ? 'TỪ ĐƯỢC NHẬN DIỆN' : 'TỪ TRONG CẢNH MẪU'}
+        title="Khám phá từng từ"
+      />
       {words.map(word => (
         <WordRow
           key={word.id}
@@ -84,9 +98,25 @@ export function ResultsScreen({
         />
       ))}
       <PrimaryButton
-        label={saving ? 'Đang lưu...' : !user ? 'Đăng nhập để lưu từ' : scanResult ? (unsaved.length ? 'Lưu từ vào tài khoản' : 'Xem từ đã lưu') : 'Chọn ảnh thật để quét AI'}
+        label={
+          saving
+            ? 'Đang lưu...'
+            : !user
+            ? 'Đăng nhập để lưu từ'
+            : scanResult
+            ? unsaved.length
+              ? 'Lưu từ vào tài khoản'
+              : 'Xem từ đã lưu'
+            : 'Chọn ảnh thật để quét AI'
+        }
         disabled={saving}
-        onPress={() => !user ? navigate('auth') : !scanResult ? navigate('camera') : unsaved.length ? toggleSaved(unsaved[0].id) : navigate('saved')}
+        onPress={() => {
+          if (scanResult && unsaved.length) {
+            toggleSaved(unsaved[0].id);
+            return;
+          }
+          navigate(!user ? 'auth' : !scanResult ? 'camera' : 'saved');
+        }}
         style={styles.actionTop12}
       />
     </View>

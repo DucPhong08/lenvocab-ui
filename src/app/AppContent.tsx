@@ -15,6 +15,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bookmark } from 'lucide-react-native';
 import { ApiError } from '@/api/client/ApiError';
+import { updatePreferences } from '@/api/endpoints/updatePreferences';
+import { AudioContext } from '@/hooks/audioContext';
 import { gradeReview } from '@/api/endpoints/gradeReview';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
@@ -31,6 +33,7 @@ import { styles } from './styles';
 
 export function AppContent() {
   const [screen, setScreen] = useState<Screen>('home');
+  const pendingSave = useRef<string | null>(null);
   const [sceneId, setSceneId] = useState('desk');
   const [wordId, setWordId] = useState('notebook');
   const [wordBack, setWordBack] = useState<Screen>('results');
@@ -39,6 +42,7 @@ export function AppContent() {
   const fade = useRef(new Animated.Value(1)).current;
   const reduceMotion = useReduceMotion();
   const navigate = useCallback((next: Screen) => {
+    if (next !== 'auth') pendingSave.current = null;
     setScreen(next);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
@@ -60,6 +64,10 @@ export function AppContent() {
   const {
     applyReview,
     cards,
+    totalSaved,
+    hasMoreCards,
+    loadingMoreCards,
+    loadMoreCards,
     dataError,
     due,
     loadingData,
@@ -103,7 +111,11 @@ export function AppContent() {
   }, [logoutSession, navigate, resetScan]);
   const { saved, saving, toggleSaved, wordForId } = useVocabularyLibrary({
     cards,
-    navigate,
+    due,
+    requestSignIn: id => {
+      pendingSave.current = id;
+      navigate('auth');
+    },
     onUnauthorized: logoutSession,
     reloadCards,
     reloadDue,
@@ -111,6 +123,12 @@ export function AppContent() {
     showFeedback,
     token,
   });
+  useEffect(() => {
+    if (!token || screen !== 'auth') return;
+    const id = pendingSave.current;
+    navigate(id ? 'results' : 'home');
+    if (id) toggleSaved(id);
+  }, [navigate, screen, token, toggleSaved]);
   const scrollToEnd = useCallback(
     () => scrollRef.current?.scrollToEnd({ animated: !reduceMotion.current }),
     [reduceMotion],
@@ -124,7 +142,6 @@ export function AppContent() {
   }, [token]);
   const onAuth: ScreenProps['onAuth'] = async (mode, email, password, name) => {
     await signIn(mode, email, password, name);
-    navigate('home');
   };
   const openWord = (id: string) => {
     setWordBack(screen);
@@ -177,6 +194,27 @@ export function AppContent() {
       useNativeDriver: true,
     }).start();
   }, [screen, fade, reduceMotion]);
+  const [preferencesBusy, setPreferencesBusy] = useState(false);
+  const onVoiceSpeedChange = async (speed: number) => {
+    if (!token || preferencesBusy) return;
+    const requestToken = token;
+    setPreferencesBusy(true);
+    try {
+      await updatePreferences(token, { voice_speed: speed });
+      if (currentToken.current === requestToken) await reloadUser();
+    } catch (error) {
+      if (currentToken.current !== requestToken) return;
+      if (error instanceof ApiError && error.status === 401)
+        await logoutSession();
+      else
+        Alert.alert(
+          'Chưa đổi được tốc độ đọc',
+          error instanceof Error ? error.message : 'Vui lòng thử lại.',
+        );
+    } finally {
+      setPreferencesBusy(false);
+    }
+  };
   const props: ScreenProps = {
     navigate,
     sceneId,
@@ -188,6 +226,12 @@ export function AppContent() {
     wordBack,
     openWord,
     saved,
+    totalSaved,
+    hasMoreCards,
+    loadingMoreCards,
+    loadMoreCards,
+    onVoiceSpeedChange,
+    preferencesBusy,
     toggleSaved,
     history,
     openHistory,
@@ -223,55 +267,63 @@ export function AppContent() {
     );
 
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <Animated.View
-          style={[
-            styles.container,
-            {
-              opacity: fade,
-              transform: [
-                {
-                  translateY: fade.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [7, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
+    <AudioContext.Provider
+      value={{
+        token,
+        speed: user?.preferences?.voice_speed ?? 1,
+        onUnauthorized: logoutSession,
+      }}
+    >
+      <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <ScrollView
-            ref={scrollRef}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-            key={screen}
-          >
-            <ScreenContent screen={screen} props={props} />
-          </ScrollView>
-        </Animated.View>
-        {feedback && (
-          <View
+          <Animated.View
             style={[
-              styles.toast,
-              showTabs ? styles.toastWithTabs : styles.toastWithoutTabs,
+              styles.container,
+              {
+                opacity: fade,
+                transform: [
+                  {
+                    translateY: fade.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [7, 0],
+                    }),
+                  },
+                ],
+              },
             ]}
-            accessibilityLiveRegion="polite"
           >
-            <Bookmark size={16} color={colors.surface} />
-            <Text style={styles.toastText}>{feedback}</Text>
-          </View>
-        )}
-        {showTabs && (
-          <AppTabs screen={screen} wordBack={wordBack} navigate={navigate} />
-        )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+            <ScrollView
+              ref={scrollRef}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+              key={screen}
+            >
+              <ScreenContent screen={screen} props={props} />
+            </ScrollView>
+          </Animated.View>
+          {feedback && (
+            <View
+              style={[
+                styles.toast,
+                showTabs ? styles.toastWithTabs : styles.toastWithoutTabs,
+              ]}
+              accessibilityLiveRegion="polite"
+            >
+              <Bookmark size={16} color={colors.surface} />
+              <Text style={styles.toastText}>{feedback}</Text>
+            </View>
+          )}
+          {showTabs && (
+            <AppTabs screen={screen} wordBack={wordBack} navigate={navigate} />
+          )}
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </AudioContext.Provider>
   );
 }

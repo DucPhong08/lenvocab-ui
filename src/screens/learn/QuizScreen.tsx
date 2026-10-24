@@ -139,11 +139,11 @@ export function QuizScreen({
         <Text style={styles.questionLabel}>ENGLISH WORD</Text>
         <View style={styles.questionWordRow}>
           <Text style={styles.questionWord}>{word.term}</Text>
-          {word.audio && (
+          {(word.audio || word.userFlashcardId) && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Nghe phát âm từ"
-              onPress={() => play(word.audio)}
+              onPress={() => play(word.audio, word.userFlashcardId)}
               style={styles.speakerBtn}
             >
               <Volume2 size={18} color={colors.lime} />

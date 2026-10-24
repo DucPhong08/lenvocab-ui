@@ -57,7 +57,11 @@ test('applies a review response to both SWR caches without refetching', async ()
     status: 'CONFIRMED',
   };
   mockGetMe.mockResolvedValue(user);
-  mockListFlashcards.mockResolvedValue([card]);
+  mockListFlashcards.mockResolvedValue({
+    items: [card],
+    total: 1,
+    next_offset: null,
+  });
   mockReviewToday.mockResolvedValue([dueCard]);
   let learning!: ReturnType<typeof useLearningData>;
   const Harness = () => {
@@ -101,4 +105,73 @@ test('applies a review response to both SWR caches without refetching', async ()
   await ReactTestRenderer.act(async () => renderer.unmount());
   jest.runOnlyPendingTimers();
   jest.useRealTimers();
+});
+
+test('loads a second page on demand and updates reviews across page boundaries', async () => {
+  const first: Flashcard = {
+    ...dueCard,
+    user_flashcard_id: 'page-first',
+    global_flashcard_id: 'global-first',
+    status: 'CONFIRMED',
+  };
+  const second: Flashcard = {
+    ...first,
+    user_flashcard_id: 'page-second',
+    global_flashcard_id: 'global-second',
+    keyword: 'mug',
+  };
+  mockGetMe.mockResolvedValue(user);
+  mockReviewToday.mockResolvedValue([second]);
+  mockListFlashcards
+    .mockReset()
+    .mockImplementation((_token: string, offset: number) =>
+      Promise.resolve(
+        offset === 0
+          ? { items: [first], total: 2, next_offset: 1 }
+          : { items: [second], total: 2, next_offset: null },
+      ),
+    );
+  let learning!: ReturnType<typeof useLearningData>;
+  const Harness = () => {
+    learning = useLearningData('page-token', jest.fn());
+    return null;
+  };
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  try {
+    await ReactTestRenderer.act(async () => {
+      renderer = ReactTestRenderer.create(
+        <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
+          <Harness />
+        </SWRConfig>,
+      );
+    });
+    expect(learning.cards.map(card => card.user_flashcard_id)).toEqual([
+      'page-first',
+    ]);
+    expect(learning.totalSaved).toBe(2);
+    expect(learning.hasMoreCards).toBe(true);
+    expect(mockListFlashcards).toHaveBeenCalledTimes(1);
+    await ReactTestRenderer.act(async () => learning.loadMoreCards());
+    expect(learning.cards.map(card => card.user_flashcard_id)).toEqual([
+      'page-first',
+      'page-second',
+    ]);
+    expect(mockListFlashcards).toHaveBeenLastCalledWith('page-token', 1);
+    expect(learning.hasMoreCards).toBe(false);
+    await ReactTestRenderer.act(async () =>
+      learning.applyReview({
+        user_flashcard_id: 'page-second',
+        interval_after: 6,
+        repetitions_after: 2,
+        efactor_after: 2.6,
+        next_review_date: '2026-11-01',
+        message: 'saved',
+      }),
+    );
+    expect(learning.cards[1].interval).toBe(6);
+    expect(learning.due).toHaveLength(0);
+    expect(mockListFlashcards).toHaveBeenCalledTimes(2);
+  } finally {
+    await ReactTestRenderer.act(async () => renderer?.unmount());
+  }
 });

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { BookOpen, Search } from 'lucide-react-native';
 import { cardWord } from '@/api/mappers/cardWord';
@@ -16,6 +16,10 @@ type FilterType = 'all' | 'new' | 'reviewed';
 export function SavedScreen({
   navigate,
   saved,
+  totalSaved,
+  hasMoreCards,
+  loadingMoreCards,
+  loadMoreCards,
   cards,
   user,
   loadingData,
@@ -26,6 +30,16 @@ export function SavedScreen({
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
 
+  useEffect(() => {
+    if (
+      (query.trim() || filter !== 'all') &&
+      hasMoreCards &&
+      !loadingMoreCards &&
+      !dataError
+    ) {
+      loadMoreCards().catch(() => {});
+    }
+  }, [query, filter, hasMoreCards, loadingMoreCards, dataError, loadMoreCards]);
   const allWords = cards.map(cardWord);
 
   const filteredWords = allWords.filter(word => {
@@ -55,7 +69,7 @@ export function SavedScreen({
 
       <View style={styles.countCard}>
         <BookOpen size={22} color={colors.forest} />
-        <Text style={styles.countText}>{saved.length} từ vựng</Text>
+        <Text style={styles.countText}>{totalSaved} từ vựng</Text>
         <Text style={styles.countSub}>đang được cá nhân hóa lịch ôn</Text>
       </View>
 
@@ -170,6 +184,18 @@ export function SavedScreen({
         />
       )}
 
+      {hasMoreCards && (
+        <PrimaryButton
+          label={loadingMoreCards ? 'Đang tải thêm...' : 'Xem thêm từ'}
+          disabled={loadingMoreCards}
+          variant="secondary"
+          onPress={() => loadMoreCards().catch(() => {})}
+          style={styles.actionTop20}
+        />
+      )}
+      {(query.trim() || filter !== 'all') && hasMoreCards && (
+        <Text style={styles.hint}>Đang tìm trong những từ còn lại...</Text>
+      )}
       {saved.length > 0 && (
         <PrimaryButton
           label="Ôn tập bằng flashcard"
