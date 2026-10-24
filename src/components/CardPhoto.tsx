@@ -18,12 +18,14 @@ export function CardPhoto({
   term,
   onChanged,
   onUnauthorized,
+  showImage = true,
 }: {
   cardId: string;
   imageUrl?: string | null;
   hasImage?: boolean;
   token: string | null;
   term: string;
+  showImage?: boolean;
   onChanged: () => Promise<unknown>;
   onUnauthorized: () => Promise<unknown>;
 }) {
@@ -99,9 +101,10 @@ export function CardPhoto({
   if (!token) return null;
   return (
     <View style={styles.section}>
-      {(photo.has_image || photo.image_url) && (
+      {showImage && (photo.has_image || photo.image_url) && (
         <CardImage
           imageUrl={photo.image_url}
+          isSticker={photo.image_style === 'sticker'}
           cardId={cardId}
           token={token}
           label={`Ảnh của bạn: ${term}`}

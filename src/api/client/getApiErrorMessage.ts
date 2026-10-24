@@ -1,4 +1,13 @@
 const errorMessages: Record<string, string> = {
+  STICKER_BUSY: 'Máy chủ đang tạo sticker khác. Vui lòng thử lại sau ít giây.',
+  OBJECT_SELECTION_EXPIRED_OR_INVALID:
+    'Lượt chọn vật đã hết hạn hoặc không hợp lệ. Hãy quét lại ảnh.',
+  STICKER_MODEL_NOT_CONFIGURED:
+    'Máy chủ chưa sẵn sàng tạo sticker. Hãy thử lại sau.',
+  STICKER_MODEL_INVALID: 'Dịch vụ tạo sticker chưa sẵn sàng. Hãy thử lại sau.',
+  STICKER_OBJECT_NOT_CLEAR:
+    'Chưa tách rõ được vật thể. Hãy thử ảnh có nền đơn giản hơn.',
+
   IMAGE_STORAGE_NOT_CONFIGURED:
     'Tính năng lưu ảnh chưa được thiết lập trên máy chủ.',
   IMAGE_STORAGE_UNAVAILABLE: 'Chưa kết nối được kho ảnh. Vui lòng thử lại.',

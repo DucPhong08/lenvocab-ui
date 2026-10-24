@@ -10,7 +10,9 @@ export async function request<T>(
   const controller = new AbortController();
   const timer = setTimeout(
     () => controller.abort(),
-    path.startsWith('/vision/scan') ? 120000 : 45000,
+    path.startsWith('/vision/scan') || path.startsWith('/vision/objects/select')
+      ? 120000
+      : 45000,
   );
 
   try {
@@ -54,7 +56,7 @@ export async function request<T>(
     if (cause instanceof ApiError) throw cause;
     throw new ApiError(
       controller.signal.aborted ||
-        (cause instanceof Error && cause.name === 'AbortError')
+      (cause instanceof Error && cause.name === 'AbortError')
         ? 'Máy chủ phản hồi quá lâu. Vui lòng thử lại.'
         : 'Không thể kết nối máy chủ. Kiểm tra mạng rồi thử lại.',
       0,

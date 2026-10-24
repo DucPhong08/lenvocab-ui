@@ -1,5 +1,7 @@
 # Lưu ảnh cá nhân trên flashcard
 
+> Luồng mới hỗ trợ chọn nhiều vật và lưu sticker PNG tách nền có viền trắng. Xem [STICKER_OBJECTS.md](STICKER_OBJECTS.md). JPEG giữ tương thích ảnh thẻ cũ.
+
 ## Hành vi đã triển khai
 
 - Quét ảnh vẫn nhận diện như trước. Ảnh chưa được đưa lên kho lưu trữ khi chỉ quét hoặc dùng thử.

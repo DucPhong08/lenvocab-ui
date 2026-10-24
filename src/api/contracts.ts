@@ -40,6 +40,8 @@ export type Box = {
 };
 
 export type DetectedObject = {
+  object_id?: string | null;
+  selection_token?: string | null;
   keyword: string;
   confidence: number;
   bounding_box: Box | null;
@@ -49,6 +51,7 @@ export type DetectedObject = {
 };
 
 export type ScanResult = {
+  selected_object_id?: string | null;
   status: ScanStatus;
   keyword: string | null;
   pronunciation: string | null;
@@ -71,6 +74,7 @@ export type ScanResult = {
 export type Flashcard = {
   user_flashcard_id: string;
   image_url?: string | null;
+  image_style?: 'photo' | 'sticker';
   has_image?: boolean;
   global_flashcard_id: string;
   keyword: string;

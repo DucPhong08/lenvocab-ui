@@ -1,5 +1,7 @@
 import { Image, Text, View } from 'react-native';
 import { Lightbulb, Sparkles } from 'lucide-react-native';
+import { CardImage } from '@/components/CardImage';
+import { CropPreview, ObjectPicker } from '@/components/ObjectPicker';
 import { scanWord } from '@/api/mappers/scanWord';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -25,6 +27,9 @@ export function ResultsScreen({
   saving,
   cards,
   wordForId,
+  selectObject,
+  selectingObject = false,
+  currentScanSaved = false,
 }: ScreenProps) {
   const scene = getScene(sceneId);
   const words = scanResult ? [wordForId(scanWord(scanResult).id)] : scene.words;
@@ -39,6 +44,72 @@ export function ResultsScreen({
       )
     );
   const unsaved = words.filter(word => !isStored(word.id));
+  const choices =
+    scanResult?.detected_objects.filter(
+      item => item.bounding_box && item.selection_token,
+    ) ?? [];
+  if (scanResult && imageUri && choices.length && selectObject) {
+    const word = words[0];
+    const existing = isStored(word.id);
+    return (
+      <View style={styles.page}>
+        <TopBar title="Chọn vật muốn học" onBack={() => navigate('camera')} />
+        <ObjectPicker
+          uri={imageUri}
+          objects={choices}
+          selectedId={scanResult.selected_object_id}
+          busy={saving || selectingObject}
+          onSelect={selectObject}
+        />
+        <View style={styles.notice}>
+          <Sparkles size={18} color={colors.forest} />
+          <Text style={styles.noticeText}>
+            Đang chọn: {scanResult.keyword}. Mỗi vật có thể lưu thành một thẻ.
+          </Text>
+        </View>
+        {currentScanSaved && word.imageStyle === 'sticker' ? (
+          <CardImage
+            imageUrl={word.imageUrl}
+            cardId={word.userFlashcardId}
+            token={token}
+            isSticker
+            label={`Sticker đã lưu: ${word.term}`}
+          />
+        ) : scanResult.bounding_box ? (
+          <CropPreview uri={imageUri} box={scanResult.bounding_box} />
+        ) : null}
+        <WordRow
+          word={currentScanSaved ? word : { ...word, imageUrl: null }}
+          token={token}
+          saved={existing}
+          onOpen={() => openWord(word.id)}
+        />
+        <Text style={styles.resultInfoCaption}>
+          {currentScanSaved
+            ? 'Sticker đã lưu. Bạn có thể chọn thêm vật khác trong ảnh.'
+            : 'Khi lưu, vật đã chọn sẽ được tách nền và thêm viền trắng.'}
+        </Text>
+        <PrimaryButton
+          label={
+            saving
+              ? 'Đang tạo sticker...'
+              : selectingObject
+              ? 'Đang chọn vật...'
+              : currentScanSaved
+              ? 'Xem sticker đã lưu'
+              : existing
+              ? 'Đổi sticker của thẻ đã lưu'
+              : 'Lưu thẻ với sticker'
+          }
+          disabled={saving || selectingObject}
+          style={styles.actionTop12}
+          onPress={() =>
+            currentScanSaved ? openWord(word.id) : toggleSaved(word.id)
+          }
+        />
+      </View>
+    );
+  }
   return (
     <View style={styles.page}>
       <TopBar

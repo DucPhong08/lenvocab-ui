@@ -32,6 +32,7 @@ export function WordRow({
         {word.imageUrl || word.hasImage ? (
           <CardImage
             imageUrl={word.imageUrl}
+            isSticker={word.imageStyle === 'sticker'}
             cardId={word.userFlashcardId}
             token={token}
             label={`Ảnh của bạn: ${word.term}`}

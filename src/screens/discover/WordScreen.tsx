@@ -1,5 +1,6 @@
 import { Image, Pressable, Text, View } from 'react-native';
 import { ArrowRight, Bookmark, Lightbulb, Volume2 } from 'lucide-react-native';
+import { CropPreview } from '@/components/ObjectPicker';
 import { CardImage } from '@/components/CardImage';
 import { CardPhoto } from '@/components/CardPhoto';
 import { Eyebrow } from '@/components/Eyebrow';
@@ -27,6 +28,7 @@ export function WordScreen({
   scanResult,
   saving,
   cards,
+  currentScanSaved = false,
 }: ScreenProps) {
   const word = wordForId(wordId);
   const scene = getScene(word.scene);
@@ -41,6 +43,8 @@ export function WordScreen({
           card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase(),
       )
     );
+  const canUpdateSticker =
+    word.id.startsWith('scan:') && !!scanResult && isSaved && !currentScanSaved;
   return (
     <View style={styles.page}>
       <TopBar
@@ -84,23 +88,17 @@ export function WordScreen({
           </View>
         }
       />
-      {word.userFlashcardId ? (
-        <CardPhoto
-          cardId={word.userFlashcardId}
-          imageUrl={word.imageUrl}
-          hasImage={word.hasImage}
-          token={token}
-          term={word.term}
-          onChanged={reloadData}
-          onUnauthorized={onLogout}
-        />
-      ) : word.imageUrl ? (
-        <CardImage
-          imageUrl={word.imageUrl}
-          label={`Ảnh của bạn: ${word.term}`}
-        />
-      ) : null}
       <View style={styles.wordFeature}>
+        {word.imageStyle === 'sticker' && word.imageUrl ? (
+          <CardImage
+            imageUrl={word.imageUrl}
+            cardId={word.userFlashcardId}
+            token={token}
+            isSticker
+            variant="sticker"
+            label={`Sticker của bạn: ${word.term}`}
+          />
+        ) : null}
         <View style={styles.levelPill}>
           <Text style={styles.levelText}>
             {word.level} · {word.type.toUpperCase()}
@@ -126,6 +124,27 @@ export function WordScreen({
         </Pressable>
         <Text style={styles.wordWatermark}>Aa.</Text>
       </View>
+      {word.userFlashcardId ? (
+        <CardPhoto
+          showImage={word.imageStyle !== 'sticker'}
+          cardId={word.userFlashcardId}
+          imageUrl={word.imageUrl}
+          hasImage={word.hasImage}
+          token={token}
+          term={word.term}
+          onChanged={reloadData}
+          onUnauthorized={onLogout}
+        />
+      ) : word.id.startsWith('scan:') &&
+        word.imageUrl &&
+        scanResult?.bounding_box ? (
+        <CropPreview uri={word.imageUrl} box={scanResult.bounding_box} />
+      ) : word.imageUrl && word.imageStyle !== 'sticker' ? (
+        <CardImage
+          imageUrl={word.imageUrl}
+          label={`Ảnh của bạn: ${word.term}`}
+        />
+      ) : null}
       <View style={styles.detailBlock}>
         <Eyebrow>NGHĨA TIẾNG VIỆT</Eyebrow>
         <Text style={styles.meaning}>{word.meaning}</Text>
@@ -170,6 +189,8 @@ export function WordScreen({
         label={
           saving
             ? 'Đang lưu...'
+            : canUpdateSticker
+            ? 'Đổi sticker của thẻ đã lưu'
             : isSaved
             ? 'Đã lưu trên tài khoản'
             : user && scanResult && word.id.startsWith('scan:')
@@ -178,7 +199,7 @@ export function WordScreen({
             ? 'Quét ảnh để tạo từ mới'
             : 'Đăng nhập để lưu từ'
         }
-        disabled={saving || isSaved}
+        disabled={saving || (isSaved && !canUpdateSticker)}
         onPress={() =>
           user && !scanResult ? navigate('camera') : toggleSaved(word.id)
         }

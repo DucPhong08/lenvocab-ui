@@ -83,13 +83,10 @@ async function mountLibrary(
 }
 
 beforeEach(() => {
-  jest
-    .mocked(uploadCardImage)
-    .mockReset()
-    .mockResolvedValue({
-      image_url: 'https://private.example/photo',
-      has_image: true,
-    });
+  jest.mocked(uploadCardImage).mockReset().mockResolvedValue({
+    image_url: 'https://private.example/photo',
+    has_image: true,
+  });
   jest.mocked(confirmFlashcard).mockReset().mockResolvedValue(card);
   jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 });
@@ -280,6 +277,36 @@ test('a fallback keyword never crops an image to an unrelated detected box', asy
       { uri: 'file:///photo.jpg' },
       null,
     );
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('updates the existing word card with the newly selected region instead of blocking it', async () => {
+  const box = { left: 0.6, top: 0.2, width: 0.2, height: 0.3 };
+  const state = await mountLibrary({
+    cards: [card],
+    imageUri: 'file:///two-cups.jpg',
+    scanResult: {
+      ...draft,
+      selected_object_id: 'second-cup',
+      bounding_box: box,
+    },
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(confirmFlashcard).toHaveBeenCalledTimes(1);
+    expect(uploadCardImage).toHaveBeenCalledWith(
+      'user-token',
+      card.user_flashcard_id,
+      { uri: 'file:///two-cups.jpg' },
+      box,
+    );
+    expect(
+      state.library.saved.filter(id => id === card.user_flashcard_id),
+    ).toHaveLength(1);
   } finally {
     await ReactTestRenderer.act(async () => state.renderer.unmount());
   }

@@ -6,6 +6,7 @@ export function cardWord(card: Flashcard | ReviewCard): Word {
     id: card.user_flashcard_id,
     userFlashcardId: card.user_flashcard_id,
     imageUrl: card.image_url ?? null,
+    imageStyle: card.image_style ?? 'photo',
     hasImage: card.has_image ?? !!card.image_url,
     term: card.keyword,
     ipa: card.pronunciation ?? '',
@@ -16,7 +17,7 @@ export function cardWord(card: Flashcard | ReviewCard): Word {
     note: card.related_words?.length
       ? `Từ liên quan: ${card.related_words.join(', ')}`
       : 'Ôn lại để ghi nhớ từ này.',
-    level: 'status' in card ? card.status : 'Đến hạn',
+    level: 'status' in card ? 'Đã lưu' : 'Đến hạn',
     scene: 'desk',
     audio: card.audio_base64 ?? null,
     interval: card.interval,

@@ -3,7 +3,11 @@ import type { Box } from '@/api/contracts';
 import { ApiError } from '@/api/client/ApiError';
 import { request } from '@/api/client/request';
 
-export type CardImage = { image_url: string | null; has_image: boolean };
+export type CardImage = {
+  image_url: string | null;
+  has_image: boolean;
+  image_style?: 'photo' | 'sticker';
+};
 const path = (id: string) => `/flashcards/${encodeURIComponent(id)}/image`;
 
 export const getCardImage = (token: string, id: string) =>
@@ -24,6 +28,7 @@ export function uploadCardImage(
   if (asset.type && !['image/jpeg', 'image/png'].includes(asset.type))
     throw new ApiError('Chỉ hỗ trợ ảnh JPG hoặc PNG.', 0);
   const form = new FormData();
+  form.append('style', 'sticker');
   form.append('file', {
     uri: asset.uri,
     type: asset.type || 'image/jpeg',

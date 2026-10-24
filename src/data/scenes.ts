@@ -12,6 +12,7 @@ export type Word = {
   scene: string
   audio?: string | null
   imageUrl?: string | null
+  imageStyle?: 'photo' | 'sticker'
   hasImage?: boolean
   userFlashcardId?: string
   interval?: number

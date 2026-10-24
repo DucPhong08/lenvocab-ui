@@ -90,6 +90,8 @@ export function AppContent() {
     scanning,
     scanResult,
     selectImage,
+    selectObject,
+    selectingObject,
     setImageUri,
   } = useScanFlow({
     navigate,
@@ -112,21 +114,22 @@ export function AppContent() {
     resetScan();
     navigate('home');
   }, [logoutSession, navigate, resetScan]);
-  const { saved, saving, toggleSaved, wordForId } = useVocabularyLibrary({
-    cards,
-    due,
-    requestSignIn: id => {
-      pendingSave.current = id;
-      navigate('auth');
-    },
-    onUnauthorized: logoutSession,
-    reloadCards,
-    reloadDue,
-    scanResult,
-    imageUri,
-    showFeedback,
-    token,
-  });
+  const { saved, saving, toggleSaved, wordForId, currentScanSaved } =
+    useVocabularyLibrary({
+      cards,
+      due,
+      requestSignIn: id => {
+        pendingSave.current = id;
+        navigate('auth');
+      },
+      onUnauthorized: logoutSession,
+      reloadCards,
+      reloadDue,
+      scanResult,
+      imageUri,
+      showFeedback,
+      token,
+    });
   useEffect(() => {
     if (!token || screen !== 'auth') return;
     const id = pendingSave.current;
@@ -278,9 +281,12 @@ export function AppContent() {
     scrollToTop,
     asset,
     selectImage,
+    selectObject,
+    selectingObject,
     scanResult,
     scanning,
     saving,
+    currentScanSaved,
     user,
     cards,
     due,

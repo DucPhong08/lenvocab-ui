@@ -89,10 +89,6 @@ export function useVocabularyLibrary({
           (scannedWord?.id === id &&
             card.keyword.toLowerCase() === scanResult?.keyword?.toLowerCase()),
       );
-      if (alreadyStored) {
-        showFeedback('Từ này đã có trong kho của bạn.');
-        return;
-      }
       if (!scanResult || scannedWord?.id !== id) {
         showFeedback('Hãy quét ảnh thật để tạo thẻ trước khi lưu.');
         return;
@@ -145,6 +141,8 @@ export function useVocabularyLibrary({
             ? 'Đã lưu từ. Ảnh chưa được lưu.'
             : refresh.some(result => result.status === 'rejected')
             ? 'Đã lưu từ. Chưa thể cập nhật kho học; vui lòng tải lại.'
+            : alreadyStored
+            ? 'Đã cập nhật ảnh cho thẻ đã lưu.'
             : 'Đã lưu từ vào tài khoản của bạn.',
         );
       } catch (error) {
@@ -175,5 +173,9 @@ export function useVocabularyLibrary({
     ],
   );
 
-  return { saved, saving, toggleSaved, wordForId };
+  const currentScanSaved =
+    confirmed?.token === token &&
+    confirmed.scan === scanResult &&
+    confirmed.imageUri === imageUri;
+  return { saved, saving, toggleSaved, wordForId, currentScanSaved };
 }

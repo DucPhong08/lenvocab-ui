@@ -1,5 +1,11 @@
 import type { Asset } from 'react-native-image-picker';
-import type { Flashcard, ReviewCard, ScanResult, User } from '@/api/contracts';
+import type {
+  DetectedObject,
+  Flashcard,
+  ReviewCard,
+  ScanResult,
+  User,
+} from '@/api/contracts';
 import type { Word } from '@/data/scenes';
 
 export type Screen =
@@ -51,6 +57,9 @@ export type ScreenProps = {
   selectImage: (asset: Asset | null) => void;
   scanResult: ScanResult | null;
   scanning: boolean;
+  selectObject?: (item: DetectedObject) => void;
+  selectingObject?: boolean;
+  currentScanSaved?: boolean;
   saving: boolean;
   user: User | null;
   cards: Flashcard[];

@@ -29,3 +29,14 @@ export function scanImage(token: string | null, asset: Asset) {
   );
 }
 
+export function selectScanObject(token: string | null, selectionToken: string) {
+  return request<ScanResult>(
+    token ? '/vision/objects/select' : '/vision/objects/select/guest',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ selection_token: selectionToken }),
+    },
+    token ?? undefined,
+  );
+}

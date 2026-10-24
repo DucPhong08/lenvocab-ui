@@ -10,13 +10,15 @@ export function CardImage({
   label,
   variant = 'detail',
   fallback = '?',
+  isSticker = false,
 }: {
   imageUrl?: string | null;
   cardId?: string;
   token?: string | null;
   label: string;
-  variant?: 'thumbnail' | 'detail' | 'flashcard';
+  variant?: 'thumbnail' | 'detail' | 'flashcard' | 'sticker';
   fallback?: string;
+  isSticker?: boolean;
 }) {
   const [uri, setUri] = useState(imageUrl ?? null);
   const [failed, setFailed] = useState(false);
@@ -57,7 +59,7 @@ export function CardImage({
     return (
       <Image
         source={{ uri }}
-        resizeMode="cover"
+        resizeMode={isSticker ? 'contain' : 'cover'}
         accessibilityLabel={label}
         onError={() => {
           refresh().catch(() => {});
@@ -92,6 +94,7 @@ export function CardImage({
 }
 
 const styles = StyleSheet.create({
+  sticker: { width: '100%', height: 200, marginBottom: 12 },
   thumbnail: { width: 44, height: 44, borderRadius: 13 },
   detail: { width: '100%', height: 210, borderRadius: 18 },
   flashcard: { width: 180, height: 100, borderRadius: 14 },
