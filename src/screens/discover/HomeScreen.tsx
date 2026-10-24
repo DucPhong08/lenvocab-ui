@@ -18,6 +18,7 @@ import { styles } from './styles';
 
 export function HomeScreen({
   navigate,
+  token,
   openWord,
   saved,
   totalSaved,
@@ -146,6 +147,7 @@ export function HomeScreen({
         <WordRow
           key={word.id}
           word={word}
+          token={token}
           saved={saved.includes(word.id)}
           onOpen={() => openWord(word.id)}
           onSave={

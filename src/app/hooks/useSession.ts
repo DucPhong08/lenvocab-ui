@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as Keychain from 'react-native-keychain';
 import { authenticate } from '@/api/endpoints/authenticate';
+import { authenticateGoogle } from '@/api/endpoints/googleAuth';
+import { googleIdToken } from '@/services/auth/googleSignIn';
 
 const SESSION_SERVICE = 'lenvocab.session';
 
@@ -26,25 +28,47 @@ export function useSession() {
     };
   }, []);
 
-  const signIn = useCallback(
-    async (
-      mode: 'login' | 'register',
-      email: string,
-      password: string,
-      name: string,
-    ) => {
+  const authInFlight = useRef(false);
+  const authenticateSession = useCallback(
+    async (operation: () => Promise<{ access_token: string } | null>) => {
+      if (authInFlight.current) return;
+      authInFlight.current = true;
       setAuthBusy(true);
       try {
-        const result = await authenticate(mode, email, password, name);
+        const result = await operation();
+        if (!result) return;
         await Keychain.setGenericPassword('session', result.access_token, {
           service: SESSION_SERVICE,
         });
         setToken(result.access_token);
       } finally {
+        authInFlight.current = false;
         setAuthBusy(false);
       }
     },
     [],
+  );
+
+  const signIn = useCallback(
+    (
+      mode: 'login' | 'register',
+      username: string,
+      password: string,
+      name: string,
+      email?: string,
+    ) =>
+      authenticateSession(() =>
+        authenticate(mode, username, password, name, email),
+      ),
+    [authenticateSession],
+  );
+  const signInGoogle = useCallback(
+    () =>
+      authenticateSession(async () => {
+        const idToken = await googleIdToken();
+        return idToken ? authenticateGoogle(idToken) : null;
+      }),
+    [authenticateSession],
   );
 
   const signOut = useCallback(async () => {
@@ -52,5 +76,5 @@ export function useSession() {
     setToken(null);
   }, []);
 
-  return { authBusy, restoringSession, signIn, signOut, token };
+  return { authBusy, restoringSession, signIn, signInGoogle, signOut, token };
 }

@@ -11,6 +11,8 @@ export type Word = {
   level: string
   scene: string
   audio?: string | null
+  imageUrl?: string | null
+  hasImage?: boolean
   userFlashcardId?: string
   interval?: number
   repetitions?: number

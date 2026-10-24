@@ -4,7 +4,10 @@ import { Alert } from 'react-native';
 import { ApiError } from '@/api/client/ApiError';
 import type { Flashcard, ScanResult } from '@/api/contracts';
 import { confirmFlashcard } from '@/api/endpoints/confirmFlashcard';
+import { uploadCardImage } from '@/api/endpoints/cardImage';
 import { useVocabularyLibrary } from '@/app/hooks/useVocabularyLibrary';
+
+jest.mock('@/api/endpoints/cardImage', () => ({ uploadCardImage: jest.fn() }));
 
 jest.mock('@/api/endpoints/confirmFlashcard', () => ({
   confirmFlashcard: jest.fn(),
@@ -80,6 +83,13 @@ async function mountLibrary(
 }
 
 beforeEach(() => {
+  jest
+    .mocked(uploadCardImage)
+    .mockReset()
+    .mockResolvedValue({
+      image_url: 'https://private.example/photo',
+      has_image: true,
+    });
   jest.mocked(confirmFlashcard).mockReset().mockResolvedValue(card);
   jest.spyOn(Alert, 'alert').mockImplementation(() => {});
 });
@@ -194,6 +204,82 @@ test('opens a due card even when its saved-library page has not been loaded', as
       'keyboard',
     );
     expect(state.library.saved).toContain(card.user_flashcard_id);
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('saves the current scan photo after confirming ownership and uses the returned image on the card', async () => {
+  const crop = { left: 0.1, top: 0.2, width: 0.3, height: 0.4 };
+  const state = await mountLibrary({
+    imageUri: 'file:///current-scan.jpg',
+    scanResult: { ...draft, bounding_box: crop },
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(uploadCardImage).toHaveBeenCalledWith(
+      'user-token',
+      card.user_flashcard_id,
+      { uri: 'file:///current-scan.jpg' },
+      crop,
+    );
+    expect(state.library.wordForId('scan:mug')).toEqual(
+      expect.objectContaining({
+        id: card.user_flashcard_id,
+        imageUrl: 'https://private.example/photo',
+        hasImage: true,
+      }),
+    );
+    expect(state.library.saved).toContain(card.user_flashcard_id);
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('an image upload failure does not pretend that the saved word failed', async () => {
+  jest
+    .mocked(uploadCardImage)
+    .mockRejectedValueOnce(new ApiError('Kho ảnh chưa được thiết lập.', 503));
+  const state = await mountLibrary({ imageUri: 'file:///photo.jpg' });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(state.library.saved).toContain(card.user_flashcard_id);
+    expect(state.options.reloadCards).toHaveBeenCalledTimes(1);
+    expect(state.options.showFeedback).toHaveBeenCalledWith(
+      'Đã lưu từ. Ảnh chưa được lưu.',
+    );
+    expect(Alert.alert).toHaveBeenCalledWith(
+      'Đã lưu từ nhưng ảnh chưa được lưu',
+      expect.stringContaining('thêm lại ảnh'),
+    );
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('a fallback keyword never crops an image to an unrelated detected box', async () => {
+  const state = await mountLibrary({
+    imageUri: 'file:///photo.jpg',
+    scanResult: {
+      ...draft,
+      status: 'FALLBACK',
+      bounding_box: { left: 0.1, top: 0.1, width: 0.5, height: 0.5 },
+    },
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(uploadCardImage).toHaveBeenCalledWith(
+      'user-token',
+      card.user_flashcard_id,
+      { uri: 'file:///photo.jpg' },
+      null,
+    );
   } finally {
     await ReactTestRenderer.act(async () => state.renderer.unmount());
   }

@@ -6,7 +6,7 @@ import { scanWord } from '@/api/mappers/scanWord';
 
 test('maps backend error codes before generic HTTP statuses', () => {
   expect(getApiErrorMessage(401, 'INVALID_CREDENTIALS')).toBe(
-    'Email hoặc mật khẩu không đúng.',
+    'Username hoặc mật khẩu không đúng.',
   );
   expect(getApiErrorMessage(401, 'TOKEN_EXPIRED')).toBe(
     'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',

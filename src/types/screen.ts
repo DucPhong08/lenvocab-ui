@@ -25,6 +25,7 @@ export type ScanEntry = {
 };
 
 export type ScreenProps = {
+  token: string | null;
   navigate: (next: Screen) => void;
   sceneId: string;
   setSceneId: (id: string) => void;
@@ -65,10 +66,14 @@ export type ScreenProps = {
   ) => Promise<void>;
   onAuth: (
     mode: 'login' | 'register',
-    email: string,
+    username: string,
     password: string,
     name: string,
+    email?: string,
   ) => Promise<void>;
+  onGoogleAuth: () => Promise<void>;
+  onGoogleLink: () => Promise<void>;
+  googleLinkBusy: boolean;
   onLogout: () => Promise<void>;
   authBusy: boolean;
 };

@@ -1,5 +1,7 @@
 import { Image, Pressable, Text, View } from 'react-native';
 import { ArrowRight, Bookmark, Lightbulb, Volume2 } from 'lucide-react-native';
+import { CardImage } from '@/components/CardImage';
+import { CardPhoto } from '@/components/CardPhoto';
 import { Eyebrow } from '@/components/Eyebrow';
 import { IconButton } from '@/components/IconButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -13,6 +15,9 @@ import { styles } from './styles';
 
 export function WordScreen({
   navigate,
+  token,
+  reloadData,
+  onLogout,
   wordId,
   wordBack,
   saved,
@@ -79,6 +84,22 @@ export function WordScreen({
           </View>
         }
       />
+      {word.userFlashcardId ? (
+        <CardPhoto
+          cardId={word.userFlashcardId}
+          imageUrl={word.imageUrl}
+          hasImage={word.hasImage}
+          token={token}
+          term={word.term}
+          onChanged={reloadData}
+          onUnauthorized={onLogout}
+        />
+      ) : word.imageUrl ? (
+        <CardImage
+          imageUrl={word.imageUrl}
+          label={`Ảnh của bạn: ${word.term}`}
+        />
+      ) : null}
       <View style={styles.wordFeature}>
         <View style={styles.levelPill}>
           <Text style={styles.levelText}>

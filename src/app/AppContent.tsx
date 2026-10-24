@@ -17,6 +17,8 @@ import { Bookmark } from 'lucide-react-native';
 import { ApiError } from '@/api/client/ApiError';
 import { updatePreferences } from '@/api/endpoints/updatePreferences';
 import { AudioContext } from '@/hooks/audioContext';
+import { linkGoogle } from '@/api/endpoints/googleAuth';
+import { googleIdToken } from '@/services/auth/googleSignIn';
 import { gradeReview } from '@/api/endpoints/gradeReview';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
@@ -46,7 +48,8 @@ export function AppContent() {
     setScreen(next);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
-  const { authBusy, restoringSession, signIn, signOut, token } = useSession();
+  const { authBusy, restoringSession, signIn, signInGoogle, signOut, token } =
+    useSession();
   const currentToken = useRef(token);
   currentToken.current = token;
   const logoutSession = useCallback(async () => {
@@ -120,6 +123,7 @@ export function AppContent() {
     reloadCards,
     reloadDue,
     scanResult,
+    imageUri,
     showFeedback,
     token,
   });
@@ -140,8 +144,14 @@ export function AppContent() {
   useEffect(() => {
     if (token) scheduleDailyStudyReminder().catch(() => {});
   }, [token]);
-  const onAuth: ScreenProps['onAuth'] = async (mode, email, password, name) => {
-    await signIn(mode, email, password, name);
+  const onAuth: ScreenProps['onAuth'] = async (
+    mode,
+    username,
+    password,
+    name,
+    email,
+  ) => {
+    await signIn(mode, username, password, name, email);
   };
   const openWord = (id: string) => {
     setWordBack(screen);
@@ -215,7 +225,36 @@ export function AppContent() {
       setPreferencesBusy(false);
     }
   };
+  const [googleLinkBusy, setGoogleLinkBusy] = useState(false);
+  const onGoogleLink = async () => {
+    if (!token || googleLinkBusy) return;
+    const requestToken = token;
+    setGoogleLinkBusy(true);
+    try {
+      const idToken = await googleIdToken();
+      if (!idToken || currentToken.current !== requestToken) return;
+      await linkGoogle(requestToken, idToken);
+      if (currentToken.current !== requestToken) return;
+      await reloadUser();
+      Alert.alert(
+        'Đã liên kết Google',
+        'Lần sau bạn có thể đăng nhập bằng tài khoản Google này.',
+      );
+    } catch (error) {
+      if (currentToken.current !== requestToken) return;
+      if (error instanceof ApiError && error.status === 401)
+        await logoutSession();
+      else
+        Alert.alert(
+          'Chưa liên kết được Google',
+          error instanceof Error ? error.message : 'Vui lòng thử lại.',
+        );
+    } finally {
+      setGoogleLinkBusy(false);
+    }
+  };
   const props: ScreenProps = {
+    token,
     navigate,
     sceneId,
     setSceneId,
@@ -251,6 +290,9 @@ export function AppContent() {
     wordForId,
     submitReview,
     onAuth,
+    onGoogleAuth: signInGoogle,
+    onGoogleLink,
+    googleLinkBusy,
     onLogout: logout,
     authBusy,
   };

@@ -8,9 +8,22 @@ export const styles = StyleSheet.create({
   actionTop20: { marginTop: 20 },
   page: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 32 },
   grades: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  grade: { width: '31%', minHeight: 48, backgroundColor: colors.pale, borderRadius: 12, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4 },
+  grade: {
+    width: '31%',
+    minHeight: 48,
+    backgroundColor: colors.pale,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
   gradeDisabled: { opacity: 0.45 },
-  gradeText: { color: colors.forest, fontSize: 11, fontWeight: '700', textAlign: 'center' },
+  gradeText: {
+    color: colors.forest,
+    fontSize: 11,
+    fontWeight: '700',
+    textAlign: 'center',
+  },
   countCard: {
     borderRadius: 18,
     backgroundColor: colors.pale,
@@ -296,6 +309,7 @@ export const styles = StyleSheet.create({
     marginTop: 3,
   },
   historyCaption: { fontSize: 12, color: colors.muted, marginTop: 3 },
+  flashcardWithImage: { height: 430 },
   flashcardContainer: {
     height: 340,
     marginBottom: 14,

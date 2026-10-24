@@ -24,11 +24,15 @@ export function ProfileScreen({
   preferencesBusy,
   history,
   user,
+  onGoogleLink,
+  googleLinkBusy,
   onLogout,
 }: ScreenProps) {
   const prefs = user?.preferences;
   const displayName =
-    user?.display_name?.trim() || (user ? 'Người học' : 'Khách tham quan');
+    user?.display_name?.trim() ||
+    user?.username ||
+    (user ? 'Người học' : 'Khách tham quan');
 
   return (
     <View style={styles.page}>
@@ -59,7 +63,9 @@ export function ProfileScreen({
           <Text style={styles.identityName}>{displayName}</Text>
           <Text style={styles.identitySub}>
             {user
-              ? `${user.email} · Gói ${user.account_tier}`
+              ? `${user.username || user.email || 'Tài khoản Google'} · Gói ${
+                  user.account_tier
+                }`
               : 'Chạm để đăng nhập hoặc tạo tài khoản'}
           </Text>
         </View>
@@ -181,6 +187,14 @@ export function ProfileScreen({
         </>
       )}
 
+      {user && (
+        <PrimaryButton
+          label={user.google_linked ? 'Đã liên kết Google' : 'Liên kết Google'}
+          variant="secondary"
+          disabled={googleLinkBusy || user.google_linked === true}
+          onPress={() => onGoogleLink()}
+        />
+      )}
       {user ? (
         <PrimaryButton
           label="Đăng xuất"

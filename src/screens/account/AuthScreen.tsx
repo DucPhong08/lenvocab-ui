@@ -8,13 +8,20 @@ import type { ScreenProps } from '@/types/screen';
 import { useAuthForm } from './hooks/useAuthForm';
 import { styles } from './styles';
 
-export function AuthScreen({ navigate, onAuth, authBusy }: ScreenProps) {
+export function AuthScreen({
+  navigate,
+  onAuth,
+  onGoogleAuth,
+  authBusy,
+}: ScreenProps) {
   const {
+    username,
     email,
     error,
     mode,
     name,
     password,
+    setUsername,
     setEmail,
     setError,
     setMode,
@@ -35,27 +42,19 @@ export function AuthScreen({ navigate, onAuth, authBusy }: ScreenProps) {
       <Text style={styles.authDescription}>
         Đăng nhập để lưu từ đã quét, đồng bộ kho từ và ôn tập theo lịch của bạn.
       </Text>
-      {mode === 'register' && (
-        <TextInput
-          accessibilityLabel="Tên hiển thị"
-          placeholder="Tên hiển thị"
-          placeholderTextColor={colors.subtle}
-          value={name}
-          onChangeText={setName}
-          autoComplete="name"
-          style={styles.authInput}
-        />
-      )}
       <TextInput
-        accessibilityLabel="Email"
-        placeholder="Email"
+        accessibilityLabel="Username"
+        placeholder={
+          mode === 'login' ? 'Username hoặc email tài khoản cũ' : 'Username'
+        }
         placeholderTextColor={colors.subtle}
-        value={email}
-        onChangeText={setEmail}
+        value={username}
+        onChangeText={setUsername}
         autoCapitalize="none"
         autoCorrect={false}
-        keyboardType="email-address"
-        autoComplete="email"
+        autoComplete="username"
+        editable={!authBusy}
+        maxLength={mode === 'register' ? 30 : 254}
         style={styles.authInput}
       />
       <View style={styles.passwordField}>
@@ -88,6 +87,35 @@ export function AuthScreen({ navigate, onAuth, authBusy }: ScreenProps) {
           )}
         </Pressable>
       </View>
+      {mode === 'register' && (
+        <>
+          <TextInput
+            accessibilityLabel="Email (không bắt buộc)"
+            placeholder="Email (không bắt buộc)"
+            placeholderTextColor={colors.subtle}
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+            autoComplete="email"
+            maxLength={254}
+            editable={!authBusy}
+            style={styles.authInput}
+          />
+          <TextInput
+            accessibilityLabel="Tên hiển thị (không bắt buộc)"
+            placeholder="Tên hiển thị (không bắt buộc)"
+            placeholderTextColor={colors.subtle}
+            value={name}
+            onChangeText={setName}
+            autoComplete="name"
+            maxLength={100}
+            editable={!authBusy}
+            style={styles.authInput}
+          />
+        </>
+      )}
       {error ? (
         <Text accessibilityLiveRegion="polite" style={styles.authError}>
           {error}
@@ -103,6 +131,21 @@ export function AuthScreen({ navigate, onAuth, authBusy }: ScreenProps) {
         }
         disabled={authBusy}
         onPress={() => submit()}
+      />
+      <PrimaryButton
+        label="Tiếp tục với Google"
+        variant="secondary"
+        disabled={authBusy}
+        onPress={() => {
+          setError('');
+          onGoogleAuth().catch(cause =>
+            setError(
+              cause instanceof Error
+                ? cause.message
+                : 'Chưa thể đăng nhập Google.',
+            ),
+          );
+        }}
       />
       <Pressable
         accessibilityRole="button"

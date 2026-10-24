@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 import { ArrowRight, RotateCcw, Sparkles, Volume2 } from 'lucide-react-native';
+import { CardImage } from '@/components/CardImage';
 import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
@@ -13,6 +14,7 @@ import { styles } from './styles';
 
 export function FlashcardsScreen({
   navigate,
+  token,
   user,
   due,
   loadingData,
@@ -131,7 +133,10 @@ export function FlashcardsScreen({
             : `${word.term}. Chạm để xem nghĩa tiếng Việt`
         }
         onPress={flip}
-        style={styles.flashcardContainer}
+        style={[
+          styles.flashcardContainer,
+          (word.imageUrl || word.hasImage) && styles.flashcardWithImage,
+        ]}
       >
         {/* Mặt trước: Từ tiếng Anh + Phiên âm */}
         <Animated.View style={[styles.cardFront, frontAnimatedStyle]}>
@@ -159,6 +164,15 @@ export function FlashcardsScreen({
           </View>
 
           <View style={styles.flashcardCenter}>
+            {(word.imageUrl || word.hasImage) && (
+              <CardImage
+                imageUrl={word.imageUrl}
+                cardId={word.userFlashcardId}
+                token={token}
+                label={`Ảnh của bạn: ${word.term}`}
+                variant="flashcard"
+              />
+            )}
             <Text style={styles.flashcardType}>{word.type}</Text>
             <Text
               adjustsFontSizeToFit

@@ -93,7 +93,7 @@ test('navigates from home to sample image selection', async () => {
     save?.props.onPress();
   });
   expect(
-    renderer.root.findAllByProps({ accessibilityLabel: 'Email' }).length,
+    renderer.root.findAllByProps({ accessibilityLabel: 'Username' }).length,
   ).toBeGreaterThan(0);
   expect(
     renderer.root.findAllByProps({ accessibilityLabel: 'Đã lưu notebook' })

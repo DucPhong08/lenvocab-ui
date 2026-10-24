@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { ApiError } from '@/api/client/ApiError';
 import type { Flashcard, ReviewCard, ScanResult } from '@/api/contracts';
 import { confirmFlashcard } from '@/api/endpoints/confirmFlashcard';
+import { uploadCardImage } from '@/api/endpoints/cardImage';
 import { cardWord } from '@/api/mappers/cardWord';
 import { scanWord } from '@/api/mappers/scanWord';
 import { getWord } from '@/data/getWord';
@@ -16,6 +17,7 @@ type UseVocabularyLibraryOptions = {
   reloadCards: () => Promise<unknown>;
   reloadDue: () => Promise<unknown>;
   scanResult: ScanResult | null;
+  imageUri?: string | null;
   showFeedback: (message: string) => void;
   token: string | null;
 };
@@ -28,19 +30,45 @@ export function useVocabularyLibrary({
   reloadCards,
   reloadDue,
   scanResult,
+  imageUri,
   showFeedback,
   token,
 }: UseVocabularyLibraryOptions) {
   const [saving, setSaving] = useState(false);
+  const [confirmed, setConfirmed] = useState<{
+    token: string;
+    scan: ScanResult;
+    imageUri?: string | null;
+    card: Flashcard;
+  } | null>(null);
+  const confirmedCard =
+    confirmed?.token === token
+      ? cards.find(
+          card => card.user_flashcard_id === confirmed.card.user_flashcard_id,
+        ) ?? confirmed.card
+      : null;
   const savingRequest = useRef(false);
   const currentToken = useRef(token);
   currentToken.current = token;
   const saved = [
-    ...new Set([...cards, ...due].map(card => card.user_flashcard_id)),
+    ...new Set(
+      [...(confirmedCard ? [confirmedCard] : []), ...cards, ...due].map(
+        card => card.user_flashcard_id,
+      ),
+    ),
   ];
 
   const wordForId = (id: string): Word => {
-    if (id.startsWith('scan:') && scanResult) return scanWord(scanResult);
+    if (id.startsWith('scan:') && scanResult) {
+      if (
+        confirmedCard &&
+        confirmed?.scan === scanResult &&
+        confirmed.imageUri === imageUri
+      )
+        return cardWord(confirmedCard);
+      return { ...scanWord(scanResult), imageUrl: imageUri ?? null };
+    }
+    if (confirmedCard?.user_flashcard_id === id) return cardWord(confirmedCard);
     const card =
       cards.find(item => item.user_flashcard_id === id) ??
       due.find(item => item.user_flashcard_id === id);
@@ -75,12 +103,47 @@ export function useVocabularyLibrary({
       setSaving(true);
       const requestToken = token;
       try {
-        await confirmFlashcard(token, scanResult);
+        let stored = await confirmFlashcard(token, scanResult);
         if (currentToken.current !== requestToken) return;
+        let imageError: string | null = null;
+        if (imageUri) {
+          try {
+            const photo = await uploadCardImage(
+              token,
+              stored.user_flashcard_id,
+              { uri: imageUri },
+              scanResult.status === 'OK' ? scanResult.bounding_box : null,
+            );
+            stored = { ...stored, ...photo };
+          } catch (error) {
+            if (currentToken.current !== requestToken) return;
+            if (error instanceof ApiError && error.status === 401) {
+              await onUnauthorized();
+              return;
+            }
+            imageError =
+              error instanceof Error ? error.message : 'Vui lòng thử lại.';
+          }
+        }
+        if (currentToken.current !== requestToken) return;
+        setConfirmed({
+          token: requestToken,
+          scan: scanResult,
+          imageUri,
+          card: stored,
+        });
         const refresh = await Promise.allSettled([reloadCards(), reloadDue()]);
         if (currentToken.current !== requestToken) return;
+        if (imageError) {
+          Alert.alert(
+            'Đã lưu từ nhưng ảnh chưa được lưu',
+            `${imageError} Mở thẻ trong kho từ để thêm lại ảnh.`,
+          );
+        }
         showFeedback(
-          refresh.some(result => result.status === 'rejected')
+          imageError
+            ? 'Đã lưu từ. Ảnh chưa được lưu.'
+            : refresh.some(result => result.status === 'rejected')
             ? 'Đã lưu từ. Chưa thể cập nhật kho học; vui lòng tải lại.'
             : 'Đã lưu từ vào tài khoản của bạn.',
         );
@@ -106,6 +169,7 @@ export function useVocabularyLibrary({
       reloadDue,
       requestSignIn,
       scanResult,
+      imageUri,
       showFeedback,
       token,
     ],

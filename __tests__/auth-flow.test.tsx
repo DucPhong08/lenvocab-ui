@@ -3,9 +3,12 @@ import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
 import { Text, TextInput } from 'react-native';
 import { SWRConfig } from 'swr';
+import { googleIdToken } from '@/services/auth/googleSignIn';
 import { AuthScreen } from '@/screens/account/AuthScreen';
 import { launchImageLibrary } from 'react-native-image-picker';
 import * as Keychain from 'react-native-keychain';
+
+jest.mock('@/services/auth/googleSignIn', () => ({ googleIdToken: jest.fn() }));
 
 jest.mock('lucide-react-native', () => {
   const { View } = require('react-native');
@@ -100,7 +103,11 @@ function guestAccountFetch() {
         detected_objects: [],
       });
     }
-    if (url.endsWith('/auth/login') || url.endsWith('/auth/register')) {
+    if (
+      url.endsWith('/auth/login') ||
+      url.endsWith('/auth/register') ||
+      url.endsWith('/auth/google')
+    ) {
       return response({ access_token: 'guest-conversion-token' });
     }
     if (url.endsWith('/auth/me')) {
@@ -110,6 +117,12 @@ function guestAccountFetch() {
         display_name: null,
         account_tier: 'FREE',
         daily_quota_left: 10,
+      });
+    }
+    if (url.endsWith('/flashcards/guest-card/image')) {
+      return response({
+        image_url: 'https://private.example/guest-photo',
+        has_image: true,
       });
     }
     if (url.endsWith('/flashcards/confirm')) {
@@ -164,7 +177,7 @@ async function submitAccount(
     await ReactTestRenderer.act(async () => button!.props.onPress());
   }
   await ReactTestRenderer.act(async () => {
-    enter(renderer, 'Email', 'learner@example.com');
+    enter(renderer, 'Username', 'learner');
     enter(renderer, 'Mật khẩu', 'password123');
   });
   await ReactTestRenderer.act(async () =>
@@ -191,6 +204,11 @@ test.each([
         url.endsWith('/flashcards/confirm'),
       );
       expect(confirmations).toHaveLength(1);
+      expect(
+        fetchMock.mock.calls.filter(([url]) =>
+          url.endsWith('/flashcards/guest-card/image'),
+        ),
+      ).toHaveLength(1);
       expect(
         renderer.root.findAllByProps({ accessibilityLabel: 'Ảnh đã chọn' })
           .length,
@@ -281,7 +299,7 @@ test('keeps the requested guest save when login fails, then resumes on retry', a
     fetchMock.mockRejectedValueOnce(new Error('offline'));
     await submitAccount(renderer, 'login');
     expect(
-      renderer.root.findAllByProps({ accessibilityLabel: 'Email' }).length,
+      renderer.root.findAllByProps({ accessibilityLabel: 'Username' }).length,
     ).toBeGreaterThan(0);
     expect(
       fetchMock.mock.calls.filter(([url]) =>
@@ -301,5 +319,60 @@ test('keeps the requested guest save when login fails, then resumes on retry', a
   } finally {
     await ReactTestRenderer.act(async () => renderer?.unmount());
     globalThis.fetch = previousFetch;
+  }
+});
+
+test('resumes the requested guest save after Google login', async () => {
+  const previousFetch = globalThis.fetch;
+  const fetchMock = guestAccountFetch();
+  globalThis.fetch = fetchMock as unknown as typeof fetch;
+  jest.mocked(googleIdToken).mockResolvedValueOnce('google-id-token');
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  try {
+    renderer = await mountGuestScan();
+    await ReactTestRenderer.act(async () => press(renderer, 'Lưu mug'));
+    await ReactTestRenderer.act(async () =>
+      press(renderer, 'Tiếp tục với Google'),
+    );
+    expect(
+      fetchMock.mock.calls.filter(([url]) => url.endsWith('/auth/google')),
+    ).toHaveLength(1);
+    expect(
+      fetchMock.mock.calls.filter(([url]) =>
+        url.endsWith('/flashcards/confirm'),
+      ),
+    ).toHaveLength(1);
+  } finally {
+    await ReactTestRenderer.act(async () => renderer?.unmount());
+    globalThis.fetch = previousFetch;
+  }
+});
+
+test('a missing Google configuration leaves username login usable', async () => {
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  jest
+    .mocked(googleIdToken)
+    .mockRejectedValueOnce(new Error('Google chưa được thiết lập.'));
+  try {
+    await ReactTestRenderer.act(async () => {
+      renderer = ReactTestRenderer.create(<App />);
+    });
+    await ReactTestRenderer.act(async () => press(renderer, 'Cá nhân'));
+    await ReactTestRenderer.act(async () =>
+      press(renderer, 'Đăng nhập để đồng bộ'),
+    );
+    await ReactTestRenderer.act(async () =>
+      press(renderer, 'Tiếp tục với Google'),
+    );
+    expect(
+      renderer.root
+        .findAllByType(Text)
+        .some(node => node.props.children === 'Google chưa được thiết lập.'),
+    ).toBe(true);
+    expect(
+      renderer.root.findAllByProps({ accessibilityLabel: 'Username' }).length,
+    ).toBeGreaterThan(0);
+  } finally {
+    await ReactTestRenderer.act(async () => renderer?.unmount());
   }
 });

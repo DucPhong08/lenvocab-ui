@@ -22,7 +22,9 @@ export type UserPreferencesResponse = {
 
 export type User = {
   id: string;
-  email: string;
+  username?: string | null;
+  email: string | null;
+  google_linked?: boolean;
   display_name: string | null;
   account_tier: AccountTier;
   daily_quota_left: number;
@@ -68,6 +70,8 @@ export type ScanResult = {
 
 export type Flashcard = {
   user_flashcard_id: string;
+  image_url?: string | null;
+  has_image?: boolean;
   global_flashcard_id: string;
   keyword: string;
   pronunciation: string | null;

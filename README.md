@@ -84,3 +84,11 @@ Backend mặc định được cấu hình tại `src/api/client/config.ts`.
 - Danh sách và hàng đợi ôn không chứa âm thanh. Khi bấm loa, app gọi `GET /flashcards/{user_flashcard_id}/audio`; kết quả scan có sẵn audio thì phát trực tiếp.
 - Một giọng đọc chung theo backend. Tốc độ 0.75x / 1x / 1.25x được lưu qua preferences và áp dụng ở native audio player.
 - Cần triển khai backend có hai endpoint mới trước bản UI này. Kiểm thử Jest dùng mock; vẫn cần chạy luồng quét/lưu/phát âm/đổi tốc độ trên thiết bị thật.
+
+## Đăng nhập
+
+Đăng ký bằng username và mật khẩu, email tùy chọn. Có nút đăng nhập/liên kết Google; để kích hoạt cần tạo OAuth Client IDs, điền cấu hình và rebuild app. Xem [Google Sign-In](docs/GOOGLE_SIGN_IN.md).
+
+## Ảnh của thẻ
+
+App lưu ảnh cùng thẻ sau khi đăng nhập, hiển thị ảnh trong kho từ/chi tiết/flashcard, và hỗ trợ thêm/đổi/xóa ảnh. Cần backend có các image endpoint và S3 private được cấu hình. Xem [hướng dẫn ảnh cá nhân](docs/CARD_IMAGES.md).

@@ -2,16 +2,19 @@ import { Pressable, Text, View } from 'react-native';
 import { Bookmark, ChevronRight, Volume2 } from 'lucide-react-native';
 import type { Word } from '@/data/scenes';
 import { useAudio } from '@/hooks/useAudio';
+import { CardImage } from './CardImage';
 import { colors } from '@/theme/theme';
 import { styles } from './styles/content.styles';
 
 export function WordRow({
   word,
+  token,
   saved,
   onOpen,
   onSave,
 }: {
   word: Word;
+  token?: string | null;
   saved: boolean;
   onOpen: () => void;
   onSave?: () => void;
@@ -26,11 +29,22 @@ export function WordRow({
         onPress={onOpen}
         style={({ pressed }) => [styles.wordMain, pressed && styles.pressed]}
       >
-        <View style={styles.wordInitial}>
-          <Text style={styles.wordInitialText}>
-            {word.term[0].toUpperCase()}
-          </Text>
-        </View>
+        {word.imageUrl || word.hasImage ? (
+          <CardImage
+            imageUrl={word.imageUrl}
+            cardId={word.userFlashcardId}
+            token={token}
+            label={`Ảnh của bạn: ${word.term}`}
+            variant="thumbnail"
+            fallback={word.term[0].toUpperCase()}
+          />
+        ) : (
+          <View style={styles.wordInitial}>
+            <Text style={styles.wordInitialText}>
+              {word.term[0].toUpperCase()}
+            </Text>
+          </View>
+        )}
         <View style={styles.fill}>
           <Text style={styles.wordTerm}>{word.term}</Text>
           <Text style={styles.wordMeaning} numberOfLines={1}>

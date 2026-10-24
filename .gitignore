@@ -76,3 +76,7 @@ yarn-error.log
 
 # Agents
 .agents
+# Local environment files
+.env
+.env.*
+!.env.example

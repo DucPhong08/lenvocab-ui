@@ -15,6 +15,7 @@ type FilterType = 'all' | 'new' | 'reviewed';
 
 export function SavedScreen({
   navigate,
+  token,
   saved,
   totalSaved,
   hasMoreCards,
@@ -163,6 +164,7 @@ export function SavedScreen({
           <WordRow
             key={word.id}
             word={word}
+            token={token}
             saved
             onOpen={() => openWord(word.id)}
           />

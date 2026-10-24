@@ -1,7 +1,27 @@
 const errorMessages: Record<string, string> = {
+  IMAGE_STORAGE_NOT_CONFIGURED:
+    'Tính năng lưu ảnh chưa được thiết lập trên máy chủ.',
+  IMAGE_STORAGE_UNAVAILABLE: 'Chưa kết nối được kho ảnh. Vui lòng thử lại.',
+  IMAGE_PIXEL_LIMIT_EXCEEDED:
+    'Ảnh có độ phân giải quá lớn. Hãy chọn ảnh nhỏ hơn.',
+  INVALID_CROP_BOX: 'Vùng cắt ảnh không hợp lệ. Hãy chọn lại ảnh.',
+  IMAGE_UPDATE_CONFLICT: 'Ảnh vừa được cập nhật ở nơi khác. Hãy tải lại thẻ.',
+  IMAGE_NOT_AVAILABLE: 'Thẻ này chưa có ảnh hoặc ảnh không còn tồn tại.',
   AUDIO_NOT_AVAILABLE: 'Từ này chưa có âm thanh. Vui lòng thử lại sau.',
   FLASHCARD_NOT_FOUND: 'Không tìm thấy thẻ từ trong tài khoản của bạn.',
-  INVALID_CREDENTIALS: 'Email hoặc mật khẩu không đúng.',
+  INVALID_CREDENTIALS: 'Username hoặc mật khẩu không đúng.',
+  USERNAME_ALREADY_REGISTERED:
+    'Username này đã được sử dụng. Hãy chọn tên khác.',
+  GOOGLE_AUTH_NOT_CONFIGURED:
+    'Đăng nhập Google chưa được thiết lập. Bạn có thể dùng username.',
+  GOOGLE_AUTH_UNAVAILABLE: 'Google đang tạm gián đoạn. Vui lòng thử lại.',
+  GOOGLE_TOKEN_INVALID:
+    'Thông tin đăng nhập Google không hợp lệ. Vui lòng thử lại.',
+  GOOGLE_ACCOUNT_LINK_REQUIRED:
+    'Email này đã có tài khoản. Hãy đăng nhập bằng mật khẩu rồi chọn Liên kết Google trong hồ sơ.',
+  GOOGLE_ACCOUNT_ALREADY_LINKED:
+    'Tài khoản Google đã được liên kết. Hãy kiểm tra lại tài khoản bạn chọn.',
+  GOOGLE_ACCOUNT_CONFLICT: 'Chưa tạo được tài khoản Google. Vui lòng thử lại.',
   EMAIL_ALREADY_REGISTERED: 'Email này đã được đăng ký.',
   USER_INACTIVE: 'Tài khoản đã bị vô hiệu hóa.',
   INVALID_IMAGE_FORMAT: 'Chỉ hỗ trợ ảnh JPG hoặc PNG.',

@@ -14,6 +14,7 @@ import { styles } from './styles';
 
 export function ResultsScreen({
   navigate,
+  token,
   sceneId,
   imageUri,
   saved,
@@ -23,9 +24,10 @@ export function ResultsScreen({
   user,
   saving,
   cards,
+  wordForId,
 }: ScreenProps) {
   const scene = getScene(sceneId);
-  const words = scanResult ? [scanWord(scanResult)] : scene.words;
+  const words = scanResult ? [wordForId(scanWord(scanResult).id)] : scene.words;
   const isStored = (id: string) =>
     saved.includes(id) ||
     !!(
@@ -80,7 +82,7 @@ export function ResultsScreen({
         <Lightbulb size={18} color={colors.forest} />
         <Text style={styles.noticeText}>
           {scanResult
-            ? `Từ chính được nhận diện: ${scanResult.keyword}. Mỗi lần quét tạo một thẻ để bạn học và lưu.`
+            ? `Từ chính được nhận diện: ${scanResult.keyword}. Lưu thẻ để giữ lại từ và ảnh của bạn.`
             : 'Các câu ví dụ và từ trong cảnh này là nội dung minh họa, không được tạo từ ảnh của bạn.'}
         </Text>
       </View>
@@ -92,6 +94,7 @@ export function ResultsScreen({
         <WordRow
           key={word.id}
           word={word}
+          token={token}
           saved={isStored(word.id)}
           onOpen={() => openWord(word.id)}
           onSave={isStored(word.id) ? undefined : () => toggleSaved(word.id)}

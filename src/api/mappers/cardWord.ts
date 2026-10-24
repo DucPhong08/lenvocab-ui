@@ -5,6 +5,8 @@ export function cardWord(card: Flashcard | ReviewCard): Word {
   return {
     id: card.user_flashcard_id,
     userFlashcardId: card.user_flashcard_id,
+    imageUrl: card.image_url ?? null,
+    hasImage: card.has_image ?? !!card.image_url,
     term: card.keyword,
     ipa: card.pronunciation ?? '',
     type: 'từ vựng',
