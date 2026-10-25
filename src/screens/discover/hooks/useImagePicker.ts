@@ -6,9 +6,7 @@ import {
   type Asset,
 } from 'react-native-image-picker';
 
-export function useImagePicker(
-  selectImage: (asset: Asset | null) => void,
-) {
+export function useImagePicker(selectImage: (asset: Asset | null) => void) {
   return useCallback(
     async (source: 'camera' | 'library') => {
       try {
@@ -17,27 +15,36 @@ export function useImagePicker(
             ? await launchCamera({
                 mediaType: 'photo',
                 quality: 0.8,
+                maxWidth: 1600,
+                maxHeight: 1600,
                 saveToPhotos: false,
               })
             : await launchImageLibrary({
                 mediaType: 'photo',
                 selectionLimit: 1,
                 quality: 0.8,
+                maxWidth: 1600,
+                maxHeight: 1600,
               });
 
         if (result.didCancel) return;
         if (result.errorCode) {
           Alert.alert(
             'Không thể mở ảnh',
-            result.errorMessage ??
-              'Vui lòng thử lại hoặc chọn một cảnh mẫu.',
+            result.errorMessage ?? 'Vui lòng thử lại hoặc chọn một cảnh mẫu.',
           );
           return;
         }
 
         const picked = result.assets?.[0];
-        if (picked?.type && !['image/jpeg', 'image/png'].includes(picked.type)) {
-          Alert.alert('Định dạng chưa hỗ trợ', 'Chọn ảnh JPG hoặc PNG để quét.');
+        if (
+          picked?.type &&
+          !['image/jpeg', 'image/png'].includes(picked.type)
+        ) {
+          Alert.alert(
+            'Định dạng chưa hỗ trợ',
+            'Chọn ảnh JPG hoặc PNG để quét.',
+          );
           return;
         }
         if (picked?.fileSize && picked.fileSize > 5 * 1024 * 1024) {

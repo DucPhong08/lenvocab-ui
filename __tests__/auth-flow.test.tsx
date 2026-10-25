@@ -8,6 +8,10 @@ import { AuthScreen } from '@/screens/account/AuthScreen';
 import { launchImageLibrary } from 'react-native-image-picker';
 import * as Keychain from 'react-native-keychain';
 
+jest.mock('@react-native-community/image-editor', () => ({
+  __esModule: true,
+  default: { cropImage: jest.fn() },
+}));
 jest.mock('@/services/auth/googleSignIn', () => ({ googleIdToken: jest.fn() }));
 
 jest.mock('lucide-react-native', () => {

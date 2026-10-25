@@ -56,7 +56,7 @@ async function mount() {
       token,
       navigate: jest.fn(),
       onUnauthorized: jest.fn(),
-      reloadUser: jest.fn(),
+      reloadUser: jest.fn().mockResolvedValue(undefined),
       sceneId: 'desk',
       setSceneId: jest.fn(),
     });
@@ -163,5 +163,98 @@ test('clips a tall crop inside its fitted window so adjacent objects cannot show
   } finally {
     if (renderer) await ReactTestRenderer.act(async () => renderer.unmount());
     getSize.mockRestore();
+  }
+});
+
+const book: DetectedObject = {
+  ...item,
+  object_id: 'book-1',
+  selection_token: 'signed-book',
+  keyword: 'Book',
+};
+
+test('A → B → A → B reuses results without another API call', async () => {
+  const h = await mount();
+  mockSelect.mockResolvedValue(chosen);
+  try {
+    for (const object of [item, book, item]) {
+      await ReactTestRenderer.act(async () => h.get().selectObject(object));
+    }
+    expect(h.get().scanResult?.keyword).toBe('cup');
+    expect(mockSelect).toHaveBeenCalledTimes(1);
+    expect(mockScanImage).toHaveBeenCalledTimes(1);
+  } finally {
+    await ReactTestRenderer.act(async () => h.renderer.unmount());
+  }
+});
+
+test('selection cache expires after five minutes', async () => {
+  let now = 1000;
+  const clock = jest.spyOn(Date, 'now').mockImplementation(() => now);
+  const h = await mount();
+  mockSelect.mockResolvedValue(chosen);
+  try {
+    await ReactTestRenderer.act(async () => h.get().selectObject(item));
+    now += 5 * 60_000 + 1;
+    mockSelect.mockResolvedValue(first);
+    await ReactTestRenderer.act(async () => h.get().selectObject(book));
+    expect(mockSelect).toHaveBeenCalledTimes(2);
+  } finally {
+    clock.mockRestore();
+    await ReactTestRenderer.act(async () => h.renderer.unmount());
+  }
+});
+
+test('changing the account drops cached object results', async () => {
+  const h = await mount();
+  mockSelect.mockResolvedValue(chosen);
+  try {
+    await ReactTestRenderer.act(async () => h.get().selectObject(item));
+    await ReactTestRenderer.act(async () =>
+      h.renderer.update(<h.Harness token="other" />),
+    );
+    mockSelect.mockResolvedValue(first);
+    await ReactTestRenderer.act(async () => h.get().selectObject(book));
+    expect(mockSelect).toHaveBeenLastCalledWith('other', 'signed-book');
+    expect(mockSelect).toHaveBeenCalledTimes(2);
+  } finally {
+    await ReactTestRenderer.act(async () => h.renderer.unmount());
+  }
+});
+
+test('opening history does not extend the original cached result lifetime', async () => {
+  let now = 1000;
+  const clock = jest.spyOn(Date, 'now').mockImplementation(() => now);
+  const h = await mount();
+  mockSelect.mockResolvedValue(chosen);
+  try {
+    now += 4 * 60_000;
+    await ReactTestRenderer.act(async () =>
+      h.get().openHistory(h.get().history[0]),
+    );
+    await ReactTestRenderer.act(async () => h.get().selectObject(item));
+    now += 2 * 60_000;
+    mockSelect.mockResolvedValue(first);
+    await ReactTestRenderer.act(async () => h.get().selectObject(book));
+    expect(mockSelect).toHaveBeenCalledTimes(2);
+  } finally {
+    clock.mockRestore();
+    await ReactTestRenderer.act(async () => h.renderer.unmount());
+  }
+});
+
+test('a new scan cannot reuse selections from the previous image', async () => {
+  const h = await mount();
+  mockSelect.mockResolvedValue(chosen);
+  try {
+    await ReactTestRenderer.act(async () => h.get().selectObject(item));
+    await ReactTestRenderer.act(async () =>
+      h.get().selectImage({ uri: 'file:///other.jpg' }),
+    );
+    await ReactTestRenderer.act(async () => h.get().scan());
+    await ReactTestRenderer.act(async () => h.get().selectObject(item));
+    expect(mockSelect).toHaveBeenCalledTimes(2);
+  } finally {
+    await ReactTestRenderer.act(async () => h.renderer.unmount());
   }
 });

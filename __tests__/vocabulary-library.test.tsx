@@ -56,6 +56,7 @@ async function mountLibrary(
     cards: [],
     requestSignIn: jest.fn(),
     onUnauthorized: jest.fn(),
+    applyCard: jest.fn().mockResolvedValue(undefined),
     reloadCards: jest.fn().mockResolvedValue([]),
     reloadDue: jest.fn().mockResolvedValue([]),
     scanResult: draft,
@@ -307,6 +308,165 @@ test('updates the existing word card with the newly selected region instead of b
     expect(
       state.library.saved.filter(id => id === card.user_flashcard_id),
     ).toHaveLength(1);
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('finishes saving and applies the stored sticker without waiting for background lists', async () => {
+  let finish!: () => void;
+  const loading = new Promise<void>(resolve => {
+    finish = resolve;
+  });
+  const state = await mountLibrary({
+    reloadCards: jest.fn(() => loading),
+    reloadDue: jest.fn(() => loading),
+    imageUri: 'file:///photo.jpg',
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(state.library.saving).toBe(false);
+    expect(state.options.applyCard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_flashcard_id: 'mug-card',
+        image_url: 'https://private.example/photo',
+      }),
+    );
+    expect(state.options.showFeedback).toHaveBeenCalledWith(
+      'Đã lưu từ vào tài khoản của bạn.',
+    );
+    expect(state.options.reloadCards).toHaveBeenCalledTimes(1);
+    await ReactTestRenderer.act(async () => finish());
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('keeps saved selections when A → B → a cloned A result is selected again', async () => {
+  const a = { ...draft, selected_object_id: 'object-a' };
+  const b = { ...draft, keyword: 'book', selected_object_id: 'object-b' };
+  const state = await mountLibrary({
+    scanResult: a,
+    imageUri: 'file:///scene.jpg',
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    state.options.scanResult = b;
+    await ReactTestRenderer.act(async () =>
+      state.renderer.update(<state.Harness token="user-token" />),
+    );
+    expect(state.library.currentScanSaved).toBe(false);
+    jest.mocked(confirmFlashcard).mockResolvedValueOnce({
+      ...card,
+      user_flashcard_id: 'book-card',
+      keyword: 'book',
+    });
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:book'),
+    );
+    state.options.scanResult = { ...a, detected_objects: [] };
+    await ReactTestRenderer.act(async () =>
+      state.renderer.update(<state.Harness token="user-token" />),
+    );
+    expect(state.library.currentScanSaved).toBe(true);
+    expect(state.library.wordForId('scan:mug').imageUrl).toBe(
+      'https://private.example/photo',
+    );
+    expect(confirmFlashcard).toHaveBeenCalledTimes(2);
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('a different scan and a different region of the same word require saving their own image', async () => {
+  const a = { ...draft, selected_object_id: 'object-a' };
+  const state = await mountLibrary({
+    scanResult: a,
+    imageUri: 'file:///scene.jpg',
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    state.options.scanResult = { ...a, selected_object_id: 'object-b' };
+    await ReactTestRenderer.act(async () =>
+      state.renderer.update(<state.Harness token="user-token" />),
+    );
+    expect(state.library.currentScanSaved).toBe(false);
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    state.options.scanResult = { ...a };
+    await ReactTestRenderer.act(async () =>
+      state.renderer.update(<state.Harness token="user-token" />),
+    );
+    expect(state.library.currentScanSaved).toBe(false);
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('failed image storage leaves the word saved but allows retrying its sticker', async () => {
+  jest
+    .mocked(uploadCardImage)
+    .mockRejectedValueOnce(new Error('storage offline'));
+  const state = await mountLibrary({ imageUri: 'file:///scene.jpg' });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(state.library.saved).toContain('mug-card');
+    expect(state.library.currentScanSaved).toBe(false);
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('a failed replacement keeps the previously saved object association', async () => {
+  const a = { ...draft, selected_object_id: 'object-a' };
+  const state = await mountLibrary({
+    scanResult: a,
+    imageUri: 'file:///scene.jpg',
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    state.options.scanResult = { ...a, selected_object_id: 'object-b' };
+    await ReactTestRenderer.act(async () =>
+      state.renderer.update(<state.Harness token="user-token" />),
+    );
+    jest.mocked(uploadCardImage).mockRejectedValueOnce(new Error('offline'));
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(state.library.currentScanSaved).toBe(false);
+    state.options.scanResult = { ...a };
+    await ReactTestRenderer.act(async () =>
+      state.renderer.update(<state.Harness token="user-token" />),
+    );
+    expect(state.library.currentScanSaved).toBe(true);
+  } finally {
+    await ReactTestRenderer.act(async () => state.renderer.unmount());
+  }
+});
+
+test('a local cache update failure does not report failure of successful server storage', async () => {
+  const state = await mountLibrary({
+    applyCard: jest.fn().mockRejectedValue(new Error('cache error')),
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      state.library.toggleSaved('scan:mug'),
+    );
+    expect(state.options.showFeedback).toHaveBeenCalledWith(
+      'Đã lưu từ vào tài khoản của bạn.',
+    );
+    expect(Alert.alert).not.toHaveBeenCalled();
   } finally {
     await ReactTestRenderer.act(async () => state.renderer.unmount());
   }

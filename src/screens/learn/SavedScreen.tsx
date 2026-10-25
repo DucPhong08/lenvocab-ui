@@ -150,14 +150,29 @@ export function SavedScreen({
         title={`${filteredWords.length} từ được tìm thấy`}
       />
 
-      {user && dataError ? (
+      {user && dataError && cards.length > 0 && (
+        <View>
+          <Text style={styles.hint}>
+            Chưa đồng bộ được toàn bộ kho từ. Những thẻ đã tải vẫn ở đây.
+          </Text>
+          <PrimaryButton
+            label="Tải lại kho từ"
+            variant="secondary"
+            onPress={() => reloadData().catch(() => {})}
+          />
+        </View>
+      )}
+      {user && loadingData && cards.length > 0 && (
+        <Text style={styles.hint}>Đang đồng bộ kho từ của bạn...</Text>
+      )}
+      {user && dataError && cards.length === 0 ? (
         <EmptyState
           title="Không thể tải kho từ"
           description={dataError}
           onPress={() => reloadData()}
           action="Thử lại"
         />
-      ) : user && loadingData ? (
+      ) : user && loadingData && cards.length === 0 ? (
         <Text style={styles.hint}>Đang tải kho từ của bạn...</Text>
       ) : filteredWords.length ? (
         filteredWords.map(word => (

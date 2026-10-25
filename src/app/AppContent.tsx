@@ -66,6 +66,7 @@ export function AppContent() {
   }, [signOut]);
   const {
     applyReview,
+    applyCard,
     cards,
     totalSaved,
     hasMoreCards,
@@ -118,6 +119,7 @@ export function AppContent() {
     useVocabularyLibrary({
       cards,
       due,
+      applyCard,
       requestSignIn: id => {
         pendingSave.current = id;
         navigate('auth');

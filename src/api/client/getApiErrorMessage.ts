@@ -14,6 +14,8 @@ const errorMessages: Record<string, string> = {
   IMAGE_PIXEL_LIMIT_EXCEEDED:
     'Ảnh có độ phân giải quá lớn. Hãy chọn ảnh nhỏ hơn.',
   INVALID_CROP_BOX: 'Vùng cắt ảnh không hợp lệ. Hãy chọn lại ảnh.',
+  IMAGE_UPDATE_UNCERTAIN:
+    'Chưa xác nhận được cập nhật ảnh. Hãy tải lại thẻ trước khi thử lại.',
   IMAGE_UPDATE_CONFLICT: 'Ảnh vừa được cập nhật ở nơi khác. Hãy tải lại thẻ.',
   IMAGE_NOT_AVAILABLE: 'Thẻ này chưa có ảnh hoặc ảnh không còn tồn tại.',
   AUDIO_NOT_AVAILABLE: 'Từ này chưa có âm thanh. Vui lòng thử lại sau.',

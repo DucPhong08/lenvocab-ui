@@ -33,16 +33,34 @@ export function useScanFlow({
   const selecting = useRef(false);
   const [selectingObject, setSelectingObject] = useState(false);
 
+  const selections = useRef(
+    new Map<string, { result: ScanResult; expires: number }>(),
+  );
+  const remember = (result: ScanResult, timestamp = Date.now()) => {
+    if (result.selected_object_id)
+      selections.current.set(result.selected_object_id, {
+        result,
+        expires: timestamp + 5 * 60_000,
+      });
+  };
+
   const currentToken = useRef(token);
   const previousToken = useRef(token);
   currentToken.current = token;
 
   useEffect(() => {
-    if (previousToken.current !== token) setScanning(false);
+    if (previousToken.current !== token) {
+      selections.current.clear();
+      generation.current += 1;
+      selecting.current = false;
+      setSelectingObject(false);
+      setScanning(false);
+    }
     previousToken.current = token;
   }, [token]);
 
   const selectImage = (picked: Asset | null) => {
+    selections.current.clear();
     generation.current += 1;
     selecting.current = false;
     setSelectingObject(false);
@@ -60,6 +78,7 @@ export function useScanFlow({
       return;
     }
 
+    selections.current.clear();
     const requestToken = token;
     const version = ++generation.current;
     setScanning(true);
@@ -79,6 +98,7 @@ export function useScanFlow({
         return;
       }
 
+      remember(result);
       setScanResult(result);
       if (token) reloadUser().catch(() => {});
       setHistory(current => [
@@ -123,6 +143,16 @@ export function useScanFlow({
       item.object_id === scanResult.selected_object_id
     )
       return;
+    const cached = item.object_id
+      ? selections.current.get(item.object_id)
+      : undefined;
+    if (cached && cached.expires > Date.now()) {
+      setScanResult({
+        ...cached.result,
+        detected_objects: scanResult.detected_objects,
+      });
+      return;
+    }
     selecting.current = true;
     setSelectingObject(true);
     const version = ++generation.current;
@@ -135,6 +165,7 @@ export function useScanFlow({
         currentToken.current !== requestToken
       )
         return;
+      remember(selected);
       setScanResult({
         ...selected,
         detected_objects: original.detected_objects,
@@ -161,6 +192,9 @@ export function useScanFlow({
   };
 
   const openHistory = (entry: ScanEntry) => {
+    selections.current.clear();
+    if (entry.result && Date.now() - entry.timestamp < 5 * 60_000)
+      remember(entry.result, entry.timestamp);
     generation.current += 1;
     selecting.current = false;
     setSelectingObject(false);
@@ -171,6 +205,7 @@ export function useScanFlow({
   };
 
   const resetScan = useCallback(() => {
+    selections.current.clear();
     generation.current += 1;
     selecting.current = false;
     setSelectingObject(false);

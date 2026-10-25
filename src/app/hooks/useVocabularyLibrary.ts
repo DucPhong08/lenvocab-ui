@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { ApiError } from '@/api/client/ApiError';
 import type { Flashcard, ReviewCard, ScanResult } from '@/api/contracts';
@@ -14,6 +14,7 @@ type UseVocabularyLibraryOptions = {
   due?: ReviewCard[];
   requestSignIn: (wordId: string | null) => void;
   onUnauthorized: () => Promise<unknown>;
+  applyCard: (card: Flashcard) => Promise<unknown>;
   reloadCards: () => Promise<unknown>;
   reloadDue: () => Promise<unknown>;
   scanResult: ScanResult | null;
@@ -27,6 +28,7 @@ export function useVocabularyLibrary({
   due = [],
   requestSignIn,
   onUnauthorized,
+  applyCard,
   reloadCards,
   reloadDue,
   scanResult,
@@ -35,24 +37,47 @@ export function useVocabularyLibrary({
   token,
 }: UseVocabularyLibraryOptions) {
   const [saving, setSaving] = useState(false);
-  const [confirmed, setConfirmed] = useState<{
-    token: string;
-    scan: ScanResult;
-    imageUri?: string | null;
-    card: Flashcard;
-  } | null>(null);
-  const confirmedCard =
-    confirmed?.token === token
-      ? cards.find(
-          card => card.user_flashcard_id === confirmed.card.user_flashcard_id,
-        ) ?? confirmed.card
-      : null;
+  const [selections, setSelections] = useState<
+    Array<{
+      token: string;
+      key: string;
+      card: Flashcard;
+      imageSaved: boolean;
+    }>
+  >([]);
+  useEffect(() => {
+    setSelections([]);
+  }, [token]);
+  const legacyKeys = useRef(new WeakMap<ScanResult, number>());
+  const nextKey = useRef(0);
+  const selectionKey = useCallback(
+    (result: ScanResult, uri?: string | null) => {
+      if (!result.selected_object_id && !legacyKeys.current.has(result))
+        legacyKeys.current.set(result, ++nextKey.current);
+      return JSON.stringify([
+        uri ?? null,
+        result.selected_object_id ?? `legacy:${legacyKeys.current.get(result)}`,
+      ]);
+    },
+    [],
+  );
+  const ownedSelections = useMemo(
+    () => selections.filter(item => item.token === token),
+    [selections, token],
+  );
+  const currentKey = scanResult ? selectionKey(scanResult, imageUri) : null;
+  const confirmed = ownedSelections.find(item => item.key === currentKey);
+  const confirmedCard = confirmed
+    ? cards.find(
+        card => card.user_flashcard_id === confirmed.card.user_flashcard_id,
+      ) ?? confirmed.card
+    : null;
   const savingRequest = useRef(false);
   const currentToken = useRef(token);
   currentToken.current = token;
   const saved = [
     ...new Set(
-      [...(confirmedCard ? [confirmedCard] : []), ...cards, ...due].map(
+      [...ownedSelections.map(item => item.card), ...cards, ...due].map(
         card => card.user_flashcard_id,
       ),
     ),
@@ -60,15 +85,16 @@ export function useVocabularyLibrary({
 
   const wordForId = (id: string): Word => {
     if (id.startsWith('scan:') && scanResult) {
-      if (
-        confirmedCard &&
-        confirmed?.scan === scanResult &&
-        confirmed.imageUri === imageUri
-      )
-        return cardWord(confirmedCard);
+      if (confirmedCard) return cardWord(confirmedCard);
       return { ...scanWord(scanResult), imageUrl: imageUri ?? null };
     }
-    if (confirmedCard?.user_flashcard_id === id) return cardWord(confirmedCard);
+    const locallySaved = ownedSelections.find(
+      item => item.card.user_flashcard_id === id,
+    )?.card;
+    if (locallySaved)
+      return cardWord(
+        cards.find(item => item.user_flashcard_id === id) ?? locallySaved,
+      );
     const card =
       cards.find(item => item.user_flashcard_id === id) ??
       due.find(item => item.user_flashcard_id === id);
@@ -83,7 +109,10 @@ export function useVocabularyLibrary({
         requestSignIn(scannedWord?.id === id ? id : null);
         return;
       }
-      const alreadyStored = cards.some(
+      const alreadyStored = [
+        ...cards,
+        ...ownedSelections.map(item => item.card),
+      ].some(
         card =>
           card.user_flashcard_id === id ||
           (scannedWord?.id === id &&
@@ -98,6 +127,7 @@ export function useVocabularyLibrary({
       savingRequest.current = true;
       setSaving(true);
       const requestToken = token;
+      const key = selectionKey(scanResult, imageUri);
       try {
         let stored = await confirmFlashcard(token, scanResult);
         if (currentToken.current !== requestToken) return;
@@ -122,13 +152,17 @@ export function useVocabularyLibrary({
           }
         }
         if (currentToken.current !== requestToken) return;
-        setConfirmed({
-          token: requestToken,
-          scan: scanResult,
-          imageUri,
-          card: stored,
-        });
-        const refresh = await Promise.allSettled([reloadCards(), reloadDue()]);
+        setSelections(current => [
+          { token: requestToken, key, card: stored, imageSaved: !imageError },
+          ...current.filter(
+            item =>
+              item.token === requestToken &&
+              item.key !== key &&
+              (Boolean(imageError) ||
+                item.card.user_flashcard_id !== stored.user_flashcard_id),
+          ),
+        ]);
+        await applyCard(stored).catch(() => {});
         if (currentToken.current !== requestToken) return;
         if (imageError) {
           Alert.alert(
@@ -139,12 +173,21 @@ export function useVocabularyLibrary({
         showFeedback(
           imageError
             ? 'Đã lưu từ. Ảnh chưa được lưu.'
-            : refresh.some(result => result.status === 'rejected')
-            ? 'Đã lưu từ. Chưa thể cập nhật kho học; vui lòng tải lại.'
             : alreadyStored
             ? 'Đã cập nhật ảnh cho thẻ đã lưu.'
             : 'Đã lưu từ vào tài khoản của bạn.',
         );
+        // Storage is complete: refreshing remote lists must not hold the save button.
+        Promise.allSettled([reloadCards(), reloadDue()]).then(results => {
+          if (
+            currentToken.current === requestToken &&
+            results.some(result => result.status === 'rejected') &&
+            !imageError
+          )
+            showFeedback(
+              'Đã lưu từ. Chưa thể cập nhật kho học; vui lòng tải lại.',
+            );
+        });
       } catch (error) {
         if (currentToken.current !== requestToken) return;
         if (error instanceof ApiError && error.status === 401) {
@@ -162,7 +205,10 @@ export function useVocabularyLibrary({
     },
     [
       cards,
+      ownedSelections,
+      selectionKey,
       onUnauthorized,
+      applyCard,
       reloadCards,
       reloadDue,
       requestSignIn,
@@ -173,9 +219,8 @@ export function useVocabularyLibrary({
     ],
   );
 
-  const currentScanSaved =
-    confirmed?.token === token &&
-    confirmed.scan === scanResult &&
-    confirmed.imageUri === imageUri;
+  const currentScanSaved = Boolean(
+    confirmed && (!imageUri || confirmed.imageSaved),
+  );
   return { saved, saving, toggleSaved, wordForId, currentScanSaved };
 }

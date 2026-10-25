@@ -1,16 +1,29 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useSWR from 'swr';
 import useSWRInfinite from 'swr/infinite';
 import { ApiError } from '@/api/client/ApiError';
 import { getMe } from '@/api/endpoints/getMe';
 import { listFlashcards } from '@/api/endpoints/listFlashcards';
 import { reviewToday } from '@/api/endpoints/reviewToday';
-import type { FlashcardPage, SubmitReviewResponse } from '@/api/contracts';
+import type {
+  Flashcard,
+  FlashcardPage,
+  SubmitReviewResponse,
+} from '@/api/contracts';
 
 export function useLearningData(
   token: string | null,
   onUnauthorized: () => Promise<unknown>,
 ) {
+  const [pending, setPending] = useState<{
+    token: string;
+    cards: Flashcard[];
+  } | null>(null);
+  const currentToken = useRef(token);
+  currentToken.current = token;
+  useEffect(() => {
+    setPending(null);
+  }, [token]);
   const handleError = useCallback(
     (error: unknown) => {
       if (error instanceof ApiError && error.status === 401)
@@ -43,13 +56,35 @@ export function useLearningData(
     config,
   );
   const pages = cardsQuery.data ?? [];
-  const cards = [
+  const serverCards = [
     ...new Map(
       pages
         .flatMap(page => page.items)
         .map(card => [card.user_flashcard_id, card]),
     ).values(),
   ];
+  const pendingCards = pending?.token === token ? pending.cards : [];
+  const serverIds = new Set(serverCards.map(card => card.user_flashcard_id));
+  const cards = [
+    ...pendingCards.filter(card => !serverIds.has(card.user_flashcard_id)),
+    ...serverCards,
+  ];
+  useEffect(() => {
+    const ids = new Set(
+      cardsQuery.data?.flatMap(page =>
+        page.items.map(card => card.user_flashcard_id),
+      ),
+    );
+    setPending(current => {
+      if (!current || current.token !== token) return null;
+      const remaining = current.cards.filter(
+        card => !ids.has(card.user_flashcard_id),
+      );
+      return remaining.length === current.cards.length
+        ? current
+        : { ...current, cards: remaining };
+    });
+  }, [cardsQuery.data, token]);
   const hasMoreCards =
     pages.length > 0 && pages[pages.length - 1].next_offset !== null;
   const loadingMoreCards = cardsQuery.isValidating;
@@ -69,6 +104,55 @@ export function useLearningData(
       dueQuery.mutate(),
     ]);
   };
+  const applyCard = async (card: Flashcard) => {
+    if (!token || currentToken.current !== token) return;
+    // Keep an overlay when there is no server page yet. Never fabricate totals/cursors.
+    if (!cardsQuery.data?.length)
+      setPending(current => ({
+        token,
+        cards: [
+          card,
+          ...(current?.token === token ? current.cards : []).filter(
+            item => item.user_flashcard_id !== card.user_flashcard_id,
+          ),
+        ],
+      }));
+    // Mutate the server-backed caches immediately; keep server totals/cursors
+    // until revalidation, since this card may already exist on an unloaded page.
+    await Promise.all([
+      cardsQuery.mutate(
+        data => {
+          if (!data?.length) return data;
+          const exists = data.some(page =>
+            page.items.some(
+              item => item.user_flashcard_id === card.user_flashcard_id,
+            ),
+          );
+          return data.map((page, index) => ({
+            ...page,
+            items:
+              !exists && index === 0
+                ? [card, ...page.items]
+                : page.items.map(item =>
+                    item.user_flashcard_id === card.user_flashcard_id
+                      ? card
+                      : item,
+                  ),
+          }));
+        },
+        { revalidate: false },
+      ),
+      dueQuery.mutate(
+        data =>
+          data?.map(item =>
+            item.user_flashcard_id === card.user_flashcard_id
+              ? { ...item, ...card }
+              : item,
+          ),
+        { revalidate: false },
+      ),
+    ]);
+  };
   const applyReview = async (result: SubmitReviewResponse) => {
     const updateCard = <T extends { user_flashcard_id: string }>(card: T) =>
       card.user_flashcard_id === result.user_flashcard_id
@@ -80,6 +164,11 @@ export function useLearningData(
             next_review_date: result.next_review_date,
           }
         : card;
+    setPending(current =>
+      current?.token === token
+        ? { ...current, cards: current.cards.map(updateCard) }
+        : current,
+    );
     await Promise.all([
       cardsQuery.mutate(
         data =>
@@ -102,6 +191,7 @@ export function useLearningData(
     loadingMoreCards,
     loadMoreCards,
     applyReview,
+    applyCard,
     dataError:
       error instanceof Error
         ? error.message

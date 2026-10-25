@@ -54,6 +54,10 @@ jest.mock('react-native-sound', () => {
   }
   return MockSound;
 });
+jest.mock('@react-native-community/image-editor', () => ({
+  __esModule: true,
+  default: { cropImage: jest.fn() },
+}));
 jest.mock('react-native-fs', () => ({
   CachesDirectoryPath: '/tmp',
   writeFile: jest.fn().mockResolvedValue(undefined),
