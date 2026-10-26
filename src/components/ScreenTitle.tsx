@@ -14,10 +14,10 @@ export function ScreenTitle({
   return (
     <View style={styles.titleBlock}>
       <Eyebrow>{kicker}</Eyebrow>
-      <Text style={styles.screenTitle}>{title}</Text>
+      <Text accessibilityRole="header" style={styles.screenTitle}>
+        {title}
+      </Text>
       {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
     </View>
   );
 }
-
-

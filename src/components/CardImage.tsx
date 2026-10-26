@@ -94,7 +94,7 @@ export function CardImage({
 }
 
 const styles = StyleSheet.create({
-  sticker: { width: '100%', height: 200, marginBottom: 12 },
+  sticker: { width: '100%', height: 150 },
   thumbnail: { width: 44, height: 44, borderRadius: 13 },
   detail: { width: '100%', height: 210, borderRadius: 18 },
   flashcard: { width: 180, height: 100, borderRadius: 14 },

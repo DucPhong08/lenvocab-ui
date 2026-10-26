@@ -13,7 +13,7 @@ const slides = [
     label: '01 / KHÁM PHÁ',
     title: 'Học từ chính thế giới quanh bạn.',
     description:
-      'Một góc bàn, một tấm biển hay một trang sách đều có thể trở thành bài học.',
+      'Chụp một vật quen thuộc, chọn vật trong ảnh và xem nghĩa cùng cách phát âm.',
   },
   {
     image: 'kitchen',
@@ -60,12 +60,14 @@ export function OnboardingScreen({ navigate }: ScreenProps) {
               accessibilityLabel={`Trang giới thiệu ${index + 1}`}
               accessibilityState={{ selected: index === step }}
               onPress={() => setStep(index)}
-              style={[styles.dot, index === step && styles.activeDot]}
-            />
+              style={styles.dotTarget}
+            >
+              <View style={[styles.dot, index === step && styles.activeDot]} />
+            </Pressable>
           ))}
         </View>
         <PrimaryButton
-          label={step === slides.length - 1 ? 'Khám phá bản demo' : 'Tiếp tục'}
+          label={step === slides.length - 1 ? 'Bắt đầu khám phá' : 'Tiếp tục'}
           onPress={() =>
             step === slides.length - 1
               ? navigate('home')

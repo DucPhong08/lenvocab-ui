@@ -28,16 +28,13 @@ export function AppTabs({
   wordBack: Screen;
   navigate: (next: Screen) => void;
 }) {
+  const parent = screen === 'word' ? wordBack : screen;
   const activeTab =
-    screen === 'word'
-      ? wordBack === 'results'
-        ? 'camera'
-        : wordBack
-      : screen === 'results' || screen === 'history'
-        ? 'camera'
-        : screen === 'quiz' || screen === 'flashcards'
-          ? 'review'
-          : screen;
+    parent === 'results' || parent === 'history'
+      ? 'camera'
+      : parent === 'quiz' || parent === 'flashcards'
+      ? 'review'
+      : parent;
 
   return (
     <View accessibilityRole="tablist" style={styles.tabBar}>
@@ -66,14 +63,14 @@ export function AppTabs({
                   tab.screen === 'camera'
                     ? colors.surface
                     : active
-                      ? colors.forest
-                      : colors.subtle
+                    ? colors.forest
+                    : colors.subtle
                 }
                 fill={active && tab.screen === 'home' ? colors.forest : 'none'}
               />
             </View>
             <Text
-              numberOfLines={1}
+              numberOfLines={2}
               style={[styles.tabLabel, active && styles.activeTabLabel]}
             >
               {tab.label}

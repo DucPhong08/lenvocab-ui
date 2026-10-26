@@ -217,7 +217,6 @@ export function useScanFlow({
   }, []);
 
   return {
-    asset,
     history,
     imageUri,
     openHistory,
@@ -228,6 +227,5 @@ export function useScanFlow({
     selectImage,
     selectObject,
     selectingObject,
-    setImageUri,
   };
 }

@@ -5,7 +5,7 @@ export const colors = {
   deep: '#14392F',
   ink: '#203B34',
   muted: '#61746B',
-  subtle: '#87978D',
+  subtle: '#61746B',
   lime: '#D8F18D',
   pale: '#EAF2E5',
   line: '#DDE7DA',
@@ -22,3 +22,13 @@ export const shadow = {
   elevation: 3,
 } as const;
 
+export const layout = {
+  page: {
+    width: '100%',
+    maxWidth: 600,
+    alignSelf: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 32,
+  },
+} as const;

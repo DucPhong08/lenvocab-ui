@@ -1,10 +1,10 @@
 import { Image, Pressable, Text, View } from 'react-native';
-import { ArrowRight, Bookmark, Lightbulb, Volume2 } from 'lucide-react-native';
+import { ArrowRight, Bookmark, Lightbulb } from 'lucide-react-native';
 import { CropPreview } from '@/components/ObjectPicker';
 import { CardImage } from '@/components/CardImage';
 import { CardPhoto } from '@/components/CardPhoto';
 import { Eyebrow } from '@/components/Eyebrow';
-import { IconButton } from '@/components/IconButton';
+import { AudioButton } from '@/components/AudioButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TopBar } from '@/components/TopBar';
 import { getScene } from '@/data/getScene';
@@ -28,6 +28,8 @@ export function WordScreen({
   scanResult,
   saving,
   cards,
+  setSceneId,
+  selectImage,
   currentScanSaved = false,
 }: ScreenProps) {
   const word = wordForId(wordId);
@@ -43,49 +45,18 @@ export function WordScreen({
           card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase(),
       )
     );
-  const canUpdateSticker =
-    word.id.startsWith('scan:') && !!scanResult && isSaved && !currentScanSaved;
+  const isScan = wordId.startsWith('scan:') && !!scanResult;
+  const isSample = !isScan && !word.userFlashcardId;
+  const canUpdateSticker = isScan && isSaved && !currentScanSaved;
   return (
     <View style={styles.page}>
       <TopBar
         title="Khám phá từ vựng"
         onBack={() => navigate(wordBack)}
         action={
-          <View style={styles.topBarActions}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                word.audio || word.userFlashcardId
-                  ? 'Phát âm từ'
-                  : 'Không có audio'
-              }
-              onPress={() => play(word.audio, word.userFlashcardId)}
-              style={[
-                styles.audioBtn,
-                !(word.audio || word.userFlashcardId) &&
-                  styles.audioBtnDisabled,
-              ]}
-              disabled={!(word.audio || word.userFlashcardId)}
-            >
-              <Volume2
-                size={20}
-                color={
-                  word.audio || word.userFlashcardId
-                    ? colors.forest
-                    : colors.subtle
-                }
-              />
-            </Pressable>
-            {isSaved ? (
-              <Bookmark size={21} color={colors.forest} fill={colors.lime} />
-            ) : (
-              <IconButton
-                label="Lưu từ"
-                onPress={() => toggleSaved(word.id)}
-                icon={<Bookmark size={21} color={colors.forest} />}
-              />
-            )}
-          </View>
+          isSaved ? (
+            <Bookmark size={21} color={colors.forest} fill={colors.lime} />
+          ) : undefined
         }
       />
       <View style={styles.wordFeature}>
@@ -107,21 +78,16 @@ export function WordScreen({
         <Text style={styles.bigWord} adjustsFontSizeToFit numberOfLines={1}>
           {word.term}
         </Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Phát âm"
-          onPress={() => play(word.audio, word.userFlashcardId)}
-          disabled={!(word.audio || word.userFlashcardId)}
-          style={styles.ipaRow}
-        >
-          <Volume2
-            size={14}
-            color={
-              word.audio || word.userFlashcardId ? colors.forest : colors.subtle
-            }
-          />
-          <Text style={styles.ipa}>{word.ipa}</Text>
-        </Pressable>
+        <View style={styles.ipaRow}>
+          {word.ipa ? <Text style={styles.ipa}>{word.ipa}</Text> : null}
+          {(word.audio || word.userFlashcardId) && (
+            <AudioButton
+              light
+              label="Phát âm từ"
+              onPress={() => play(word.audio, word.userFlashcardId)}
+            />
+          )}
+        </View>
         <Text style={styles.wordWatermark}>Aa.</Text>
       </View>
       {word.userFlashcardId ? (
@@ -167,28 +133,34 @@ export function WordScreen({
           <Text style={styles.tipText}>{word.note}</Text>
         </View>
       </View>
-      {!word.id.startsWith('scan:') &&
-        !(word.id.includes('-') && word.id.length > 30) && (
-          <View style={styles.detailBlock}>
-            <Eyebrow>TỪ NÀY CÓ TRONG</Eyebrow>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => navigate('results')}
-              style={styles.source}
-            >
-              <Image source={sceneImage(scene.id)} style={styles.sourceImage} />
-              <View style={styles.fill}>
-                <Text style={styles.sourceTitle}>{scene.title}</Text>
-                <Text style={styles.sourceCaption}>{scene.category}</Text>
-              </View>
-              <ArrowRight size={18} color={colors.forest} />
-            </Pressable>
-          </View>
-        )}
+      {isSample && (
+        <View style={styles.detailBlock}>
+          <Eyebrow>TỪ NÀY CÓ TRONG</Eyebrow>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Xem cảnh ${scene.title}`}
+            onPress={() => {
+              setSceneId(word.scene);
+              selectImage(null);
+              navigate('results');
+            }}
+            style={styles.source}
+          >
+            <Image source={sceneImage(scene.id)} style={styles.sourceImage} />
+            <View style={styles.fill}>
+              <Text style={styles.sourceTitle}>{scene.title}</Text>
+              <Text style={styles.sourceCaption}>{scene.category}</Text>
+            </View>
+            <ArrowRight size={18} color={colors.forest} />
+          </Pressable>
+        </View>
+      )}
       <PrimaryButton
         label={
           saving
             ? 'Đang lưu...'
+            : isSample
+            ? 'Chụp ảnh để tạo thẻ của bạn'
             : canUpdateSticker
             ? 'Đổi sticker của thẻ đã lưu'
             : isSaved
@@ -201,7 +173,7 @@ export function WordScreen({
         }
         disabled={saving || (isSaved && !canUpdateSticker)}
         onPress={() =>
-          user && !scanResult ? navigate('camera') : toggleSaved(word.id)
+          isSample ? navigate('camera') : toggleSaved(isScan ? wordId : word.id)
         }
         icon={
           <Bookmark

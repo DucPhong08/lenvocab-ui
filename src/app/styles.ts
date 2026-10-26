@@ -3,7 +3,12 @@ import { colors } from '@/theme/theme';
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  loading: { flex: 1, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  loading: {
+    flex: 1,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   scrollContent: { flexGrow: 1 },
   tabBar: {
     minHeight: 70,
@@ -36,7 +41,14 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.forest,
     marginTop: -8,
   },
-  tabLabel: { color: colors.subtle, fontSize: 10, fontWeight: '700' },
+  tabLabel: {
+    width: '100%',
+    textAlign: 'center',
+    paddingHorizontal: 3,
+    color: colors.subtle,
+    fontSize: 11,
+    fontWeight: '700',
+  },
   activeTabLabel: { color: colors.forest, fontWeight: '800' },
   toast: {
     position: 'absolute',

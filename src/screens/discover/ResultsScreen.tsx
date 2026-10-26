@@ -32,7 +32,8 @@ export function ResultsScreen({
   currentScanSaved = false,
 }: ScreenProps) {
   const scene = getScene(sceneId);
-  const words = scanResult ? [wordForId(scanWord(scanResult).id)] : scene.words;
+  const scanId = scanResult ? scanWord(scanResult).id : null;
+  const words = scanId ? [wordForId(scanId)] : scene.words;
   const isStored = (id: string) =>
     saved.includes(id) ||
     !!(
@@ -48,7 +49,7 @@ export function ResultsScreen({
     scanResult?.detected_objects.filter(
       item => item.bounding_box && item.selection_token,
     ) ?? [];
-  if (scanResult && imageUri && choices.length && selectObject) {
+  if (scanResult && scanId && imageUri && choices.length && selectObject) {
     const word = words[0];
     const existing = isStored(word.id);
     return (
@@ -61,12 +62,6 @@ export function ResultsScreen({
           busy={saving || selectingObject}
           onSelect={selectObject}
         />
-        <View style={styles.notice}>
-          <Sparkles size={18} color={colors.forest} />
-          <Text style={styles.noticeText}>
-            Đang chọn: {scanResult.keyword}. Mỗi vật có thể lưu thành một thẻ.
-          </Text>
-        </View>
         {currentScanSaved && word.imageStyle === 'sticker' ? (
           <CardImage
             imageUrl={word.imageUrl}
@@ -82,12 +77,13 @@ export function ResultsScreen({
           word={currentScanSaved ? word : { ...word, imageUrl: null }}
           token={token}
           saved={existing}
+          disabled={selectingObject || saving}
           onOpen={() => openWord(word.id)}
         />
         <Text style={styles.resultInfoCaption}>
           {currentScanSaved
             ? 'Sticker đã lưu. Bạn có thể chọn thêm vật khác trong ảnh.'
-            : 'Khi lưu, vật đã chọn sẽ được tách nền và thêm viền trắng.'}
+            : 'Lưu để tách nền và thêm viền trắng. Mỗi từ giữ một sticker.'}
         </Text>
         <PrimaryButton
           label={
@@ -104,7 +100,7 @@ export function ResultsScreen({
           disabled={saving || selectingObject}
           style={styles.actionTop12}
           onPress={() =>
-            currentScanSaved ? openWord(word.id) : toggleSaved(word.id)
+            currentScanSaved ? openWord(word.id) : toggleSaved(scanId)
           }
         />
       </View>
@@ -167,14 +163,21 @@ export function ResultsScreen({
           word={word}
           token={token}
           saved={isStored(word.id)}
+          disabled={selectingObject || saving}
           onOpen={() => openWord(word.id)}
-          onSave={isStored(word.id) ? undefined : () => toggleSaved(word.id)}
+          onSave={
+            scanId && !saving && !isStored(word.id)
+              ? () => toggleSaved(scanId)
+              : undefined
+          }
         />
       ))}
       <PrimaryButton
         label={
           saving
             ? 'Đang lưu...'
+            : !scanResult
+            ? 'Chọn ảnh thật để tạo thẻ'
             : !user
             ? 'Đăng nhập để lưu từ'
             : scanResult
@@ -185,11 +188,11 @@ export function ResultsScreen({
         }
         disabled={saving}
         onPress={() => {
-          if (scanResult && unsaved.length) {
-            toggleSaved(unsaved[0].id);
+          if (scanId && unsaved.length) {
+            toggleSaved(scanId);
             return;
           }
-          navigate(!user ? 'auth' : !scanResult ? 'camera' : 'saved');
+          navigate(!scanResult ? 'camera' : !user ? 'auth' : 'saved');
         }}
         style={styles.actionTop12}
       />

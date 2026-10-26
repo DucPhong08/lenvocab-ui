@@ -10,6 +10,8 @@ import { Brand } from '@/components/Brand';
 import { Eyebrow } from '@/components/Eyebrow';
 import { SectionHeader } from '@/components/SectionHeader';
 import { WordRow } from '@/components/WordRow';
+import { cardWord } from '@/api/mappers/cardWord';
+import { EmptyState } from '@/components/EmptyState';
 import { allWords } from '@/data/scenes';
 import { sceneImage } from '@/theme/sceneImage';
 import { colors, shadow } from '@/theme/theme';
@@ -22,11 +24,15 @@ export function HomeScreen({
   openWord,
   saved,
   totalSaved,
-  toggleSaved,
+  cards,
   history,
   user,
   due,
+  loadingData,
+  dataError,
+  reloadData,
 }: ScreenProps) {
+  const words = user ? cards.slice(0, 3).map(cardWord) : allWords.slice(0, 2);
   return (
     <View style={styles.page}>
       <View style={styles.homeTop}>
@@ -38,14 +44,15 @@ export function HomeScreen({
           style={styles.avatar}
         >
           <Text style={styles.avatarText}>
-            {(user?.display_name || user?.email || 'K')[0].toUpperCase()}
+            {(user?.display_name || user?.username || 'K')[0].toUpperCase()}
           </Text>
         </Pressable>
       </View>
       <View style={styles.greeting}>
-        <Eyebrow>MỖI NGÀY MỘT ĐIỀU MỚI</Eyebrow>
+        <Eyebrow>Học từ những gì bạn thấy</Eyebrow>
         <Text style={styles.greetingTitle}>
-          Chào {user?.display_name || 'bạn'},{'\n'}hôm nay học gì?
+          Chào {user?.display_name || user?.username || 'bạn'},{'\n'}hôm nay học
+          gì?
         </Text>
         <Text style={styles.description}>
           Thế giới quanh bạn luôn có điều mới để học.
@@ -64,9 +71,9 @@ export function HomeScreen({
         <View style={styles.heroCopy}>
           <View style={styles.heroPill}>
             <Sparkles size={12} color={colors.forest} />
-            <Text style={styles.heroPillText}>HỌC TỪ THẾ GIỚI THẬT</Text>
+            <Text style={styles.heroPillText}>Từ ảnh thành thẻ từ</Text>
           </View>
-          <Text style={styles.heroTitle}>Chụp ảnh.{'\n'}Học cả thế giới.</Text>
+          <Text style={styles.heroTitle}>Chụp một vật.{'\n'}Nhớ một từ.</Text>
           <View style={styles.heroAction}>
             <Text style={styles.heroActionText}>Bắt đầu quét</Text>
             <ArrowRight size={16} color={colors.forest} />
@@ -82,8 +89,8 @@ export function HomeScreen({
       </Pressable>
       <Text style={styles.demoNote}>
         {user
-          ? 'ẢNH THẬT · NHẬN DIỆN AI'
-          : 'CHẾ ĐỘ KHÁCH · QUÉT ẢNH THẬT, KHÔNG LƯU BỘ TỪ'}
+          ? 'Chọn vật trong ảnh, lưu thành sticker và ôn lại mỗi ngày.'
+          : 'Thử quét ảnh ngay. Đăng nhập khi bạn muốn lưu thẻ.'}
       </Text>
       <View style={styles.stats}>
         <View style={styles.stat}>
@@ -120,7 +127,7 @@ export function HomeScreen({
       />
       <Pressable
         accessibilityRole="button"
-        onPress={() => navigate('flashcards')}
+        onPress={() => navigate(user && !due.length ? 'review' : 'flashcards')}
         style={({ pressed }) => [
           styles.reviewCard,
           shadow,
@@ -131,30 +138,63 @@ export function HomeScreen({
           <Text style={styles.reviewArtText}>Aa.</Text>
         </View>
         <View style={styles.reviewCopy}>
-          <Text style={styles.reviewTitle}>5 phút cho trí nhớ</Text>
+          <Text style={styles.reviewTitle}>
+            {user && !due.length
+              ? 'Hôm nay chưa có từ đến hạn'
+              : '5 phút cho trí nhớ'}
+          </Text>
           <Text style={styles.reviewSubtitle}>
             {user ? `${due.length} từ cần ôn hôm nay` : 'Thử bộ thẻ minh họa'}
           </Text>
-          <Text style={styles.reviewLink}>Bắt đầu ôn tập →</Text>
+          <Text style={styles.reviewLink}>
+            {user && !due.length ? 'Xem các cách luyện tập' : 'Bắt đầu ôn tập'}
+          </Text>
         </View>
       </Pressable>
       <SectionHeader
-        title="Từ vựng quanh bạn"
-        action="Tất cả"
-        onAction={() => navigate('saved')}
+        title={user ? 'Từ trong kho của bạn' : 'Khám phá từ mẫu'}
+        action={user ? 'Xem kho từ' : 'Xem cảnh mẫu'}
+        onAction={() => navigate(user ? 'saved' : 'camera')}
       />
-      {allWords.slice(0, 2).map(word => (
+      {words.map(word => (
         <WordRow
           key={word.id}
           word={word}
           token={token}
           saved={saved.includes(word.id)}
           onOpen={() => openWord(word.id)}
-          onSave={
-            saved.includes(word.id) ? undefined : () => toggleSaved(word.id)
-          }
         />
       ))}
+      {user && !words.length && (
+        <EmptyState
+          loading={loadingData}
+          title={
+            loadingData
+              ? 'Đang tải kho từ'
+              : dataError
+              ? 'Chưa tải được kho từ'
+              : 'Tạo thẻ đầu tiên của bạn'
+          }
+          description={
+            loadingData
+              ? 'Các thẻ của bạn sẽ xuất hiện ở đây.'
+              : dataError ||
+                'Chụp một vật quen thuộc, chọn vật rồi lưu thẻ kèm sticker.'
+          }
+          action={
+            loadingData
+              ? undefined
+              : dataError
+              ? 'Tải lại kho từ'
+              : 'Quét ảnh đầu tiên'
+          }
+          onPress={
+            dataError
+              ? () => reloadData().catch(() => {})
+              : () => navigate('camera')
+          }
+        />
+      )}
     </View>
   );
 }

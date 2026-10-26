@@ -73,9 +73,7 @@ test('quiz keeps its snapshot during refetch, shuffles once, and scores one rapi
     expect(state.options[0].id).not.toBe(firstQuestion);
 
     await ReactTestRenderer.act(async () => {
-      renderer.update(
-        <Harness cards={[flashcard('card-2', 'table')]} />,
-      );
+      renderer.update(<Harness cards={[flashcard('card-2', 'table')]} />);
     });
     expect(state.word.id).toBe(firstQuestion);
 
@@ -104,6 +102,7 @@ test('flashcard grading blocks duplicate submits and keeps review_id for retry',
   const Harness = () => {
     state = useFlashcards({
       due: [reviewCard('card-1', 'chair')],
+      dataError: null,
       loadingData: false,
       submitReview,
       user,

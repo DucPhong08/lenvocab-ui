@@ -16,10 +16,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 25,
+    gap: 8,
+    marginBottom: 20,
   },
-  topBarTitle: { fontSize: 15, fontWeight: '800', color: colors.ink },
-  topBarEnd: { width: 44, alignItems: 'flex-end' },
+  topBarTitle: { flex: 1, fontSize: 16, fontWeight: '800', color: colors.ink },
+  topBarEnd: { minWidth: 44, alignItems: 'flex-end' },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -44,4 +45,3 @@ export const styles = StyleSheet.create({
   sectionActionText: { fontSize: 13, fontWeight: '700', color: colors.forest },
   pressed: { opacity: 0.78, transform: [{ scale: 0.985 }] },
 });
-

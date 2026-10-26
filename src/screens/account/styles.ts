@@ -1,13 +1,21 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { colors, layout } from '@/theme/theme';
 
 export const styles = StyleSheet.create({
   fill: { flex: 1 },
-  speedOptions: { flexDirection: 'row', gap: 8 },
-  speedOption: { padding: 12 },
+  speedOptions: { flexDirection: 'row', gap: 8, marginVertical: 10 },
+  speedOption: {
+    minWidth: 60,
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+  },
+  speedOptionSelected: { backgroundColor: colors.pale },
+  accountActions: { gap: 12, marginBottom: 24 },
   speedText: { color: colors.muted },
   speedSelected: { color: colors.forest, fontWeight: '700' },
-  page: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 32 },
+  page: layout.page,
   identity: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -65,7 +73,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   menuText: { fontSize: 14, fontWeight: '700', color: colors.ink },
-  menuHint: { fontSize: 11, color: colors.muted, marginTop: 3 },
+  menuHint: { fontSize: 13, lineHeight: 19, color: colors.muted, marginTop: 3 },
   footer: { alignItems: 'center', paddingTop: 7, gap: 11 },
   footerText: {
     fontSize: 12,
@@ -101,15 +109,21 @@ export const styles = StyleSheet.create({
     color: colors.ink,
   },
   onboardDescription: { color: colors.muted, fontSize: 15, lineHeight: 23 },
-  dots: { flexDirection: 'row', gap: 7, marginVertical: 19 },
+  dots: { flexDirection: 'row', gap: 4, marginVertical: 8 },
+  dotTarget: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   dot: { width: 23, height: 8, borderRadius: 5, backgroundColor: colors.line },
   activeDot: { width: 35, backgroundColor: colors.forest },
   authGraphic: {
-    marginTop: 59,
-    marginBottom: 35,
-    width: 120,
-    height: 120,
-    borderRadius: 42,
+    marginTop: 0,
+    marginBottom: 16,
+    width: 52,
+    height: 52,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.lime,
@@ -125,7 +139,7 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 24,
     color: colors.muted,
-    marginBottom: 30,
+    marginBottom: 22,
   },
   authInput: {
     backgroundColor: colors.surface,
@@ -160,6 +174,31 @@ export const styles = StyleSheet.create({
     minHeight: 54,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  fieldLabel: {
+    color: colors.ink,
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 7,
+  },
+  fieldHint: {
+    color: colors.muted,
+    fontSize: 12,
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  authDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginTop: 18,
+    marginBottom: 6,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.line,
+    marginBottom: 12,
   },
   authError: { color: colors.error, fontSize: 13, marginBottom: 14 },
   authSwitch: { padding: 15, alignItems: 'center', marginBottom: 12 },

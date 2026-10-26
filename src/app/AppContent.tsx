@@ -36,6 +36,8 @@ import { styles } from './styles';
 export function AppContent() {
   const [screen, setScreen] = useState<Screen>('home');
   const pendingSave = useRef<string | null>(null);
+  const currentScreen = useRef<Screen>('home');
+  const authBack = useRef<Screen>('profile');
   const [sceneId, setSceneId] = useState('desk');
   const [wordId, setWordId] = useState('notebook');
   const [wordBack, setWordBack] = useState<Screen>('results');
@@ -44,7 +46,10 @@ export function AppContent() {
   const fade = useRef(new Animated.Value(1)).current;
   const reduceMotion = useReduceMotion();
   const navigate = useCallback((next: Screen) => {
+    if (next === 'auth' && currentScreen.current !== 'auth')
+      authBack.current = currentScreen.current;
     if (next !== 'auth') pendingSave.current = null;
+    currentScreen.current = next;
     setScreen(next);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
@@ -82,7 +87,6 @@ export function AppContent() {
     user,
   } = useLearningData(token, logoutSession);
   const {
-    asset,
     history,
     imageUri,
     openHistory,
@@ -93,7 +97,6 @@ export function AppContent() {
     selectImage,
     selectObject,
     selectingObject,
-    setImageUri,
   } = useScanFlow({
     navigate,
     onUnauthorized: logoutSession,
@@ -188,7 +191,7 @@ export function AppContent() {
     if (screen === 'word') navigate(wordBack);
     else if (screen === 'results') navigate('camera');
     else if (screen === 'quiz' || screen === 'flashcards') navigate('review');
-    else if (screen === 'auth') navigate('profile');
+    else if (screen === 'auth') navigate(authBack.current);
     else navigate('home');
     return true;
   }, [screen, wordBack, navigate]);
@@ -264,7 +267,6 @@ export function AppContent() {
     sceneId,
     setSceneId,
     imageUri,
-    setImageUri,
     scan,
     wordId,
     wordBack,
@@ -281,7 +283,6 @@ export function AppContent() {
     openHistory,
     scrollToEnd,
     scrollToTop,
-    asset,
     selectImage,
     selectObject,
     selectingObject,
@@ -303,6 +304,7 @@ export function AppContent() {
     googleLinkBusy,
     onLogout: logout,
     authBusy,
+    authBack: authBack.current,
   };
   const showTabs = screen !== 'onboarding' && screen !== 'auth';
 

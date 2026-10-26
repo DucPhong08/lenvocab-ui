@@ -1,6 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
-import { CheckCircle2, Sparkles, Volume2, X } from 'lucide-react-native';
+import { CheckCircle2, Sparkles, X } from 'lucide-react-native';
 import { Eyebrow } from '@/components/Eyebrow';
+import { AudioButton } from '@/components/AudioButton';
+import { StudyProgress } from '@/components/StudyProgress';
 import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
@@ -48,6 +50,7 @@ export function QuizScreen({
       <View style={styles.page}>
         <TopBar title="Quiz nhanh" onBack={() => navigate('review')} />
         <EmptyState
+          loading={loadingData}
           title={
             loadingData
               ? 'Đang chuẩn bị câu hỏi'
@@ -123,31 +126,23 @@ export function QuizScreen({
         title="Từ này có nghĩa là gì?"
         subtitle="Chọn đáp án đúng nhất nhé."
       />
-      <View
-        accessibilityRole="progressbar"
-        accessibilityValue={{ min: 0, max: questions.length, now: index + 1 }}
-        style={styles.progressTrack}
-      >
-        <View
-          style={[
-            styles.progressFill,
-            { width: `${((index + 1) / questions.length) * 100}%` },
-          ]}
-        />
-      </View>
+      <StudyProgress current={index + 1} total={questions.length} />
       <View style={styles.question}>
-        <Text style={styles.questionLabel}>ENGLISH WORD</Text>
+        <Text style={styles.questionLabel}>TỪ TIẾNG ANH</Text>
         <View style={styles.questionWordRow}>
-          <Text style={styles.questionWord}>{word.term}</Text>
+          <Text
+            adjustsFontSizeToFit
+            numberOfLines={2}
+            style={styles.questionWord}
+          >
+            {word.term}
+          </Text>
           {(word.audio || word.userFlashcardId) && (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Nghe phát âm từ"
+            <AudioButton
+              label="Nghe phát âm từ"
               onPress={() => play(word.audio, word.userFlashcardId)}
-              style={styles.speakerBtn}
-            >
-              <Volume2 size={18} color={colors.lime} />
-            </Pressable>
+              light
+            />
           )}
         </View>
         <Text style={styles.questionIpa}>{word.ipa}</Text>
@@ -205,7 +200,7 @@ export function QuizScreen({
           <Text style={styles.feedbackText}>
             {selected === word.id
               ? 'Chính xác! Bạn đang làm rất tốt.'
-              : `Gần đúng rồi! “${word.term}” nghĩa là “${word.meaning}”.`}
+              : `Chưa đúng. “${word.term}” nghĩa là “${word.meaning}”.`}
           </Text>
         </View>
       )}

@@ -1,7 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import {
   Bookmark,
-  ChevronRight,
   Clock3,
   Gauge,
   Headphones,
@@ -38,22 +37,15 @@ export function ProfileScreen({
     <View style={styles.page}>
       <ScreenTitle
         kicker="GÓC CỦA BẠN"
-        title="Hồ sơ của tôi."
+        title="Góc học tập của bạn"
         subtitle={
           user
-            ? `Tài khoản ${user.account_tier} · Đồng bộ qua Cloud AI & Spaced Repetition`
+            ? 'Từ đã lưu và lịch ôn luôn theo tài khoản của bạn.'
             : 'Dùng thử không cần tài khoản · Không lưu bộ từ.'
         }
       />
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Xem trạng thái tài khoản"
-        onPress={() => {
-          if (!user) navigate('auth');
-        }}
-        style={styles.identity}
-      >
+      <View style={styles.identity}>
         <View style={styles.avatar}>
           <Text style={styles.avatarLetter}>
             {displayName[0].toUpperCase()}
@@ -66,11 +58,10 @@ export function ProfileScreen({
               ? `${user.username || user.email || 'Tài khoản Google'} · Gói ${
                   user.account_tier
                 }`
-              : 'Chạm để đăng nhập hoặc tạo tài khoản'}
+              : 'Đăng nhập để lưu từ và tiến độ học'}
           </Text>
         </View>
-        <ChevronRight size={19} color={colors.muted} />
-      </Pressable>
+      </View>
 
       <View style={styles.profileStats}>
         <View style={styles.stat}>
@@ -80,7 +71,7 @@ export function ProfileScreen({
         <View style={styles.verticalLine} />
         <View style={styles.stat}>
           <Text style={styles.statValue}>{history.length}</Text>
-          <Text style={styles.statCaption}>lần quét</Text>
+          <Text style={styles.statCaption}>quét phiên này</Text>
         </View>
         {user && (
           <>
@@ -114,7 +105,7 @@ export function ProfileScreen({
 
       {user && (
         <>
-          <Eyebrow>CẤU HÌNH HỌC TẬP (AWS AI)</Eyebrow>
+          <Eyebrow>Tùy chọn học tập</Eyebrow>
           <View style={styles.menu}>
             <View style={styles.menuItem}>
               <View style={styles.menuIcon}>
@@ -142,7 +133,11 @@ export function ProfileScreen({
                       }}
                       disabled={preferencesBusy}
                       onPress={() => onVoiceSpeedChange(speed)}
-                      style={styles.speedOption}
+                      style={[
+                        styles.speedOption,
+                        (prefs?.voice_speed ?? 1) === speed &&
+                          styles.speedOptionSelected,
+                      ]}
                     >
                       <Text
                         style={[
@@ -165,8 +160,7 @@ export function ProfileScreen({
               <View style={styles.fill}>
                 <Text style={styles.menuText}>Mục tiêu ôn mỗi ngày</Text>
                 <Text style={styles.menuHint}>
-                  {prefs?.daily_review_goal ?? 15} từ/ngày (Giới hạn chống nản
-                  SM-2)
+                  {prefs?.daily_review_goal ?? 15} từ/ngày
                 </Text>
               </View>
             </View>
@@ -187,27 +181,34 @@ export function ProfileScreen({
         </>
       )}
 
-      {user && (
-        <PrimaryButton
-          label={user.google_linked ? 'Đã liên kết Google' : 'Liên kết Google'}
-          variant="secondary"
-          disabled={googleLinkBusy || user.google_linked === true}
-          onPress={() => onGoogleLink()}
-        />
-      )}
-      {user ? (
-        <PrimaryButton
-          label="Đăng xuất"
-          variant="secondary"
-          onPress={() => onLogout()}
-        />
-      ) : (
-        <PrimaryButton
-          label="Đăng nhập để đồng bộ"
-          onPress={() => navigate('auth')}
-        />
-      )}
-
+      <View style={styles.accountActions}>
+        {user && (
+          <PrimaryButton
+            label={
+              googleLinkBusy
+                ? 'Đang liên kết Google...'
+                : user.google_linked
+                ? 'Đã liên kết Google'
+                : 'Liên kết Google'
+            }
+            variant="secondary"
+            disabled={googleLinkBusy || user.google_linked === true}
+            onPress={() => onGoogleLink()}
+          />
+        )}
+        {user ? (
+          <PrimaryButton
+            label="Đăng xuất"
+            variant="secondary"
+            onPress={() => onLogout()}
+          />
+        ) : (
+          <PrimaryButton
+            label="Đăng nhập để đồng bộ"
+            onPress={() => navigate('auth')}
+          />
+        )}
+      </View>
       <View style={styles.footer}>
         <Brand />
         <Text style={styles.footerText}>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 import { Eye, EyeOff, Settings2, Sparkles } from 'lucide-react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TopBar } from '@/components/TopBar';
@@ -13,6 +13,8 @@ export function AuthScreen({
   onAuth,
   onGoogleAuth,
   authBusy,
+  scrollToTop,
+  authBack = 'profile',
 }: ScreenProps) {
   const {
     username,
@@ -32,9 +34,9 @@ export function AuthScreen({
   const [passwordVisible, setPasswordVisible] = useState(false);
   return (
     <View style={styles.page}>
-      <TopBar title="Tài khoản" onBack={() => navigate('profile')} />
+      <TopBar title="Tài khoản" onBack={() => navigate(authBack)} />
       <View style={styles.authGraphic}>
-        <Sparkles size={45} color={colors.forest} />
+        <Sparkles size={26} color={colors.forest} />
       </View>
       <Text style={styles.authTitle}>
         {mode === 'login' ? 'Mừng bạn quay lại.' : 'Bắt đầu học cùng lenvocab.'}
@@ -42,10 +44,11 @@ export function AuthScreen({
       <Text style={styles.authDescription}>
         Đăng nhập để lưu từ đã quét, đồng bộ kho từ và ôn tập theo lịch của bạn.
       </Text>
+      <Text style={styles.fieldLabel}>Tên đăng nhập</Text>
       <TextInput
         accessibilityLabel="Username"
         placeholder={
-          mode === 'login' ? 'Username hoặc email tài khoản cũ' : 'Username'
+          mode === 'login' ? 'Tên đăng nhập hoặc email cũ' : 'Ví dụ: phong_01'
         }
         placeholderTextColor={colors.subtle}
         value={username}
@@ -57,6 +60,12 @@ export function AuthScreen({
         maxLength={mode === 'register' ? 30 : 254}
         style={styles.authInput}
       />
+      {mode === 'register' && (
+        <Text style={styles.fieldHint}>
+          3–30 ký tự: chữ không dấu, số, dấu chấm hoặc gạch dưới.
+        </Text>
+      )}
+      <Text style={styles.fieldLabel}>Mật khẩu</Text>
       <View style={styles.passwordField}>
         <TextInput
           accessibilityLabel="Mật khẩu"
@@ -89,6 +98,10 @@ export function AuthScreen({
       </View>
       {mode === 'register' && (
         <>
+          <Text style={styles.fieldHint}>
+            Ít nhất 6 ký tự. Email và tên hiển thị có thể bỏ trống.
+          </Text>
+          <Text style={styles.fieldLabel}>Email (không bắt buộc)</Text>
           <TextInput
             accessibilityLabel="Email (không bắt buộc)"
             placeholder="Email (không bắt buộc)"
@@ -103,6 +116,7 @@ export function AuthScreen({
             editable={!authBusy}
             style={styles.authInput}
           />
+          <Text style={styles.fieldLabel}>Tên hiển thị (không bắt buộc)</Text>
           <TextInput
             accessibilityLabel="Tên hiển thị (không bắt buộc)"
             placeholder="Tên hiển thị (không bắt buộc)"
@@ -132,6 +146,11 @@ export function AuthScreen({
         disabled={authBusy}
         onPress={() => submit()}
       />
+      <View style={styles.authDivider}>
+        <View style={styles.dividerLine} />
+        <Text style={styles.fieldHint}>hoặc</Text>
+        <View style={styles.dividerLine} />
+      </View>
       <PrimaryButton
         label="Tiếp tục với Google"
         variant="secondary"
@@ -151,6 +170,8 @@ export function AuthScreen({
         accessibilityRole="button"
         disabled={authBusy}
         onPress={() => {
+          Keyboard.dismiss();
+          scrollToTop();
           setError('');
           setPasswordVisible(false);
           setMode(mode === 'login' ? 'register' : 'login');

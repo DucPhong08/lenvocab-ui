@@ -1,17 +1,17 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { colors, layout } from '@/theme/theme';
 
 export const styles = StyleSheet.create({
   fill: { flex: 1 },
   reviewCopy: { flex: 1, gap: 5 },
   actionTop20: { marginTop: 20 },
   actionTop12: { marginTop: 12 },
-  page: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 32 },
+  page: layout.page,
   homeTop: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   avatar: {
     width: 44,
@@ -91,9 +91,8 @@ export const styles = StyleSheet.create({
   heroLabelText: { color: colors.forest, fontSize: 10, fontWeight: '800' },
   demoNote: {
     color: colors.subtle,
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontSize: 12,
+    lineHeight: 18,
     marginTop: 10,
     marginBottom: 17,
   },
@@ -151,7 +150,7 @@ export const styles = StyleSheet.create({
     marginTop: 5,
   },
   cameraPhoto: {
-    height: 294,
+    height: 220,
     overflow: 'hidden',
     borderRadius: 24,
     backgroundColor: colors.pale,
@@ -193,13 +192,14 @@ export const styles = StyleSheet.create({
   captureRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 29,
+    gap: 20,
     alignItems: 'center',
     marginTop: 19,
   },
   captureSide: {
-    width: 48,
-    height: 48,
+    width: 76,
+    minHeight: 64,
+    gap: 4,
     borderRadius: 16,
     backgroundColor: colors.surface,
     alignItems: 'center',
@@ -217,6 +217,7 @@ export const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: colors.lime,
   },
+  captureLabel: { color: colors.forest, fontSize: 11, fontWeight: '700' },
   cameraCaption: {
     fontSize: 12,
     textAlign: 'center',
@@ -272,15 +273,12 @@ export const styles = StyleSheet.create({
     marginBottom: 27,
   },
   noticeText: { flex: 1, color: colors.forest, fontSize: 12, lineHeight: 19 },
-  objectList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
-  objectTag: { backgroundColor: colors.surface, borderColor: colors.line, borderWidth: 1, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 8 },
-  objectTagText: { color: colors.forest, fontSize: 12, fontWeight: '700' },
   wordFeature: {
     backgroundColor: colors.forest,
     borderRadius: 25,
-    padding: 23,
+    padding: 20,
     minHeight: 190,
-    marginBottom: 27,
+    marginBottom: 18,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -295,7 +293,7 @@ export const styles = StyleSheet.create({
   levelText: { fontSize: 11, color: colors.forest, fontWeight: '800' },
   bigWord: {
     color: colors.surface,
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: '800',
     letterSpacing: -1,
     maxWidth: '100%',
@@ -345,16 +343,6 @@ export const styles = StyleSheet.create({
   sourceImage: { width: 54, height: 54, borderRadius: 11 },
   sourceTitle: { fontSize: 15, fontWeight: '800', color: colors.ink },
   sourceCaption: { fontSize: 12, color: colors.muted, marginTop: 4 },
-  topBarActions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  audioBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: colors.pale,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  audioBtnDisabled: { opacity: 0.4 },
   ipaRow: {
     flexDirection: 'row',
     alignItems: 'center',

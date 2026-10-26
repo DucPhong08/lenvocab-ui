@@ -36,7 +36,6 @@ export type ScreenProps = {
   sceneId: string;
   setSceneId: (id: string) => void;
   imageUri: string | null;
-  setImageUri: (uri: string | null) => void;
   scan: () => void;
   wordId: string;
   wordBack: Screen;
@@ -53,7 +52,6 @@ export type ScreenProps = {
   openHistory: (entry: ScanEntry) => void;
   scrollToEnd: () => void;
   scrollToTop: () => void;
-  asset: Asset | null;
   selectImage: (asset: Asset | null) => void;
   scanResult: ScanResult | null;
   scanning: boolean;
@@ -85,4 +83,5 @@ export type ScreenProps = {
   googleLinkBusy: boolean;
   onLogout: () => Promise<void>;
   authBusy: boolean;
+  authBack?: Screen;
 };

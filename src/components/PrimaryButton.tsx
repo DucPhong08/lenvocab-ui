@@ -23,6 +23,7 @@ export function PrimaryButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
@@ -50,4 +51,3 @@ export function PrimaryButton({
     </Pressable>
   );
 }
-

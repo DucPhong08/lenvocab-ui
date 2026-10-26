@@ -10,21 +10,24 @@ import { styles } from './styles';
 
 export function ReviewScreen({
   navigate,
-  saved,
-  user,
+  totalSaved,
+  cards,
   due,
+  user,
   loadingData,
   dataError,
   reloadData,
 }: ScreenProps) {
   const goal = user?.preferences?.daily_review_goal ?? 15;
-  const hasNoCards = !!user && saved.length === 0;
+  const hasNoCards =
+    !!user && totalSaved === 0 && cards.length === 0 && due.length === 0;
   const isDoneToday = !!user && !hasNoCards && due.length === 0;
 
   if (loadingData) {
     return (
       <View style={styles.page}>
         <EmptyState
+          loading
           title="Đang tải lịch ôn"
           description="Vui lòng chờ trong giây lát."
         />
@@ -62,23 +65,21 @@ export function ReviewScreen({
     <View style={styles.page}>
       <ScreenTitle
         kicker="LUYỆN TẬP MỖI NGÀY"
-        title={'Một chút hôm nay.\nNhớ mãi mai sau.'}
-        subtitle="Ôn tập ngắt quãng (SM-2) giúp bạn nhớ từ lâu bền mà không bị quá tải."
+        title="Ôn tập hôm nay"
+        subtitle="Lật thẻ để nhớ nghĩa, hoặc thử một bài trắc nghiệm ngắn."
       />
 
       <View style={styles.progressCard}>
-        <Eyebrow light>
-          {user ? 'HÀNG ĐỢI ÔN HÔM NAY (SM-2)' : 'ÔN TẬP MINH HỌA'}
-        </Eyebrow>
+        <Eyebrow light>{user ? 'LỊCH ÔN HÔM NAY' : 'ÔN TẬP MINH HỌA'}</Eyebrow>
         <Text style={styles.progressTitle}>
           {isDoneToday ? 'Đã hoàn thành xuất sắc!' : 'Cứ tiếp tục nhé!'}
         </Text>
         <Text style={styles.progressSubtitle}>
           {user
             ? isDoneToday
-              ? `Tất cả ${saved.length} từ đã được ôn tập đúng hạn. Hệ thống sẽ tự động nhắc bạn khi đến chu kỳ ôn tiếp theo.`
-              : `${due.length} từ đến hạn ôn / mục tiêu ${goal} từ hôm nay · ${saved.length} từ trong kho thẻ.`
-            : 'Bạn có thể thử bộ thẻ mẫu. Đăng nhập để thuật toán SM-2 cá nhân hóa lịch ôn cho bạn.'}
+              ? 'Bạn đã ôn hết từ đến hạn. Bạn vẫn có thể luyện thêm bằng trắc nghiệm.'
+              : `${due.length} từ đến hạn ôn / mục tiêu ${goal} từ hôm nay · ${totalSaved} từ trong kho thẻ.`
+            : 'Thử bộ thẻ mẫu. Đăng nhập để lưu tiến độ và có lịch ôn riêng.'}
         </Text>
         <View style={styles.progressDecoration}>
           {isDoneToday ? (
@@ -94,6 +95,8 @@ export function ReviewScreen({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Bắt đầu Flashcards"
+        disabled={isDoneToday}
+        accessibilityState={{ disabled: isDoneToday }}
         onPress={() => navigate('flashcards')}
         style={[styles.modeCard, styles.flashMode]}
       >
@@ -104,10 +107,14 @@ export function ReviewScreen({
           <Eyebrow>01 / GHI NHỚ</Eyebrow>
           <Text style={styles.modeTitle}>Flashcards</Text>
           <Text style={styles.modeDescription}>
-            Lật thẻ, nghe phát âm và tự chấm điểm 0–5 theo phương pháp SM-2.
+            Lật thẻ, nghe phát âm và chọn mức độ bạn nhớ.
           </Text>
           <Text style={styles.modeLink}>
-            {user ? `${due.length} từ đến hạn hôm nay` : 'Bộ từ mẫu'} →
+            {isDoneToday
+              ? 'Hôm nay đã ôn xong'
+              : user
+              ? `${due.length} từ đến hạn hôm nay`
+              : 'Bộ từ mẫu'}
           </Text>
         </View>
       </Pressable>
@@ -125,7 +132,7 @@ export function ReviewScreen({
           <Eyebrow>02 / THỬ THÁCH</Eyebrow>
           <Text style={styles.modeTitle}>Quiz nhanh</Text>
           <Text style={styles.modeDescription}>
-            Kiểm tra phản xạ chọn nghĩa trắc nghiệm 4 đáp án.
+            Chọn nghĩa đúng trong 4 đáp án. Kết quả không đổi lịch ôn.
           </Text>
           <Text style={styles.modeLink}>Luyện phản xạ →</Text>
         </View>

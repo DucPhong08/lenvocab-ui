@@ -8,11 +8,12 @@ import type { ScreenProps } from '@/types/screen';
 export function useFlashcards({
   due,
   loadingData,
+  dataError,
   submitReview,
   user,
 }: Pick<
   ScreenProps,
-  'due' | 'loadingData' | 'submitReview' | 'user'
+  'due' | 'loadingData' | 'dataError' | 'submitReview' | 'user'
 >) {
   const [queue, setQueue] = useState<ReviewCard[] | null>(null);
   const [index, setIndex] = useState(0);
@@ -24,8 +25,8 @@ export function useFlashcards({
   );
 
   useEffect(() => {
-    if (user && !loadingData && queue === null) setQueue(due);
-  }, [user, loadingData, due, queue]);
+    if (user && !loadingData && !dataError && queue === null) setQueue(due);
+  }, [user, loadingData, dataError, due, queue]);
 
   const words = user ? (queue ?? []).map(cardWord) : allWords.slice(0, 4);
   const word = words[index];

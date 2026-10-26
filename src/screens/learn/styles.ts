@@ -1,12 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { colors, layout } from '@/theme/theme';
 
 export const styles = StyleSheet.create({
   fill: { flex: 1 },
   stretch: { alignSelf: 'stretch' },
   actionTop18: { marginTop: 18 },
   actionTop20: { marginTop: 20 },
-  page: { paddingHorizontal: 22, paddingTop: 12, paddingBottom: 32 },
+  page: layout.page,
   grades: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   grade: {
     width: '31%',
@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
   gradeDisabled: { opacity: 0.45 },
   gradeText: {
     color: colors.forest,
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     textAlign: 'center',
   },
@@ -35,7 +35,6 @@ export const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   countText: { fontWeight: '800', fontSize: 16, color: colors.ink },
-  countSub: { color: colors.muted, fontSize: 12, marginLeft: 'auto' },
   search: {
     minHeight: 52,
     borderRadius: 15,
@@ -48,11 +47,19 @@ export const styles = StyleSheet.create({
     gap: 9,
     marginBottom: 14,
   },
+  clearSearch: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  listCaption: { color: colors.muted, fontSize: 13, marginBottom: 12 },
   searchInput: { flex: 1, fontSize: 15, color: colors.ink, paddingVertical: 7 },
   filters: { gap: 8, paddingBottom: 20, paddingRight: 22 },
   filter: {
     paddingHorizontal: 16,
-    height: 39,
+    minHeight: 44,
+    paddingVertical: 10,
     borderRadius: 20,
     backgroundColor: colors.surface,
     justifyContent: 'center',
@@ -141,27 +148,6 @@ export const styles = StyleSheet.create({
     marginTop: 26,
   },
   counter: { fontSize: 13, fontWeight: '800', color: colors.forest },
-  progressTrack: {
-    height: 7,
-    borderRadius: 6,
-    backgroundColor: colors.line,
-    overflow: 'hidden',
-    marginBottom: 23,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: colors.success,
-    borderRadius: 6,
-  },
-  flashcard: {
-    height: 330,
-    borderRadius: 26,
-    backgroundColor: colors.forest,
-    padding: 22,
-    justifyContent: 'space-between',
-    marginBottom: 13,
-  },
-  flippedCard: { backgroundColor: colors.lime },
   flashcardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -215,7 +201,13 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.lime,
   },
-  questionWord: { fontSize: 30, fontWeight: '800', color: colors.surface },
+  questionWord: {
+    flexShrink: 1,
+    textAlign: 'center',
+    fontSize: 30,
+    fontWeight: '800',
+    color: colors.surface,
+  },
   questionIpa: { fontSize: 14, color: '#D9EEE1' },
   answerList: { gap: 9 },
   answer: {
@@ -225,6 +217,7 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     minHeight: 63,
     paddingHorizontal: 13,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -309,7 +302,6 @@ export const styles = StyleSheet.create({
     marginTop: 3,
   },
   historyCaption: { fontSize: 12, color: colors.muted, marginTop: 3 },
-  flashcardWithImage: { height: 430 },
   flashcardContainer: {
     height: 340,
     marginBottom: 14,
@@ -338,22 +330,6 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backfaceVisibility: 'hidden',
   },
-  speakerBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#FFFFFF22',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  speakerBtnBack: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#00000015',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   sm2Badge: {
     alignSelf: 'center',
     backgroundColor: '#FFFFFF18',
@@ -372,16 +348,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  speakerBtnPlaying: {
-    opacity: 0.6,
-  },
   questionWordRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-  },
-  filterRow: {
-    flexDirection: 'row',
   },
 });

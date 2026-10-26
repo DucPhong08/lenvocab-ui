@@ -237,6 +237,10 @@ test('cancels guest save when leaving authentication before a later normal login
     renderer = await mountGuestScan();
     await ReactTestRenderer.act(async () => press(renderer, 'Lưu mug'));
     await ReactTestRenderer.act(async () => press(renderer, 'Quay lại'));
+    expect(
+      renderer.root.findAllByProps({ accessibilityLabel: 'Lưu mug' }).length,
+    ).toBeGreaterThan(0);
+    await ReactTestRenderer.act(async () => press(renderer, 'Cá nhân'));
     await ReactTestRenderer.act(async () =>
       press(renderer, 'Đăng nhập để đồng bộ'),
     );

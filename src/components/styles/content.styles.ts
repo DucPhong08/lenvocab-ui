@@ -39,12 +39,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  audioRowBtn: {
-    width: 38,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   empty: {
     backgroundColor: colors.surface,
     borderRadius: 24,

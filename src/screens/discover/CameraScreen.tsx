@@ -1,5 +1,11 @@
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { Camera, Clock3, ImagePlus, RotateCcw, Sparkles } from 'lucide-react-native';
+import {
+  Camera,
+  Clock3,
+  ImagePlus,
+  RotateCcw,
+  Sparkles,
+} from 'lucide-react-native';
 import { IconButton } from '@/components/IconButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
@@ -28,7 +34,7 @@ export function CameraScreen({
   return (
     <View style={styles.page}>
       <TopBar
-        title="Quét thế giới"
+        title="Tạo thẻ từ ảnh"
         onBack={() => navigate('home')}
         action={
           <IconButton
@@ -39,15 +45,19 @@ export function CameraScreen({
         }
       />
       <ScreenTitle
-        kicker="NHÌN · CHỤP · HỌC"
-        title={'Mọi thứ đều có thể\nthành bài học.'}
-        subtitle="Chụp ảnh, chọn từ thư viện hoặc thử với một khung cảnh mẫu."
+        kicker="Chụp · Chọn vật · Lưu thẻ"
+        title={imageUri ? 'Ảnh đã sẵn sàng' : 'Bạn muốn học vật gì?'}
+        subtitle={
+          imageUri
+            ? undefined
+            : 'Chụp rõ vật ở nơi đủ sáng. Bạn có thể chọn từng vật sau khi quét.'
+        }
       />
       <View style={styles.cameraPhoto}>
         <Image
           source={imageUri ? { uri: imageUri } : sceneImage(sceneId)}
           style={styles.cameraImage}
-          resizeMode="cover"
+          resizeMode="contain"
           accessibilityLabel={imageUri ? 'Ảnh của bạn' : scene.title}
         />
         <View style={styles.cameraTag}>
@@ -58,7 +68,9 @@ export function CameraScreen({
         <View style={styles.cameraHint}>
           <Sparkles size={16} color={colors.surface} />
           <Text style={styles.cameraHintText}>
-            {imageUri ? 'Ảnh sẽ được quét bằng AI · không lưu nếu chưa đăng nhập' : 'Chọn ảnh để quét, hoặc khám phá cảnh mẫu'}
+            {imageUri
+              ? 'Bước tiếp theo: chọn vật bạn muốn học'
+              : 'Cảnh mẫu để xem thử, không tốn lượt quét'}
           </Text>
         </View>
       </View>
@@ -66,14 +78,19 @@ export function CameraScreen({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Chọn ảnh từ thư viện"
+          disabled={scanning}
+          accessibilityState={{ disabled: scanning }}
           onPress={() => pickImage('library')}
           style={styles.captureSide}
         >
           <ImagePlus size={23} color={colors.forest} />
+          <Text style={styles.captureLabel}>Thư viện</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Chụp ảnh bằng máy ảnh"
+          disabled={scanning}
+          accessibilityState={{ disabled: scanning }}
           onPress={() => pickImage('camera')}
           style={styles.shutter}
         >
@@ -82,36 +99,50 @@ export function CameraScreen({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Dùng cảnh mẫu"
+          disabled={scanning}
+          accessibilityState={{ disabled: scanning }}
           onPress={() => selectImage(null)}
           style={styles.captureSide}
         >
           <RotateCcw size={22} color={colors.forest} />
+          <Text style={styles.captureLabel}>Ảnh mẫu</Text>
         </Pressable>
       </View>
       <Text style={styles.cameraCaption}>
         {imageUri
-          ? user ? 'Đã chọn ảnh · nhấn Quét ảnh bằng AI' : 'Đã chọn ảnh · khách có 3 lượt quét thử mỗi ngày'
+          ? user
+            ? 'Đã chọn ảnh · nhấn Quét ảnh bằng AI'
+            : 'Đã chọn ảnh · khách có 3 lượt quét thử mỗi ngày'
           : 'Chọn cảnh mẫu để xem từ minh họa, không cần tài khoản'}
       </Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scenePicker}
-      >
-        {scenes.map(item => (
-          <SceneThumbnail
-            key={item.id}
-            id={item.id}
-            selected={!imageUri && item.id === sceneId}
-            onPress={() => {
-              setSceneId(item.id);
-              selectImage(null);
-            }}
-          />
-        ))}
-      </ScrollView>
+      {!imageUri && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scenePicker}
+        >
+          {scenes.map(item => (
+            <SceneThumbnail
+              key={item.id}
+              id={item.id}
+              selected={!imageUri && item.id === sceneId}
+              onPress={() => {
+                if (scanning) return;
+                setSceneId(item.id);
+                selectImage(null);
+              }}
+            />
+          ))}
+        </ScrollView>
+      )}
       <PrimaryButton
-        label={scanning ? 'Đang nhận diện ảnh...' : imageUri ? 'Quét ảnh bằng AI' : 'Xem từ vựng minh họa'}
+        label={
+          scanning
+            ? 'Đang nhận diện ảnh...'
+            : imageUri
+            ? 'Quét ảnh bằng AI'
+            : 'Xem từ vựng minh họa'
+        }
         disabled={scanning}
         onPress={scan}
         style={styles.actionTop20}

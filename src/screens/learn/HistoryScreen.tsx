@@ -16,7 +16,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
       <ScreenTitle
         kicker="NHỮNG GÌ BẠN ĐÃ THẤY"
         title="Hành trình khám phá."
-        subtitle="Các lần quét trong phiên này. Lịch sử chưa được backend hỗ trợ lưu lâu dài."
+        subtitle="Ảnh đã khám phá trong lần mở ứng dụng này. Hãy lưu thẻ để giữ lại từ lâu dài."
       />
       <View style={styles.countCard}>
         <BookOpen size={22} color={colors.forest} />
@@ -55,7 +55,9 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
                   {entry.imageUri ? 'Ảnh của bạn' : scene.title}
                 </Text>
                 <Text style={styles.historyCaption}>
-                  {entry.result ? `Từ nhận diện: ${entry.result.keyword}` : `${scene.words.length} từ mẫu · ${scene.category}`}
+                  {entry.result
+                    ? `Từ nhận diện: ${entry.result.keyword}`
+                    : `${scene.words.length} từ mẫu · ${scene.category}`}
                 </Text>
               </View>
               <ArrowRight size={17} color={colors.muted} />

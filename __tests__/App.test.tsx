@@ -88,24 +88,17 @@ test('navigates from home to sample image selection', async () => {
     scan?.props.onPress();
   });
   expect(
-    renderer.root.findAllByProps({ accessibilityLabel: 'Lưu notebook' }).length,
-  ).toBeGreaterThan(0);
-  const save = renderer.root
-    .findAllByProps({ accessibilityLabel: 'Lưu notebook' })
+    renderer.root.findAllByProps({ accessibilityLabel: 'Lưu notebook' }),
+  ).toHaveLength(0);
+  const choose = renderer.root
+    .findAllByProps({ accessibilityLabel: 'Chọn ảnh thật để tạo thẻ' })
     .find(node => typeof node.props.onPress === 'function');
-  await ReactTestRenderer.act(async () => {
-    save?.props.onPress();
-  });
+  await ReactTestRenderer.act(async () => choose?.props.onPress());
   expect(
-    renderer.root.findAllByProps({ accessibilityLabel: 'Username' }).length,
-  ).toBeGreaterThan(0);
-  expect(
-    renderer.root.findAllByProps({ accessibilityLabel: 'Đã lưu notebook' })
+    renderer.root.findAllByProps({ accessibilityLabel: 'Chọn ảnh từ thư viện' })
       .length,
-  ).toBe(0);
-  await ReactTestRenderer.act(async () => {
-    renderer.unmount();
-  });
+  ).toBeGreaterThan(0);
+  await ReactTestRenderer.act(async () => renderer.unmount());
 });
 
 test('scans chosen photos as a guest and opens the quiz', async () => {

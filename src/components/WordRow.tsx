@@ -1,7 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
-import { Bookmark, ChevronRight, Volume2 } from 'lucide-react-native';
+import { Bookmark, ChevronRight } from 'lucide-react-native';
 import type { Word } from '@/data/scenes';
 import { useAudio } from '@/hooks/useAudio';
+import { AudioButton } from './AudioButton';
 import { CardImage } from './CardImage';
 import { colors } from '@/theme/theme';
 import { styles } from './styles/content.styles';
@@ -12,12 +13,14 @@ export function WordRow({
   saved,
   onOpen,
   onSave,
+  disabled = false,
 }: {
   word: Word;
   token?: string | null;
   saved: boolean;
   onOpen: () => void;
   onSave?: () => void;
+  disabled?: boolean;
 }) {
   const { play } = useAudio();
 
@@ -26,8 +29,13 @@ export function WordRow({
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Xem từ ${word.term}, nghĩa là ${word.meaning}`}
+        disabled={disabled}
+        accessibilityState={{ disabled }}
         onPress={onOpen}
-        style={({ pressed }) => [styles.wordMain, pressed && styles.pressed]}
+        style={({ pressed }) => [
+          styles.wordMain,
+          (pressed || disabled) && styles.pressed,
+        ]}
       >
         {word.imageUrl || word.hasImage ? (
           <CardImage
@@ -48,7 +56,7 @@ export function WordRow({
         )}
         <View style={styles.fill}>
           <Text style={styles.wordTerm}>{word.term}</Text>
-          <Text style={styles.wordMeaning} numberOfLines={1}>
+          <Text style={styles.wordMeaning} numberOfLines={2}>
             {word.type} · {word.meaning}
           </Text>
         </View>
@@ -56,20 +64,11 @@ export function WordRow({
       </Pressable>
 
       {(word.audio || word.userFlashcardId) && (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Nghe phát âm từ ${word.term}`}
-          onPress={e => {
-            e.stopPropagation?.();
-            play(word.audio, word.userFlashcardId);
-          }}
-          style={({ pressed }) => [
-            styles.audioRowBtn,
-            pressed && styles.pressed,
-          ]}
-        >
-          <Volume2 size={19} color={colors.forest} />
-        </Pressable>
+        <AudioButton
+          disabled={disabled}
+          label={`Nghe phát âm từ ${word.term}`}
+          onPress={() => play(word.audio, word.userFlashcardId)}
+        />
       )}
 
       {onSave && (
@@ -78,8 +77,8 @@ export function WordRow({
           accessibilityLabel={
             saved ? `Đã lưu ${word.term}` : `Lưu ${word.term}`
           }
-          accessibilityState={{ selected: saved }}
-          disabled={saved}
+          accessibilityState={{ selected: saved, disabled: saved || disabled }}
+          disabled={saved || disabled}
           onPress={onSave}
           style={({ pressed }) => [styles.bookmark, pressed && styles.pressed]}
         >

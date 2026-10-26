@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import { BookOpen } from 'lucide-react-native';
 import { PrimaryButton } from './PrimaryButton';
 import { styles } from './styles/content.styles';
@@ -9,16 +9,22 @@ export function EmptyState({
   description,
   onPress,
   action,
+  loading = false,
 }: {
   title: string;
   description: string;
   onPress?: () => void;
   action?: string;
+  loading?: boolean;
 }) {
   return (
-    <View style={styles.empty}>
+    <View accessibilityState={{ busy: loading }} style={styles.empty}>
       <View style={styles.emptyIcon}>
-        <BookOpen size={28} color={colors.forest} />
+        {loading ? (
+          <ActivityIndicator color={colors.forest} />
+        ) : (
+          <BookOpen size={28} color={colors.forest} />
+        )}
       </View>
       <Text style={styles.emptyTitle}>{title}</Text>
       <Text style={styles.emptyDescription}>{description}</Text>
@@ -33,4 +39,3 @@ export function EmptyState({
     </View>
   );
 }
-
