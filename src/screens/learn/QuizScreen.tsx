@@ -47,7 +47,7 @@ export function QuizScreen({
   const { play } = useAudio();
   if (loadingData || dataError || !word) {
     return (
-      <View style={styles.page}>
+      <>
         <TopBar title="Quiz nhanh" onBack={() => navigate('review')} />
         <EmptyState
           loading={loadingData}
@@ -74,12 +74,12 @@ export function QuizScreen({
               : undefined
           }
         />
-      </View>
+      </>
     );
   }
   if (done)
     return (
-      <View style={styles.page}>
+      <>
         <TopBar title="Kết quả Quiz" onBack={() => navigate('review')} />
         <View style={styles.finish}>
           <View style={styles.finishIcon}>
@@ -108,10 +108,10 @@ export function QuizScreen({
             style={styles.stretch}
           />
         </View>
-      </View>
+      </>
     );
   return (
-    <View style={styles.page}>
+    <>
       <TopBar
         title="Quiz nhanh"
         onBack={() => navigate('review')}
@@ -210,6 +210,6 @@ export function QuizScreen({
         disabled={!selected}
         style={styles.actionTop18}
       />
-    </View>
+    </>
   );
 }

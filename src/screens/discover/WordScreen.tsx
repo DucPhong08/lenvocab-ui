@@ -49,7 +49,7 @@ export function WordScreen({
   const isSample = !isScan && !word.userFlashcardId;
   const canUpdateSticker = isScan && isSaved && !currentScanSaved;
   return (
-    <View style={styles.page}>
+    <>
       <TopBar
         title="Khám phá từ vựng"
         onBack={() => navigate(wordBack)}
@@ -183,6 +183,6 @@ export function WordScreen({
           />
         }
       />
-    </View>
+    </>
   );
 }

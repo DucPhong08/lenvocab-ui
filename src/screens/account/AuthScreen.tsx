@@ -33,7 +33,7 @@ export function AuthScreen({
   } = useAuthForm(onAuth);
   const [passwordVisible, setPasswordVisible] = useState(false);
   return (
-    <View style={styles.page}>
+    <>
       <TopBar title="Tài khoản" onBack={() => navigate(authBack)} />
       <View style={styles.authGraphic}>
         <Sparkles size={26} color={colors.forest} />
@@ -191,6 +191,6 @@ export function AuthScreen({
           nhập khi muốn lưu từ vào tài khoản.
         </Text>
       </View>
-    </View>
+    </>
   );
 }

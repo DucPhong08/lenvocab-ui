@@ -16,11 +16,15 @@ jest.mock('lucide-react-native', () => {
     },
   );
 });
-jest.mock('@/components/WordRow', () => ({
-  WordRow: ({ word }: { word: { term: string } }) => {
+jest.mock('@/components/WordGrid', () => ({
+  WordGrid: ({ words }: { words: { term: string }[] }) => {
     const mockReact = require('react');
     const { Text: MockText } = require('react-native');
-    return mockReact.createElement(MockText, null, word.term);
+    return mockReact.createElement(
+      MockText,
+      null,
+      words.map(word => word.term).join(' '),
+    );
   },
 }));
 const card: Flashcard = {

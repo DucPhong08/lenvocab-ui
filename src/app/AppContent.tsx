@@ -152,15 +152,6 @@ export function AppContent() {
   useEffect(() => {
     if (token) scheduleDailyStudyReminder().catch(() => {});
   }, [token]);
-  const onAuth: ScreenProps['onAuth'] = async (
-    mode,
-    username,
-    password,
-    name,
-    email,
-  ) => {
-    await signIn(mode, username, password, name, email);
-  };
   const openWord = (id: string) => {
     setWordBack(screen);
     setWordId(id);
@@ -298,7 +289,7 @@ export function AppContent() {
     reloadData,
     wordForId,
     submitReview,
-    onAuth,
+    onAuth: signIn,
     onGoogleAuth: signInGoogle,
     onGoogleLink,
     googleLinkBusy,

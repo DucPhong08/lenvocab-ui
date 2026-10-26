@@ -252,7 +252,7 @@ test('cancels guest save when leaving authentication before a later normal login
     ).toHaveLength(0);
     expect(
       renderer.root.findAllByProps({
-        accessibilityLabel: 'Bắt đầu chọn hoặc chụp ảnh',
+        accessibilityLabel: 'Chụp ảnh học từ',
       }).length,
     ).toBeGreaterThan(0);
     await ReactTestRenderer.act(async () => press(renderer, 'Cá nhân'));

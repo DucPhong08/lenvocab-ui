@@ -53,7 +53,7 @@ export function ResultsScreen({
     const word = words[0];
     const existing = isStored(word.id);
     return (
-      <View style={styles.page}>
+      <>
         <TopBar title="Chọn vật muốn học" onBack={() => navigate('camera')} />
         <ObjectPicker
           uri={imageUri}
@@ -103,11 +103,11 @@ export function ResultsScreen({
             currentScanSaved ? openWord(word.id) : toggleSaved(scanId)
           }
         />
-      </View>
+      </>
     );
   }
   return (
-    <View style={styles.page}>
+    <>
       <TopBar
         title={scanResult ? 'Kết quả quét AI' : 'Kết quả minh họa'}
         onBack={() => navigate('camera')}
@@ -196,6 +196,6 @@ export function ResultsScreen({
         }}
         style={styles.actionTop12}
       />
-    </View>
+    </>
   );
 }

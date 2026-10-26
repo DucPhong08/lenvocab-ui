@@ -131,3 +131,46 @@ test('flashcard grading blocks duplicate submits and keeps review_id for retry',
   expect(submitReview.mock.calls[1][2]).toBe(reviewId);
   await ReactTestRenderer.act(async () => renderer.unmount());
 });
+
+test('a short session keeps three cards, then restarts with current remaining cards', async () => {
+  const due = Array.from({ length: 5 }, (_, i) =>
+    reviewCard(`card-${i}`, `word-${i}`),
+  );
+  const submitReview = jest.fn().mockResolvedValue(undefined);
+  let state!: ReturnType<typeof useFlashcards>;
+  const Harness = ({ remaining }: { remaining: ReviewCard[] }) => {
+    state = useFlashcards({
+      due: remaining,
+      dataError: null,
+      loadingData: false,
+      submitReview,
+      user,
+    });
+    return null;
+  };
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(async () => {
+    renderer = ReactTestRenderer.create(<Harness remaining={due} />);
+  });
+  try {
+    expect(state.words).toHaveLength(3);
+    for (let i = 0; i < 3; i++) {
+      await ReactTestRenderer.act(async () => state.grade(5));
+      await ReactTestRenderer.act(async () =>
+        renderer.update(<Harness remaining={due.slice(i + 1)} />),
+      );
+    }
+    expect(state.word).toBeUndefined();
+    expect(submitReview.mock.calls.map(call => call[0])).toEqual([
+      'card-0',
+      'card-1',
+      'card-2',
+    ]);
+    await ReactTestRenderer.act(async () => state.restart());
+    expect(state.words.map(word => word.id)).toEqual(['card-3', 'card-4']);
+    expect(state.index).toBe(0);
+    expect(state.flipped).toBe(false);
+  } finally {
+    await ReactTestRenderer.act(async () => renderer.unmount());
+  }
+});

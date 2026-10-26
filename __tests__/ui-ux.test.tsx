@@ -25,8 +25,9 @@ jest.mock('lucide-react-native', () => {
     },
   );
 });
+const mockPlay = jest.fn();
 jest.mock('@/hooks/useAudio', () => ({
-  useAudio: () => ({ play: jest.fn(), isPlaying: false }),
+  useAudio: () => ({ play: mockPlay, isPlaying: false }),
 }));
 jest.mock('@react-native-community/image-editor', () => ({
   __esModule: true,
@@ -165,6 +166,7 @@ test('empty search resets the query instead of taking the learner to capture', a
     user: { id: 'u' } as ScreenProps['user'],
   });
   await mount(<SavedScreen {...data} />);
+  await Renderer.act(async () => button('Tìm kiếm và lọc từ').props.onPress());
   const input = view.root.findAll(
     node =>
       node.props.accessibilityLabel === 'Tìm từ vựng' &&
@@ -234,7 +236,7 @@ test('a newly saved card can enter review before the server count catches up', a
       })}
     />,
   );
-  expect(button('Bắt đầu Flashcards').props.disabled).toBe(false);
+  expect(button('Ôn nhanh 1 từ').props.disabled).toBe(false);
   expect(text()).not.toContain('Chưa có từ để luyện tập');
 });
 
@@ -248,8 +250,8 @@ test('finishing today disables an empty flashcard session while quiz stays avail
       })}
     />,
   );
-  expect(button('Bắt đầu Flashcards').props.disabled).toBe(true);
-  expect(button('Bắt đầu Quiz nhanh')).toBeDefined();
+  expect(button('Hôm nay chưa cần ôn').props.disabled).toBe(true);
+  expect(button('Quiz nhanh')).toBeDefined();
 });
 
 const partialSave = () =>
@@ -305,5 +307,52 @@ test('flashcards recover after an initial fetch error instead of retaining an em
   await Renderer.act(async () =>
     view.update(<FlashcardsScreen {...data} dataError={null} due={[card]} />),
   );
-  expect(button('my cup. Chạm để xem nghĩa tiếng Việt')).toBeDefined();
+  expect(button('Xem nghĩa')).toBeDefined();
+});
+
+test('meaning reveal stays silent and manual audio plays on demand', async () => {
+  mockPlay.mockClear();
+  await mount(
+    <FlashcardsScreen
+      {...props({ user: { id: 'u' } as ScreenProps['user'], due: [card] })}
+    />,
+  );
+  expect(
+    view.root.findAll(node => node.props.accessibilityLabel === 'Nhớ rõ'),
+  ).toHaveLength(0);
+  await Renderer.act(async () => button('Xem nghĩa').props.onPress());
+  expect(mockPlay).not.toHaveBeenCalled();
+  expect(button('Nhớ rõ')).toBeDefined();
+  await Renderer.act(async () =>
+    button('Nghe phát âm').props.onPress({ stopPropagation: jest.fn() }),
+  );
+  expect(mockPlay).toHaveBeenCalledWith(null, 'personal-cup');
+});
+
+test('closing search clears invisible filters and restores the grid', async () => {
+  await mount(
+    <SavedScreen
+      {...props({
+        cards: [card],
+        totalSaved: 1,
+        user: { id: 'u' } as ScreenProps['user'],
+      })}
+    />,
+  );
+  expect(
+    view.root.findAll(node => node.props.accessibilityLabel === 'Tìm từ vựng'),
+  ).toHaveLength(0);
+  await Renderer.act(async () => button('Tìm kiếm và lọc từ').props.onPress());
+  const input = view.root.findAll(
+    node =>
+      node.props.accessibilityLabel === 'Tìm từ vựng' &&
+      node.props.onChangeText,
+  )[0];
+  await Renderer.act(async () => input.props.onChangeText('missing'));
+  expect(text()).toContain('Không tìm thấy từ phù hợp');
+  await Renderer.act(async () => button('Đóng tìm kiếm').props.onPress());
+  expect(text()).toContain('my cup');
+  expect(
+    view.root.findAll(node => node.props.accessibilityLabel === 'Tìm từ vựng'),
+  ).toHaveLength(0);
 });

@@ -1,20 +1,15 @@
-import { Image, Pressable, Text, View } from 'react-native';
-import {
-  ArrowRight,
-  Bookmark,
-  Camera,
-  Check,
-  Sparkles,
-} from 'lucide-react-native';
+import { Pressable, Text, View } from 'react-native';
+import { Camera } from 'lucide-react-native';
 import { Brand } from '@/components/Brand';
-import { Eyebrow } from '@/components/Eyebrow';
 import { SectionHeader } from '@/components/SectionHeader';
-import { WordRow } from '@/components/WordRow';
-import { cardWord } from '@/api/mappers/cardWord';
+import { WordGrid } from '@/components/WordGrid';
+import { StudyCard } from '@/components/StudyCard';
+import { PrimaryButton } from '@/components/PrimaryButton';
 import { EmptyState } from '@/components/EmptyState';
+import { cardWord } from '@/api/mappers/cardWord';
 import { allWords } from '@/data/scenes';
-import { sceneImage } from '@/theme/sceneImage';
-import { colors, shadow } from '@/theme/theme';
+import { SESSION_SIZE } from '@/data/study';
+import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { styles } from './styles';
 
@@ -22,19 +17,18 @@ export function HomeScreen({
   navigate,
   token,
   openWord,
-  saved,
-  totalSaved,
   cards,
-  history,
   user,
   due,
   loadingData,
   dataError,
   reloadData,
 }: ScreenProps) {
-  const words = user ? cards.slice(0, 3).map(cardWord) : allWords.slice(0, 2);
+  const words = user ? cards.slice(0, 2).map(cardWord) : allWords.slice(0, 2);
+  const count = Math.min(SESSION_SIZE, due.length);
+  const hasCards = cards.length > 0;
   return (
-    <View style={styles.page}>
+    <>
       <View style={styles.homeTop}>
         <Brand />
         <Pressable
@@ -48,123 +42,70 @@ export function HomeScreen({
           </Text>
         </Pressable>
       </View>
-      <View style={styles.greeting}>
-        <Eyebrow>Học từ những gì bạn thấy</Eyebrow>
-        <Text style={styles.greetingTitle}>
-          Chào {user?.display_name || user?.username || 'bạn'},{'\n'}hôm nay học
-          gì?
-        </Text>
-        <Text style={styles.description}>
-          Thế giới quanh bạn luôn có điều mới để học.
-        </Text>
-      </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Bắt đầu chọn hoặc chụp ảnh"
-        onPress={() => navigate('camera')}
-        style={({ pressed }) => [
-          styles.hero,
-          shadow,
-          pressed && { opacity: 0.9 },
-        ]}
+      <StudyCard
+        title={
+          user && count
+            ? 'Nhớ lại, rồi dùng được.'
+            : hasCards
+            ? 'Dùng lại từ của bạn.'
+            : 'Nhìn quanh. Học một từ.'
+        }
+        description={
+          dataError
+            ? 'Lịch ôn chưa đồng bộ. Bạn có thể thử tải lại bên dưới.'
+            : loadingData
+            ? 'Đang đồng bộ lịch ôn và kho từ của bạn.'
+            : user && count
+            ? `${due.length} từ đến hạn. Bắt đầu với ${count} từ thôi.`
+            : hasCards
+            ? 'Chưa có từ đến hạn. Thử một câu hỏi từ kho cá nhân.'
+            : 'Chụp vật quen thuộc, lưu sticker cùng nghĩa và câu ví dụ.'
+        }
       >
-        <View style={styles.heroCopy}>
-          <View style={styles.heroPill}>
-            <Sparkles size={12} color={colors.forest} />
-            <Text style={styles.heroPillText}>Từ ảnh thành thẻ từ</Text>
-          </View>
-          <Text style={styles.heroTitle}>Chụp một vật.{'\n'}Nhớ một từ.</Text>
-          <View style={styles.heroAction}>
-            <Text style={styles.heroActionText}>Bắt đầu quét</Text>
-            <ArrowRight size={16} color={colors.forest} />
-          </View>
-        </View>
-        <View style={styles.heroPicture}>
-          <Image source={sceneImage('desk')} style={styles.heroImage} />
-          <View style={styles.heroLabel}>
-            <Text style={styles.heroLabelText}>notebook</Text>
-            <Check size={12} color={colors.forest} />
-          </View>
-        </View>
-      </Pressable>
-      <Text style={styles.demoNote}>
-        {user
-          ? 'Chọn vật trong ảnh, lưu thành sticker và ôn lại mỗi ngày.'
-          : 'Thử quét ảnh ngay. Đăng nhập khi bạn muốn lưu thẻ.'}
-      </Text>
-      <View style={styles.stats}>
-        <View style={styles.stat}>
-          <View style={styles.statIcon}>
-            <Bookmark size={18} color={colors.forest} />
-          </View>
-          <View>
-            <Text style={styles.statValue}>{totalSaved} từ</Text>
-            <Text style={styles.statLabel}>
-              {user ? 'Trong tài khoản' : 'Đăng nhập để lưu'}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.statSeparator} />
-        <View style={styles.stat}>
-          <View style={styles.statIcon}>
-            <Camera size={18} color={colors.forest} />
-          </View>
-          <View>
-            <Text style={styles.statValue}>
-              {user ? `${user.daily_quota_left} lượt` : `${history.length} lần`}
-            </Text>
-            <Text style={styles.statLabel}>
-              {user ? 'Quét còn hôm nay' : 'Quét phiên này'}
-            </Text>
-          </View>
-        </View>
-      </View>
-      <SectionHeader
-        kicker="MỘT CHÚT MỖI NGÀY"
-        title="Ôn tập hôm nay"
-        action="Xem thêm"
-        onAction={() => navigate('review')}
-      />
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => navigate(user && !due.length ? 'review' : 'flashcards')}
-        style={({ pressed }) => [
-          styles.reviewCard,
-          shadow,
-          pressed && { opacity: 0.8 },
-        ]}
-      >
-        <View style={styles.reviewArt}>
-          <Text style={styles.reviewArtText}>Aa.</Text>
-        </View>
-        <View style={styles.reviewCopy}>
-          <Text style={styles.reviewTitle}>
-            {user && !due.length
-              ? 'Hôm nay chưa có từ đến hạn'
-              : '5 phút cho trí nhớ'}
-          </Text>
-          <Text style={styles.reviewSubtitle}>
-            {user ? `${due.length} từ cần ôn hôm nay` : 'Thử bộ thẻ minh họa'}
-          </Text>
-          <Text style={styles.reviewLink}>
-            {user && !due.length ? 'Xem các cách luyện tập' : 'Bắt đầu ôn tập'}
-          </Text>
-        </View>
-      </Pressable>
-      <SectionHeader
-        title={user ? 'Từ trong kho của bạn' : 'Khám phá từ mẫu'}
-        action={user ? 'Xem kho từ' : 'Xem cảnh mẫu'}
-        onAction={() => navigate(user ? 'saved' : 'camera')}
-      />
-      {words.map(word => (
-        <WordRow
-          key={word.id}
-          word={word}
-          token={token}
-          saved={saved.includes(word.id)}
-          onOpen={() => openWord(word.id)}
+        <PrimaryButton
+          variant="secondary"
+          label={
+            user && count
+              ? `Ôn nhanh ${count} từ`
+              : hasCards
+              ? 'Quiz từ của bạn'
+              : 'Chụp ảnh học từ'
+          }
+          disabled={!!user && loadingData && !hasCards}
+          onPress={() =>
+            navigate(
+              user && count ? 'flashcards' : hasCards ? 'quiz' : 'camera',
+            )
+          }
         />
-      ))}
+      </StudyCard>
+      {(hasCards || count > 0) && (
+        <PrimaryButton
+          label="Chụp ảnh học từ"
+          variant="secondary"
+          icon={<Camera size={19} color={colors.forest} />}
+          onPress={() => navigate('camera')}
+        />
+      )}
+      {dataError && words.length > 0 && (
+        <PrimaryButton
+          label="Tải lại lịch ôn"
+          variant="secondary"
+          onPress={() => reloadData().catch(() => {})}
+          style={styles.actionTop12}
+        />
+      )}
+      {!user && (
+        <Text style={styles.demoNote}>
+          Thử ngay. Đăng nhập khi bạn muốn lưu thẻ.
+        </Text>
+      )}
+      <SectionHeader
+        title={user ? 'Gần đây của bạn' : 'Thẻ mẫu để thử'}
+        action={user ? 'Mở kho từ' : 'Thử ôn mẫu'}
+        onAction={() => navigate(user ? 'saved' : 'flashcards')}
+      />
+      <WordGrid words={words} token={token} onOpen={openWord} />
       {user && !words.length && (
         <EmptyState
           loading={loadingData}
@@ -176,10 +117,7 @@ export function HomeScreen({
               : 'Tạo thẻ đầu tiên của bạn'
           }
           description={
-            loadingData
-              ? 'Các thẻ của bạn sẽ xuất hiện ở đây.'
-              : dataError ||
-                'Chụp một vật quen thuộc, chọn vật rồi lưu thẻ kèm sticker.'
+            dataError || 'Chụp một vật quen thuộc và lưu thẻ kèm sticker.'
           }
           action={
             loadingData
@@ -195,6 +133,6 @@ export function HomeScreen({
           }
         />
       )}
-    </View>
+    </>
   );
 }

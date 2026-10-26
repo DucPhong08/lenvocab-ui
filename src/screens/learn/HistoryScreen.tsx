@@ -12,7 +12,7 @@ import { styles } from './styles';
 
 export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
   return (
-    <View style={styles.page}>
+    <>
       <ScreenTitle
         kicker="NHỮNG GÌ BẠN ĐÃ THẤY"
         title="Hành trình khám phá."
@@ -79,6 +79,6 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
           style={styles.actionTop18}
         />
       )}
-    </View>
+    </>
   );
 }

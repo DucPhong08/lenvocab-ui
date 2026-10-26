@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import type { ReviewCard } from '@/api/contracts';
 import { cardWord } from '@/api/mappers/cardWord';
+import { SESSION_SIZE } from '@/data/study';
 import { allWords } from '@/data/scenes';
 import type { ScreenProps } from '@/types/screen';
 
@@ -25,16 +26,26 @@ export function useFlashcards({
   );
 
   useEffect(() => {
-    if (user && !loadingData && !dataError && queue === null) setQueue(due);
+    if (user && !loadingData && !dataError && queue === null)
+      setQueue(due.slice(0, SESSION_SIZE));
   }, [user, loadingData, dataError, due, queue]);
 
-  const words = user ? (queue ?? []).map(cardWord) : allWords.slice(0, 4);
+  const words = user
+    ? (queue ?? []).map(cardWord)
+    : allWords.slice(0, SESSION_SIZE);
   const word = words[index];
 
   const flip = () => setFlipped(value => !value);
   const next = () => {
-    setIndex(value => (value + 1) % words.length);
+    setIndex(value => value + 1);
     setFlipped(false);
+  };
+  const restart = () => {
+    if (submittingRef.current) return;
+    setQueue(user ? due.slice(0, SESSION_SIZE) : null);
+    setIndex(0);
+    setFlipped(false);
+    reviewAttempt.current = null;
   };
   const grade = async (quality: number) => {
     if (!user || !queue?.[index] || submittingRef.current) return;
@@ -79,6 +90,7 @@ export function useFlashcards({
     index,
     next,
     queue,
+    restart,
     submitting,
     word,
     words,

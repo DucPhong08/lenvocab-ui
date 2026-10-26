@@ -70,7 +70,7 @@ test('navigates from home to sample image selection', async () => {
     renderer = ReactTestRenderer.create(<App />);
   });
   const hero = renderer.root.findAllByProps({
-    accessibilityLabel: 'Bắt đầu chọn hoặc chụp ảnh',
+    accessibilityLabel: 'Chụp ảnh học từ',
   })[0];
   expect(hero).toBeDefined();
   await ReactTestRenderer.act(async () => {
@@ -169,7 +169,7 @@ test('scans chosen photos as a guest and opens the quiz', async () => {
       reviewTab.props.onPress();
     });
     const quiz = renderer.root
-      .findAllByProps({ accessibilityLabel: 'Bắt đầu Quiz nhanh' })
+      .findAllByProps({ accessibilityLabel: 'Quiz nhanh' })
       .find(node => typeof node.props.onPress === 'function');
     expect(quiz).toBeDefined();
     await ReactTestRenderer.act(async () => {
@@ -328,15 +328,15 @@ test('does not apply a completed grade after logout', async () => {
     });
     await ReactTestRenderer.act(async () => reviewTab.props.onPress());
     const flashcards = renderer.root.findByProps({
-      accessibilityLabel: 'Bắt đầu Flashcards',
+      accessibilityLabel: 'Ôn nhanh 1 từ',
     });
     await ReactTestRenderer.act(async () => flashcards.props.onPress());
     const flip = renderer.root.findByProps({
-      accessibilityLabel: 'chair. Chạm để xem nghĩa tiếng Việt',
+      accessibilityLabel: 'Xem nghĩa',
     });
     await ReactTestRenderer.act(async () => flip.props.onPress());
     const grade = renderer.root.findByProps({
-      accessibilityLabel: '4 điểm: Nhớ tốt',
+      accessibilityLabel: 'Nhớ rõ',
     });
     let pendingGrade!: Promise<void>;
     ReactTestRenderer.act(() => {

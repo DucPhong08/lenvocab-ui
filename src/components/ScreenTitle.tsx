@@ -7,13 +7,13 @@ export function ScreenTitle({
   title,
   subtitle,
 }: {
-  kicker: string;
+  kicker?: string;
   title: string;
   subtitle?: string;
 }) {
   return (
     <View style={styles.titleBlock}>
-      <Eyebrow>{kicker}</Eyebrow>
+      {kicker && <Eyebrow>{kicker}</Eyebrow>}
       <Text accessibilityRole="header" style={styles.screenTitle}>
         {title}
       </Text>

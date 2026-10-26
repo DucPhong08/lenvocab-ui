@@ -32,7 +32,7 @@ export function CameraScreen({
   const scene = getScene(sceneId);
   const pickImage = useImagePicker(selectImage);
   return (
-    <View style={styles.page}>
+    <>
       <TopBar
         title="Tạo thẻ từ ảnh"
         onBack={() => navigate('home')}
@@ -147,6 +147,6 @@ export function CameraScreen({
         onPress={scan}
         style={styles.actionTop20}
       />
-    </View>
+    </>
   );
 }

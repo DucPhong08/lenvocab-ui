@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, layout } from '@/theme/theme';
+import { colors } from '@/theme/theme';
 
 export const styles = StyleSheet.create({
   fill: { flex: 1 },
@@ -15,7 +15,6 @@ export const styles = StyleSheet.create({
   accountActions: { gap: 12, marginBottom: 24 },
   speedText: { color: colors.muted },
   speedSelected: { color: colors.forest, fontWeight: '700' },
-  page: layout.page,
   identity: {
     flexDirection: 'row',
     alignItems: 'center',

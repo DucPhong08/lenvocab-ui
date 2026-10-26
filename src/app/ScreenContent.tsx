@@ -1,3 +1,6 @@
+import type { ComponentType } from 'react';
+import { View } from 'react-native';
+import { layout } from '@/theme/theme';
 import { AuthScreen } from '@/screens/account/AuthScreen';
 import { OnboardingScreen } from '@/screens/account/OnboardingScreen';
 import { ProfileScreen } from '@/screens/account/ProfileScreen';
@@ -12,6 +15,21 @@ import { ReviewScreen } from '@/screens/learn/ReviewScreen';
 import { SavedScreen } from '@/screens/learn/SavedScreen';
 import type { Screen, ScreenProps } from '@/types/screen';
 
+const screens = {
+  home: HomeScreen,
+  camera: CameraScreen,
+  results: ResultsScreen,
+  word: WordScreen,
+  saved: SavedScreen,
+  review: ReviewScreen,
+  flashcards: FlashcardsScreen,
+  quiz: QuizScreen,
+  history: HistoryScreen,
+  profile: ProfileScreen,
+  onboarding: OnboardingScreen,
+  auth: AuthScreen,
+} satisfies Record<Screen, ComponentType<ScreenProps>>;
+
 export function ScreenContent({
   screen,
   props,
@@ -19,30 +37,10 @@ export function ScreenContent({
   screen: Screen;
   props: ScreenProps;
 }) {
-  switch (screen) {
-    case 'home':
-      return <HomeScreen {...props} />;
-    case 'camera':
-      return <CameraScreen {...props} />;
-    case 'results':
-      return <ResultsScreen {...props} />;
-    case 'word':
-      return <WordScreen {...props} />;
-    case 'saved':
-      return <SavedScreen {...props} />;
-    case 'review':
-      return <ReviewScreen {...props} />;
-    case 'flashcards':
-      return <FlashcardsScreen {...props} />;
-    case 'quiz':
-      return <QuizScreen {...props} />;
-    case 'history':
-      return <HistoryScreen {...props} />;
-    case 'profile':
-      return <ProfileScreen {...props} />;
-    case 'onboarding':
-      return <OnboardingScreen {...props} />;
-    case 'auth':
-      return <AuthScreen {...props} />;
-  }
+  const Content = screens[screen];
+  return (
+    <View style={layout.page}>
+      <Content {...props} />
+    </View>
+  );
 }

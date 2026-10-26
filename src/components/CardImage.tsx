@@ -16,7 +16,7 @@ export function CardImage({
   cardId?: string;
   token?: string | null;
   label: string;
-  variant?: 'thumbnail' | 'detail' | 'flashcard' | 'sticker';
+  variant?: 'thumbnail' | 'detail' | 'flashcard' | 'sticker' | 'tile';
   fallback?: string;
   isSticker?: boolean;
 }) {
@@ -94,6 +94,7 @@ export function CardImage({
 }
 
 const styles = StyleSheet.create({
+  tile: { width: '100%', height: '100%' },
   sticker: { width: '100%', height: 150 },
   thumbnail: { width: 44, height: 44, borderRadius: 13 },
   detail: { width: '100%', height: 210, borderRadius: 18 },

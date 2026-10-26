@@ -32,7 +32,7 @@ export function OnboardingScreen({ navigate }: ScreenProps) {
   const [step, setStep] = useState(0);
   const slide = slides[step];
   return (
-    <View style={styles.page}>
+    <>
       <View style={styles.onboardTop}>
         <Brand />
         <Pressable
@@ -75,6 +75,6 @@ export function OnboardingScreen({ navigate }: ScreenProps) {
           }
         />
       </View>
-    </View>
+    </>
   );
 }

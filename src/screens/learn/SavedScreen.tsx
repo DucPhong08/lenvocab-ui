@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { BookOpen, Search, X } from 'lucide-react-native';
+import { Search, X } from 'lucide-react-native';
 import { cardWord } from '@/api/mappers/cardWord';
 import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
-import { WordRow } from '@/components/WordRow';
+import { WordGrid } from '@/components/WordGrid';
 import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { styles } from './styles';
@@ -31,6 +31,7 @@ export function SavedScreen({
   dataError,
   reloadData,
 }: ScreenProps) {
+  const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const searching = !!query.trim() || filter !== 'all';
@@ -61,13 +62,12 @@ export function SavedScreen({
   const findingMore = searching && hasMoreCards && !dataError;
 
   return (
-    <View style={styles.page}>
+    <>
       <ScreenTitle
-        kicker="Bộ sưu tập của bạn"
-        title="Từ vựng đã lưu"
+        title="Kho từ của bạn"
         subtitle={
           user
-            ? 'Mỗi thẻ giữ lại một điều bạn đã thấy. Tìm từ hoặc chọn thẻ để học lại.'
+            ? 'Chạm một thẻ để xem nghĩa, nghe và dùng lại từ.'
             : 'Đăng nhập để giữ lại từ, sticker và tiến độ học.'
         }
       />
@@ -80,62 +80,83 @@ export function SavedScreen({
         />
       ) : (
         <>
-          <View style={styles.countCard}>
-            <BookOpen size={22} color={colors.forest} />
+          <View style={styles.libraryTop}>
             <Text style={styles.countText}>{totalSaved} từ đã lưu</Text>
-          </View>
-          <View style={styles.search}>
-            <Search size={20} color={colors.muted} />
-            <TextInput
-              accessibilityLabel="Tìm từ vựng"
-              placeholder="Tìm từ hoặc nghĩa"
-              placeholderTextColor={colors.subtle}
-              value={query}
-              onChangeText={setQuery}
-              returnKeyType="search"
-              style={styles.searchInput}
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-            {!!query && (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Xóa tìm kiếm"
-                onPress={() => setQuery('')}
-                style={styles.clearSearch}
-              >
-                <X size={18} color={colors.muted} />
-              </Pressable>
-            )}
-          </View>
-          {cards.length > 0 && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.filters}
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={
+                searchOpen ? 'Đóng tìm kiếm' : 'Tìm kiếm và lọc từ'
+              }
+              accessibilityState={{ expanded: searchOpen }}
+              style={styles.clearSearch}
+              onPress={() => {
+                resetFilters();
+                setSearchOpen(!searchOpen);
+              }}
             >
-              {filters.map(item => (
-                <Pressable
-                  key={item.id}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: filter === item.id }}
-                  onPress={() => setFilter(item.id)}
-                  style={[
-                    styles.filter,
-                    filter === item.id && styles.filterActive,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.filterText,
-                      filter === item.id && styles.filterTextActive,
-                    ]}
+              {searchOpen ? (
+                <X size={22} color={colors.forest} />
+              ) : (
+                <Search size={22} color={colors.forest} />
+              )}
+            </Pressable>
+          </View>
+          {searchOpen && (
+            <>
+              <View style={styles.search}>
+                <Search size={20} color={colors.muted} />
+                <TextInput
+                  accessibilityLabel="Tìm từ vựng"
+                  placeholder="Tìm từ hoặc nghĩa"
+                  placeholderTextColor={colors.subtle}
+                  value={query}
+                  onChangeText={setQuery}
+                  returnKeyType="search"
+                  style={styles.searchInput}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+                {!!query && (
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Xóa tìm kiếm"
+                    onPress={() => setQuery('')}
+                    style={styles.clearSearch}
                   >
-                    {item.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
+                    <X size={18} color={colors.muted} />
+                  </Pressable>
+                )}
+              </View>
+              {cards.length > 0 && (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.filters}
+                >
+                  {filters.map(item => (
+                    <Pressable
+                      key={item.id}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: filter === item.id }}
+                      onPress={() => setFilter(item.id)}
+                      style={[
+                        styles.filter,
+                        filter === item.id && styles.filterActive,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.filterText,
+                          filter === item.id && styles.filterTextActive,
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              )}
+            </>
           )}
           {dataError && cards.length > 0 && (
             <View>
@@ -175,15 +196,7 @@ export function SavedScreen({
                       cards.length,
                     )} từ`}
               </Text>
-              {words.map(word => (
-                <WordRow
-                  key={word.id}
-                  word={word}
-                  token={token}
-                  saved
-                  onOpen={() => openWord(word.id)}
-                />
-              ))}
+              <WordGrid words={words} token={token} onOpen={openWord} />
             </>
           ) : findingMore ? null : (
             <EmptyState
@@ -217,6 +230,6 @@ export function SavedScreen({
           )}
         </>
       )}
-    </View>
+    </>
   );
 }

@@ -34,7 +34,7 @@ export function ProfileScreen({
     (user ? 'Người học' : 'Khách tham quan');
 
   return (
-    <View style={styles.page}>
+    <>
       <ScreenTitle
         kicker="GÓC CỦA BẠN"
         title="Góc học tập của bạn"
@@ -217,6 +217,6 @@ export function ProfileScreen({
             : 'Chế độ khách không lưu bộ từ hoặc lịch sử. Đăng nhập để sử dụng đầy đủ tính năng.'}
         </Text>
       </View>
-    </View>
+    </>
   );
 }
