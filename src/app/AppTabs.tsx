@@ -61,16 +61,17 @@ export function AppTabs({
                 size={tab.screen === 'camera' ? 23 : 21}
                 color={
                   tab.screen === 'camera'
-                    ? colors.surface
+                    ? colors.onPrimary
                     : active
-                    ? colors.forest
-                    : colors.subtle
+                    ? colors.primary
+                    : colors.muted
                 }
-                fill={active && tab.screen === 'home' ? colors.forest : 'none'}
+                fill={active && tab.screen === 'home' ? colors.primary : 'none'}
               />
             </View>
             <Text
               numberOfLines={2}
+              adjustsFontSizeToFit
               style={[styles.tabLabel, active && styles.activeTabLabel]}
             >
               {tab.label}

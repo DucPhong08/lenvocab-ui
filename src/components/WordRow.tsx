@@ -60,7 +60,7 @@ export function WordRow({
             {word.type} · {word.meaning}
           </Text>
         </View>
-        <ChevronRight size={16} color={colors.subtle} />
+        <ChevronRight size={16} color={colors.muted} />
       </Pressable>
 
       {(word.audio || word.userFlashcardId) && (
@@ -84,8 +84,8 @@ export function WordRow({
         >
           <Bookmark
             size={20}
-            color={saved ? colors.forest : colors.muted}
-            fill={saved ? colors.lime : 'none'}
+            color={saved ? colors.primary : colors.muted}
+            fill={saved ? colors.highlight : 'none'}
           />
         </Pressable>
       )}

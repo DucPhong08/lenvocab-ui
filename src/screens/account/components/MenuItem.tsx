@@ -21,7 +21,7 @@ export function MenuItem({
     >
       <View style={styles.menuIcon}>{icon}</View>
       <Text style={[styles.menuText, styles.fill]}>{label}</Text>
-      <ChevronRight size={18} color={colors.subtle} />
+      <ChevronRight size={18} color={colors.muted} />
     </Pressable>
   );
 }

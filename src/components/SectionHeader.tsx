@@ -31,10 +31,9 @@ export function SectionHeader({
           ]}
         >
           <Text style={styles.sectionActionText}>{action}</Text>
-          <ArrowRight size={15} color={colors.forest} />
+          <ArrowRight size={15} color={colors.primary} />
         </Pressable>
       )}
     </View>
   );
 }
-

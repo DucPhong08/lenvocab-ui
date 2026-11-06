@@ -7,22 +7,22 @@ export const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 12,
-    backgroundColor: colors.lime,
+    backgroundColor: colors.highlight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   brandText: {
     fontSize: 21,
     fontWeight: '800',
-    color: colors.forest,
+    color: colors.text,
     letterSpacing: -1,
   },
   eyebrow: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '800',
-    letterSpacing: 1.6,
-    color: colors.success,
+    letterSpacing: 0.3,
+    color: colors.muted,
     textTransform: 'uppercase',
+    lineHeight: 18,
   },
 });
-

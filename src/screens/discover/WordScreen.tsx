@@ -47,7 +47,11 @@ export function WordScreen({
         onBack={() => navigate(wordBack)}
         action={
           isSaved ? (
-            <Bookmark size={21} color={colors.forest} fill={colors.lime} />
+            <Bookmark
+              size={21}
+              color={colors.primary}
+              fill={colors.highlight}
+            />
           ) : undefined
         }
       />
@@ -74,13 +78,11 @@ export function WordScreen({
           {word.ipa ? <Text style={styles.ipa}>{word.ipa}</Text> : null}
           {(word.audio || word.userFlashcardId) && (
             <AudioButton
-              light
               label="Phát âm từ"
               onPress={() => play(word.audio, word.userFlashcardId)}
             />
           )}
         </View>
-        <Text style={styles.wordWatermark}>Aa.</Text>
       </View>
       {word.userFlashcardId ? (
         <CardPhoto
@@ -121,7 +123,7 @@ export function WordScreen({
       <View style={styles.detailBlock}>
         <Eyebrow>GHI NHỚ NHANH</Eyebrow>
         <View style={styles.tip}>
-          <Lightbulb size={20} color={colors.forest} />
+          <Lightbulb size={20} color={colors.primary} />
           <Text style={styles.tipText}>{word.note}</Text>
         </View>
       </View>
@@ -143,7 +145,7 @@ export function WordScreen({
               <Text style={styles.sourceTitle}>{scene.title}</Text>
               <Text style={styles.sourceCaption}>{scene.category}</Text>
             </View>
-            <ArrowRight size={18} color={colors.forest} />
+            <ArrowRight size={18} color={colors.primary} />
           </Pressable>
         </View>
       )}
@@ -170,8 +172,8 @@ export function WordScreen({
         icon={
           <Bookmark
             size={19}
-            color={colors.surface}
-            fill={isSaved ? colors.lime : 'none'}
+            color={colors.onPrimary}
+            fill={isSaved ? colors.highlight : 'none'}
           />
         }
       />

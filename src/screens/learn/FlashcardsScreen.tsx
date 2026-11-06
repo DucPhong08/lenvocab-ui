@@ -108,7 +108,6 @@ export function FlashcardsScreen({
               label="Nghe phát âm"
               onPress={() => play(word.audio, word.userFlashcardId)}
               playing={isPlaying}
-              light={!flipped}
             />
           )}
         </View>

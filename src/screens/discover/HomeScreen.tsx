@@ -63,7 +63,6 @@ export function HomeScreen({
         }
       >
         <PrimaryButton
-          variant="secondary"
           label={
             user && count
               ? `Ôn nhanh ${count} từ`
@@ -83,7 +82,7 @@ export function HomeScreen({
         <PrimaryButton
           label="Chụp ảnh học từ"
           variant="secondary"
-          icon={<Camera size={19} color={colors.forest} />}
+          icon={<Camera size={19} color={colors.primary} />}
           onPress={() => navigate('camera')}
         />
       )}

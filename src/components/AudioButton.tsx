@@ -5,13 +5,11 @@ import { colors } from '@/theme/theme';
 export function AudioButton({
   label,
   onPress,
-  light = false,
   playing = false,
   disabled = false,
 }: {
   label: string;
   onPress: () => void;
-  light?: boolean;
   playing?: boolean;
   disabled?: boolean;
 }) {
@@ -27,11 +25,10 @@ export function AudioButton({
       }}
       style={({ pressed }) => [
         styles.button,
-        light && styles.light,
         (pressed || playing || disabled) && styles.pressed,
       ]}
     >
-      <Volume2 size={20} color={light ? colors.lime : colors.forest} />
+      <Volume2 size={20} color={colors.primary} />
     </Pressable>
   );
 }
@@ -43,8 +40,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.pale,
+    backgroundColor: colors.primaryTint,
   },
-  light: { backgroundColor: '#FFFFFF22' },
   pressed: { opacity: 0.65 },
 });

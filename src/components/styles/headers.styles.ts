@@ -9,7 +9,7 @@ export const styles = StyleSheet.create({
     lineHeight: 39,
     fontWeight: '800',
     letterSpacing: -1.2,
-    color: colors.ink,
+    color: colors.text,
   },
   subtitle: { fontSize: 15, lineHeight: 23, color: colors.muted },
   topBar: {
@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 20,
   },
-  topBarTitle: { flex: 1, fontSize: 16, fontWeight: '800', color: colors.ink },
+  topBarTitle: { flex: 1, fontSize: 16, fontWeight: '800', color: colors.text },
   topBarEnd: { minWidth: 44, alignItems: 'flex-end' },
   sectionHeader: {
     flexDirection: 'row',
@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 28,
     fontWeight: '800',
-    color: colors.ink,
+    color: colors.text,
     letterSpacing: -0.6,
     marginTop: 5,
   },
@@ -42,6 +42,6 @@ export const styles = StyleSheet.create({
     gap: 5,
     alignItems: 'center',
   },
-  sectionActionText: { fontSize: 13, fontWeight: '700', color: colors.forest },
+  sectionActionText: { fontSize: 13, fontWeight: '700', color: colors.primary },
   pressed: { opacity: 0.78, transform: [{ scale: 0.985 }] },
 });

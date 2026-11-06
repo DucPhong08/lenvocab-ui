@@ -42,14 +42,14 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  sceneSelected: { borderColor: colors.forest },
+  sceneSelected: { borderColor: colors.primary },
   sceneThumb: { height: 68, width: '100%', borderRadius: 10 },
   sceneLabel: {
     fontSize: 11,
     fontWeight: '700',
     textAlign: 'center',
     marginTop: 7,
-    color: colors.ink,
+    color: colors.text,
   },
   pressed: { opacity: 0.78, transform: [{ scale: 0.985 }] },
 });

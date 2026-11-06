@@ -37,7 +37,7 @@ export function AuthScreen({
     <>
       <TopBar title="Tài khoản" onBack={() => navigate(authBack)} />
       <View style={styles.authGraphic}>
-        <Sparkles size={26} color={colors.forest} />
+        <Sparkles size={26} color={colors.primary} />
       </View>
       <Text style={styles.authTitle}>
         {mode === 'login' ? 'Mừng bạn quay lại.' : 'Bắt đầu học cùng lenvocab.'}
@@ -51,7 +51,7 @@ export function AuthScreen({
         placeholder={
           mode === 'login' ? 'Tên đăng nhập hoặc email cũ' : 'Ví dụ: phong_01'
         }
-        placeholderTextColor={colors.subtle}
+        placeholderTextColor={colors.muted}
         value={username}
         onChangeText={setUsername}
         autoCapitalize="none"
@@ -71,7 +71,7 @@ export function AuthScreen({
         <TextInput
           accessibilityLabel="Mật khẩu"
           placeholder="Mật khẩu"
-          placeholderTextColor={colors.subtle}
+          placeholderTextColor={colors.muted}
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!passwordVisible}
@@ -91,9 +91,9 @@ export function AuthScreen({
           style={styles.passwordToggle}
         >
           {passwordVisible ? (
-            <EyeOff size={21} color={colors.forest} />
+            <EyeOff size={21} color={colors.primary} />
           ) : (
-            <Eye size={21} color={colors.forest} />
+            <Eye size={21} color={colors.primary} />
           )}
         </Pressable>
       </View>
@@ -106,7 +106,7 @@ export function AuthScreen({
           <TextInput
             accessibilityLabel="Email (không bắt buộc)"
             placeholder="Email (không bắt buộc)"
-            placeholderTextColor={colors.subtle}
+            placeholderTextColor={colors.muted}
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
@@ -121,7 +121,7 @@ export function AuthScreen({
           <TextInput
             accessibilityLabel="Tên hiển thị (không bắt buộc)"
             placeholder="Tên hiển thị (không bắt buộc)"
-            placeholderTextColor={colors.subtle}
+            placeholderTextColor={colors.muted}
             value={name}
             onChangeText={setName}
             autoComplete="name"
@@ -182,7 +182,7 @@ export function AuthScreen({
         </Text>
       </Pressable>
       <View style={styles.authNotice}>
-        <Settings2 size={19} color={colors.forest} />
+        <Settings2 size={19} color={colors.primary} />
         <Text style={styles.authNoticeText}>
           Bạn có thể quét ảnh thật và xem từ vựng minh họa ở chế độ khách. Đăng
           nhập khi muốn lưu từ vào tài khoản.

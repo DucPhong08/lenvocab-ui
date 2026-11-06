@@ -11,9 +11,8 @@ export function Eyebrow({
   light?: boolean;
 }) {
   return (
-    <Text style={[styles.eyebrow, light && { color: colors.lime }]}>
+    <Text style={[styles.eyebrow, light && { color: colors.onPrimary }]}>
       {children}
     </Text>
   );
 }
-

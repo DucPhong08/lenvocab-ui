@@ -159,6 +159,6 @@ const styles = StyleSheet.create({
   section: { marginBottom: 18, gap: 8 },
   actions: { flexDirection: 'row', gap: 12 },
   button: { paddingVertical: 12, minHeight: 44 },
-  label: { color: colors.forest, fontWeight: '700' },
+  label: { color: colors.primary, fontWeight: '700' },
   remove: { color: colors.error, fontWeight: '700' },
 });

@@ -6,27 +6,19 @@ export function IconButton({
   label,
   onPress,
   icon,
-  light = false,
 }: {
   label: string;
   onPress: () => void;
   icon: ReactNode;
-  light?: boolean;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.iconButton,
-        light && styles.lightIconButton,
-        pressed && styles.pressed,
-      ]}
+      style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}
     >
       {icon}
     </Pressable>
   );
 }
-
-

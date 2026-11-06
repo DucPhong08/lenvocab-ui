@@ -64,7 +64,7 @@ export function CardImage({
         onError={() => {
           refresh().catch(() => {});
         }}
-        style={styles[variant]}
+        style={[styles[variant], isSticker && styles.stickerBackground]}
       />
     );
   return (
@@ -95,6 +95,7 @@ export function CardImage({
 
 const styles = StyleSheet.create({
   tile: { width: '100%', height: '100%' },
+  stickerBackground: { backgroundColor: colors.surfaceMuted, borderRadius: 14 },
   sticker: { width: '100%', height: 150 },
   thumbnail: { width: 44, height: 44, borderRadius: 13 },
   detail: { width: '100%', height: 210, borderRadius: 18 },
@@ -102,9 +103,9 @@ const styles = StyleSheet.create({
   placeholder: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.pale,
+    backgroundColor: colors.surfaceMuted,
   },
-  initial: { fontSize: 22, fontWeight: '800', color: colors.forest },
+  initial: { fontSize: 22, fontWeight: '800', color: colors.primary },
   caption: {
     color: colors.muted,
     fontSize: 13,

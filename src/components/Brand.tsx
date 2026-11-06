@@ -7,12 +7,11 @@ export function Brand() {
   return (
     <View style={styles.brand}>
       <View style={styles.brandMark}>
-        <Sparkles size={18} color={colors.forest} strokeWidth={2.5} />
+        <Sparkles size={18} color={colors.primary} strokeWidth={2.5} />
       </View>
       <Text style={styles.brandText}>
-        lenvocab<Text style={{ color: colors.success }}>.</Text>
+        lenvocab<Text style={{ color: colors.primary }}>.</Text>
       </Text>
     </View>
   );
 }
-

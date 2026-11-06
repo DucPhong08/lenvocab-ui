@@ -1,11 +1,5 @@
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import {
-  Camera,
-  Clock3,
-  ImagePlus,
-  RotateCcw,
-  Sparkles,
-} from 'lucide-react-native';
+import { Camera, Clock3, ImagePlus, RotateCcw } from 'lucide-react-native';
 import { IconButton } from '@/components/IconButton';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
@@ -40,12 +34,11 @@ export function CameraScreen({
           <IconButton
             label="Lịch sử quét"
             onPress={() => navigate('history')}
-            icon={<Clock3 size={20} color={colors.ink} />}
+            icon={<Clock3 size={20} color={colors.text} />}
           />
         }
       />
       <ScreenTitle
-        kicker="Chụp · Chọn vật · Lưu thẻ"
         title={imageUri ? 'Ảnh đã sẵn sàng' : 'Bạn muốn học vật gì?'}
         subtitle={
           imageUri
@@ -65,14 +58,6 @@ export function CameraScreen({
             {imageUri ? 'ẢNH CỦA BẠN' : 'CẢNH MẪU'}
           </Text>
         </View>
-        <View style={styles.cameraHint}>
-          <Sparkles size={16} color={colors.surface} />
-          <Text style={styles.cameraHintText}>
-            {imageUri
-              ? 'Bước tiếp theo: chọn vật bạn muốn học'
-              : 'Cảnh mẫu để xem thử, không tốn lượt quét'}
-          </Text>
-        </View>
       </View>
       <View style={styles.captureRow}>
         <Pressable
@@ -83,7 +68,7 @@ export function CameraScreen({
           onPress={() => pickImage('library')}
           style={styles.captureSide}
         >
-          <ImagePlus size={23} color={colors.forest} />
+          <ImagePlus size={23} color={colors.primary} />
           <Text style={styles.captureLabel}>Thư viện</Text>
         </Pressable>
         <Pressable
@@ -94,7 +79,7 @@ export function CameraScreen({
           onPress={() => pickImage('camera')}
           style={styles.shutter}
         >
-          <Camera size={28} color={colors.surface} />
+          <Camera size={28} color={colors.onPrimary} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -104,7 +89,7 @@ export function CameraScreen({
           onPress={() => selectImage(null)}
           style={styles.captureSide}
         >
-          <RotateCcw size={22} color={colors.forest} />
+          <RotateCcw size={22} color={colors.primary} />
           <Text style={styles.captureLabel}>Ảnh mẫu</Text>
         </Pressable>
       </View>

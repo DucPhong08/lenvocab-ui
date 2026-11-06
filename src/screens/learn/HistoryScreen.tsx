@@ -19,7 +19,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
         subtitle="Ảnh đã khám phá trong lần mở ứng dụng này. Hãy lưu thẻ để giữ lại từ lâu dài."
       />
       <View style={styles.countCard}>
-        <BookOpen size={22} color={colors.forest} />
+        <BookOpen size={22} color={colors.primary} />
         <Text style={styles.countText}>{history.length} lần quét</Text>
       </View>
       <SectionHeader kicker="GẦN ĐÂY" title="Lịch sử phiên này" />

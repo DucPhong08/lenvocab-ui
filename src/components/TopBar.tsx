@@ -19,11 +19,10 @@ export function TopBar({
       <IconButton
         label="Quay lại"
         onPress={onBack}
-        icon={<ArrowLeft size={21} color={colors.ink} />}
+        icon={<ArrowLeft size={21} color={colors.text} />}
       />
       <Text style={styles.topBarTitle}>{title}</Text>
       <View style={styles.topBarEnd}>{action}</View>
     </View>
   );
 }
-

@@ -95,9 +95,9 @@ export function SavedScreen({
               }}
             >
               {searchOpen ? (
-                <X size={22} color={colors.forest} />
+                <X size={22} color={colors.primary} />
               ) : (
-                <Search size={22} color={colors.forest} />
+                <Search size={22} color={colors.primary} />
               )}
             </Pressable>
           </View>
@@ -108,7 +108,7 @@ export function SavedScreen({
                 <TextInput
                   accessibilityLabel="Tìm từ vựng"
                   placeholder="Tìm từ hoặc nghĩa"
-                  placeholderTextColor={colors.subtle}
+                  placeholderTextColor={colors.muted}
                   value={query}
                   onChangeText={setQuery}
                   returnKeyType="search"

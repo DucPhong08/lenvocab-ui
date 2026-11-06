@@ -127,7 +127,7 @@ export function ResultsScreen({
       </View>
       <View style={styles.resultInfo}>
         <View style={styles.resultInfoIcon}>
-          <Sparkles size={21} color={colors.forest} />
+          <Sparkles size={21} color={colors.primary} />
         </View>
         <View style={styles.fill}>
           <Text style={styles.resultInfoTitle}>
@@ -139,7 +139,7 @@ export function ResultsScreen({
         </View>
       </View>
       <View style={styles.notice}>
-        <Lightbulb size={18} color={colors.forest} />
+        <Lightbulb size={18} color={colors.primary} />
         <Text style={styles.noticeText}>
           {scanResult
             ? `Từ chính được nhận diện: ${scanResult.keyword}. Lưu thẻ để giữ lại từ và ảnh của bạn.`

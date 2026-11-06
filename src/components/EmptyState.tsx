@@ -21,9 +21,9 @@ export function EmptyState({
     <View accessibilityState={{ busy: loading }} style={styles.empty}>
       <View style={styles.emptyIcon}>
         {loading ? (
-          <ActivityIndicator color={colors.forest} />
+          <ActivityIndicator color={colors.primary} />
         ) : (
-          <BookOpen size={28} color={colors.forest} />
+          <BookOpen size={28} color={colors.primary} />
         )}
       </View>
       <Text style={styles.emptyTitle}>{title}</Text>

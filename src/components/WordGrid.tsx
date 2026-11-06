@@ -64,13 +64,13 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.75 },
   image: {
     height: 112,
-    backgroundColor: colors.forest,
+    backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
   },
-  initial: { color: colors.lime, fontWeight: '800', fontSize: 44 },
+  initial: { color: colors.primary, fontWeight: '800', fontSize: 44 },
   copy: { padding: 10, gap: 5 },
-  term: { color: colors.ink, fontWeight: '800', fontSize: 15 },
+  term: { color: colors.text, fontWeight: '800', fontSize: 15 },
   meaning: { color: colors.muted, fontSize: 13 },
 });

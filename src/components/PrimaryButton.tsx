@@ -45,7 +45,7 @@ export function PrimaryButton({
       {icon ?? (
         <ArrowRight
           size={19}
-          color={variant === 'primary' ? colors.surface : colors.forest}
+          color={variant === 'primary' ? colors.onPrimary : colors.primary}
         />
       )}
     </Pressable>

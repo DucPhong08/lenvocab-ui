@@ -296,7 +296,7 @@ export function AppContent() {
     return (
       <SafeAreaView style={styles.loading}>
         <ActivityIndicator
-          color={colors.forest}
+          color={colors.primary}
           accessibilityLabel="Đang tải phiên đăng nhập"
         />
       </SafeAreaView>

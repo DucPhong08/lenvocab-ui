@@ -63,7 +63,6 @@ export function ReviewScreen({
       >
         <PrimaryButton
           label={done ? 'Hôm nay chưa cần ôn' : `Ôn nhanh ${count} từ`}
-          variant="secondary"
           disabled={done}
           onPress={() => navigate('flashcards')}
         />

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import {
   Bookmark,
@@ -88,17 +89,17 @@ export function ProfileScreen({
       <View style={styles.menu}>
         <MenuItem
           label="Từ vựng đã lưu"
-          icon={<Bookmark size={19} color={colors.forest} />}
+          icon={<Bookmark size={19} color={colors.primary} />}
           onPress={() => navigate('saved')}
         />
         <MenuItem
           label="Lịch sử quét"
-          icon={<Clock3 size={19} color={colors.forest} />}
+          icon={<Clock3 size={19} color={colors.primary} />}
           onPress={() => navigate('history')}
         />
         <MenuItem
           label="Giới thiệu ứng dụng"
-          icon={<Sparkles size={19} color={colors.forest} />}
+          icon={<Sparkles size={19} color={colors.primary} />}
           onPress={() => navigate('onboarding')}
         />
       </View>
@@ -107,17 +108,11 @@ export function ProfileScreen({
         <>
           <Eyebrow>Tùy chọn học tập</Eyebrow>
           <View style={styles.menu}>
-            <View style={styles.menuItem}>
-              <View style={styles.menuIcon}>
-                <Headphones size={19} color={colors.forest} />
-              </View>
-              <View style={styles.fill}>
-                <Text style={styles.menuText}>Giọng phát âm chuẩn</Text>
-                <Text style={styles.menuHint}>
-                  {prefs?.preferred_voice_id ?? 'Joanna'}
-                </Text>
-              </View>
-            </View>
+            <SettingRow
+              icon={<Headphones size={19} color={colors.primary} />}
+              label="Giọng phát âm chuẩn"
+              description={prefs?.preferred_voice_id ?? 'Joanna'}
+            />
 
             <View style={styles.menuItem}>
               <View style={styles.fill}>
@@ -153,30 +148,16 @@ export function ProfileScreen({
                 </View>
               </View>
             </View>
-            <View style={styles.menuItem}>
-              <View style={styles.menuIcon}>
-                <Target size={19} color={colors.forest} />
-              </View>
-              <View style={styles.fill}>
-                <Text style={styles.menuText}>Mục tiêu ôn mỗi ngày</Text>
-                <Text style={styles.menuHint}>
-                  {prefs?.daily_review_goal ?? 15} từ/ngày
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.menuItem}>
-              <View style={styles.menuIcon}>
-                <Gauge size={19} color={colors.forest} />
-              </View>
-              <View style={styles.fill}>
-                <Text style={styles.menuText}>Hạn mức quét ảnh</Text>
-                <Text style={styles.menuHint}>
-                  {user.daily_quota_left} lượt còn lại hôm nay (Gói{' '}
-                  {user.account_tier})
-                </Text>
-              </View>
-            </View>
+            <SettingRow
+              icon={<Target size={19} color={colors.primary} />}
+              label="Mục tiêu ôn mỗi ngày"
+              description={`${prefs?.daily_review_goal ?? 15} từ/ngày`}
+            />
+            <SettingRow
+              icon={<Gauge size={19} color={colors.primary} />}
+              label="Hạn mức quét ảnh"
+              description={`${user.daily_quota_left} lượt còn lại hôm nay (Gói ${user.account_tier})`}
+            />
           </View>
         </>
       )}
@@ -218,5 +199,25 @@ export function ProfileScreen({
         </Text>
       </View>
     </>
+  );
+}
+
+function SettingRow({
+  icon,
+  label,
+  description,
+}: {
+  icon: ReactNode;
+  label: string;
+  description: string;
+}) {
+  return (
+    <View style={styles.menuItem}>
+      <View style={styles.menuIcon}>{icon}</View>
+      <View style={styles.fill}>
+        <Text style={styles.menuText}>{label}</Text>
+        <Text style={styles.menuHint}>{description}</Text>
+      </View>
+    </View>
   );
 }

@@ -83,7 +83,7 @@ export function QuizScreen({
         <TopBar title="Kết quả Quiz" onBack={() => navigate('review')} />
         <View style={styles.finish}>
           <View style={styles.finishIcon}>
-            <Sparkles size={32} color={colors.forest} />
+            <Sparkles size={32} color={colors.primary} />
           </View>
           <Eyebrow>HOÀN THÀNH RỒI</Eyebrow>
           <Text style={styles.finishTitle}>Bạn làm tốt lắm!</Text>
@@ -141,7 +141,6 @@ export function QuizScreen({
             <AudioButton
               label="Nghe phát âm từ"
               onPress={() => play(word.audio, word.userFlashcardId)}
-              light
             />
           )}
         </View>
