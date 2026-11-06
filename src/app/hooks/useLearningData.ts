@@ -10,6 +10,7 @@ import type {
   FlashcardPage,
   SubmitReviewResponse,
 } from '@/api/contracts';
+import { errorMessage } from '@/utils/errorMessage';
 
 export function useLearningData(
   token: string | null,
@@ -192,12 +193,9 @@ export function useLearningData(
     loadMoreCards,
     applyReview,
     applyCard,
-    dataError:
-      error instanceof Error
-        ? error.message
-        : error
-        ? 'Không thể tải dữ liệu học tập.'
-        : null,
+    dataError: error
+      ? errorMessage(error, 'Không thể tải dữ liệu học tập.')
+      : null,
     due: dueQuery.data ?? [],
     loadingData:
       userQuery.isLoading || cardsQuery.isLoading || dueQuery.isLoading,

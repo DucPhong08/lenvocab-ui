@@ -72,16 +72,16 @@ test('keeps the timeout active while reading the response body', async () => {
     } as Response),
   ) as typeof fetch;
   try {
-    const pending = request('/health');
-    const assertion = expect(pending).rejects.toEqual(
-      expect.objectContaining<ApiError>({
-        name: 'ApiError',
-        message: 'Máy chủ phản hồi quá lâu. Vui lòng thử lại.',
-        status: 0,
-      }),
-    );
-    await jest.advanceTimersByTimeAsync(45000);
-    await assertion;
+    await Promise.all([
+      expect(request('/health')).rejects.toEqual(
+        expect.objectContaining<ApiError>({
+          name: 'ApiError',
+          message: 'Máy chủ phản hồi quá lâu. Vui lòng thử lại.',
+          status: 0,
+        }),
+      ),
+      jest.advanceTimersByTimeAsync(45000),
+    ]);
   } finally {
     jest.useRealTimers();
     globalThis.fetch = previousFetch;

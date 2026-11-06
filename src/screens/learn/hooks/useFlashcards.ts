@@ -5,6 +5,7 @@ import { cardWord } from '@/api/mappers/cardWord';
 import { SESSION_SIZE } from '@/data/study';
 import { allWords } from '@/data/scenes';
 import type { ScreenProps } from '@/types/screen';
+import { errorMessage } from '@/utils/errorMessage';
 
 export function useFlashcards({
   due,
@@ -57,9 +58,7 @@ export function useFlashcards({
           /[xy]/g,
           character => {
             const value = Math.floor(Math.random() * 16);
-            return (character === 'x' ? value : (value & 0x3) | 0x8).toString(
-              16,
-            );
+            return (character === 'x' ? value : 8 + (value % 4)).toString(16);
           },
         ),
         quality,
@@ -73,10 +72,7 @@ export function useFlashcards({
       setFlipped(false);
       setIndex(value => value + 1);
     } catch (error) {
-      Alert.alert(
-        'Không thể ghi nhận lần ôn',
-        error instanceof Error ? error.message : 'Vui lòng thử lại.',
-      );
+      Alert.alert('Không thể ghi nhận lần ôn', errorMessage(error));
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

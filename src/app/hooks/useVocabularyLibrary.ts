@@ -8,6 +8,7 @@ import { cardWord } from '@/api/mappers/cardWord';
 import { scanWord } from '@/api/mappers/scanWord';
 import { getWord } from '@/data/getWord';
 import type { Word } from '@/data/scenes';
+import { errorMessage } from '@/utils/errorMessage';
 
 type UseVocabularyLibraryOptions = {
   cards: Flashcard[];
@@ -88,15 +89,9 @@ export function useVocabularyLibrary({
       if (confirmedCard) return cardWord(confirmedCard);
       return { ...scanWord(scanResult), imageUrl: imageUri ?? null };
     }
-    const locallySaved = ownedSelections.find(
-      item => item.card.user_flashcard_id === id,
-    )?.card;
-    if (locallySaved)
-      return cardWord(
-        cards.find(item => item.user_flashcard_id === id) ?? locallySaved,
-      );
     const card =
       cards.find(item => item.user_flashcard_id === id) ??
+      ownedSelections.find(item => item.card.user_flashcard_id === id)?.card ??
       due.find(item => item.user_flashcard_id === id);
     return card ? cardWord(card) : getWord(id);
   };
@@ -147,8 +142,7 @@ export function useVocabularyLibrary({
               await onUnauthorized();
               return;
             }
-            imageError =
-              error instanceof Error ? error.message : 'Vui lòng thử lại.';
+            imageError = errorMessage(error);
           }
         }
         if (currentToken.current !== requestToken) return;
@@ -194,10 +188,7 @@ export function useVocabularyLibrary({
           await onUnauthorized();
           return;
         }
-        Alert.alert(
-          'Không thể lưu từ',
-          error instanceof Error ? error.message : 'Thử lại sau.',
-        );
+        Alert.alert('Không thể lưu từ', errorMessage(error, 'Thử lại sau.'));
       } finally {
         savingRequest.current = false;
         setSaving(false);

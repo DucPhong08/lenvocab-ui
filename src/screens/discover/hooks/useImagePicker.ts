@@ -5,6 +5,7 @@ import {
   launchImageLibrary,
   type Asset,
 } from 'react-native-image-picker';
+import { PHOTO_OPTIONS, MAX_IMAGE_BYTES } from '@/services/images/options';
 
 export function useImagePicker(selectImage: (asset: Asset | null) => void) {
   return useCallback(
@@ -13,18 +14,12 @@ export function useImagePicker(selectImage: (asset: Asset | null) => void) {
         const result =
           source === 'camera'
             ? await launchCamera({
-                mediaType: 'photo',
-                quality: 0.8,
-                maxWidth: 1600,
-                maxHeight: 1600,
+                ...PHOTO_OPTIONS,
                 saveToPhotos: false,
               })
             : await launchImageLibrary({
-                mediaType: 'photo',
+                ...PHOTO_OPTIONS,
                 selectionLimit: 1,
-                quality: 0.8,
-                maxWidth: 1600,
-                maxHeight: 1600,
               });
 
         if (result.didCancel) return;
@@ -47,7 +42,7 @@ export function useImagePicker(selectImage: (asset: Asset | null) => void) {
           );
           return;
         }
-        if (picked?.fileSize && picked.fileSize > 5 * 1024 * 1024) {
+        if (picked?.fileSize && picked.fileSize > MAX_IMAGE_BYTES) {
           Alert.alert('Ảnh quá lớn', 'Hãy chọn ảnh JPG/PNG không quá 5 MB.');
           return;
         }

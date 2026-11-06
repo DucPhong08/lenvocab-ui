@@ -3,6 +3,7 @@ import ImageEditor from '@react-native-community/image-editor';
 import RNFS from 'react-native-fs';
 import type { Asset } from 'react-native-image-picker';
 import type { Box } from '@/api/contracts';
+import { MAX_IMAGE_BYTES } from '@/services/images/options';
 
 // Read only bounded JPEG metadata. Mirrored/unknown EXIF and PNG keep the
 // established server crop path rather than risk selecting a different object.
@@ -90,7 +91,7 @@ export async function prepareCardImage(asset: Asset, crop?: Box | null) {
       quality: 0.9,
     });
     path = photo.path;
-    if (photo.size > 5 * 1024 * 1024) throw new Error('Ảnh quá lớn.');
+    if (photo.size > MAX_IMAGE_BYTES) throw new Error('Ảnh quá lớn.');
     return {
       asset: {
         uri: photo.uri,

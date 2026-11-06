@@ -5,6 +5,7 @@ import { getCardAudio } from '@/api/endpoints/getCardAudio';
 import { AudioContext } from './audioContext';
 import RNFS from 'react-native-fs';
 import Sound from 'react-native-sound';
+import { errorMessage } from '@/utils/errorMessage';
 
 try {
   Sound.setCategory('Playback');
@@ -129,7 +130,7 @@ export function useAudio() {
         }
         Alert.alert(
           'Không thể phát âm thanh',
-          cause instanceof Error ? cause.message : 'Vui lòng thử lại.',
+          errorMessage(cause, 'Vui lòng thử lại.'),
         );
         if (fileRef.current) {
           RNFS.unlink(fileRef.current).catch(() => {});

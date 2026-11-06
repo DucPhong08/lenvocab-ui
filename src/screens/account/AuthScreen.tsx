@@ -6,6 +6,7 @@ import { TopBar } from '@/components/TopBar';
 import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { useAuthForm } from './hooks/useAuthForm';
+import { errorMessage } from '@/utils/errorMessage';
 import { styles } from './styles';
 
 export function AuthScreen({
@@ -158,11 +159,7 @@ export function AuthScreen({
         onPress={() => {
           setError('');
           onGoogleAuth().catch(cause =>
-            setError(
-              cause instanceof Error
-                ? cause.message
-                : 'Chưa thể đăng nhập Google.',
-            ),
+            setError(errorMessage(cause, 'Chưa thể đăng nhập Google.')),
           );
         }}
       />

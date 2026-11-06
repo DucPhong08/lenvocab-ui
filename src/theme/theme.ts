@@ -14,14 +14,6 @@ export const colors = {
   warning: '#946132',
 };
 
-export const shadow = {
-  shadowColor: '#244534',
-  shadowOpacity: 0.08,
-  shadowRadius: 18,
-  shadowOffset: { width: 0, height: 7 },
-  elevation: 3,
-} as const;
-
 export const layout = {
   page: {
     width: '100%',

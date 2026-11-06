@@ -1,3 +1,4 @@
+import { errorMessage } from '@/utils/errorMessage';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -9,6 +10,7 @@ import {
 } from '@/api/endpoints/cardImage';
 import { CardImage } from './CardImage';
 import { colors } from '@/theme/theme';
+import { PHOTO_OPTIONS } from '@/services/images/options';
 
 export function CardPhoto({
   cardId,
@@ -62,10 +64,7 @@ export function CardPhoto({
       if (remove) result = await deleteCardImage(token, cardId);
       else {
         const picked = await launchImageLibrary({
-          mediaType: 'photo',
-          maxWidth: 1600,
-          maxHeight: 1600,
-          quality: 0.8,
+          ...PHOTO_OPTIONS,
         });
         if (picked.didCancel || version !== generation.current) return;
         const asset = picked.assets?.[0];
@@ -88,11 +87,7 @@ export function CardPhoto({
       if (version !== generation.current) return;
       if (error instanceof ApiError && error.status === 401)
         await onUnauthorized();
-      else
-        Alert.alert(
-          'Chưa cập nhật được ảnh',
-          error instanceof Error ? error.message : 'Vui lòng thử lại.',
-        );
+      else Alert.alert('Chưa cập nhật được ảnh', errorMessage(error));
     } finally {
       locked.current = false;
       setBusy(false);

@@ -31,6 +31,7 @@ import { useLearningData } from './hooks/useLearningData';
 import { useScanFlow } from './hooks/useScanFlow';
 import { useSession } from './hooks/useSession';
 import { useVocabularyLibrary } from './hooks/useVocabularyLibrary';
+import { errorMessage } from '@/utils/errorMessage';
 import { styles } from './styles';
 
 export function AppContent() {
@@ -215,11 +216,7 @@ export function AppContent() {
       if (currentToken.current !== requestToken) return;
       if (error instanceof ApiError && error.status === 401)
         await logoutSession();
-      else
-        Alert.alert(
-          'Chưa đổi được tốc độ đọc',
-          error instanceof Error ? error.message : 'Vui lòng thử lại.',
-        );
+      else Alert.alert('Chưa đổi được tốc độ đọc', errorMessage(error));
     } finally {
       setPreferencesBusy(false);
     }
@@ -243,11 +240,7 @@ export function AppContent() {
       if (currentToken.current !== requestToken) return;
       if (error instanceof ApiError && error.status === 401)
         await logoutSession();
-      else
-        Alert.alert(
-          'Chưa liên kết được Google',
-          error instanceof Error ? error.message : 'Vui lòng thử lại.',
-        );
+      else Alert.alert('Chưa liên kết được Google', errorMessage(error));
     } finally {
       setGoogleLinkBusy(false);
     }

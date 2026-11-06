@@ -2,6 +2,7 @@ import type { Asset } from 'react-native-image-picker';
 import { ApiError } from '@/api/client/ApiError';
 import { request } from '@/api/client/request';
 import type { ScanResult } from '@/api/contracts';
+import { MAX_IMAGE_BYTES } from '@/services/images/options';
 
 export function scanImage(token: string | null, asset: Asset) {
   if (!asset.uri) {
@@ -10,7 +11,7 @@ export function scanImage(token: string | null, asset: Asset) {
   if (asset.type && !['image/jpeg', 'image/png'].includes(asset.type)) {
     throw new ApiError('Chỉ hỗ trợ ảnh JPG hoặc PNG.', 0);
   }
-  if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
+  if (asset.fileSize && asset.fileSize > MAX_IMAGE_BYTES) {
     throw new ApiError('Ảnh vượt quá 5 MB. Hãy chọn ảnh nhỏ hơn.', 0);
   }
 

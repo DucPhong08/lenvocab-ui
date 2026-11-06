@@ -5,17 +5,7 @@ import { SavedScreen } from '@/screens/learn/SavedScreen';
 import type { ScreenProps } from '@/types/screen';
 import type { Flashcard } from '@/api/contracts';
 
-jest.mock('lucide-react-native', () => {
-  const { View } = require('react-native');
-  const mockReact = require('react');
-  return new Proxy(
-    {},
-    {
-      get: (_target, key) =>
-        key === '__esModule' ? true : () => mockReact.createElement(View),
-    },
-  );
-});
+jest.mock('lucide-react-native');
 jest.mock('@/components/WordGrid', () => ({
   WordGrid: ({ words }: { words: { term: string }[] }) => {
     const mockReact = require('react');

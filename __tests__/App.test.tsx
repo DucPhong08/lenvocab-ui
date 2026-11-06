@@ -8,17 +8,7 @@ import { confirmFlashcard } from '@/api/endpoints/confirmFlashcard';
 import { gradeReview } from '@/api/endpoints/gradeReview';
 import { scanImage } from '@/api/endpoints/scanImage';
 
-jest.mock('lucide-react-native', () => {
-  const { View } = require('react-native');
-  const mockReact = require('react');
-  return new Proxy(
-    {},
-    {
-      get: (_target, name) =>
-        name === '__esModule' ? true : () => mockReact.createElement(View),
-    },
-  );
-});
+jest.mock('lucide-react-native');
 jest.mock('react-native-keychain', () => ({
   getGenericPassword: jest.fn().mockResolvedValue(false),
   setGenericPassword: jest.fn().mockResolvedValue(true),

@@ -12,6 +12,7 @@ import { sceneImage } from '@/theme/sceneImage';
 import { colors } from '@/theme/theme';
 import { useAudio } from '@/hooks/useAudio';
 import type { ScreenProps } from '@/types/screen';
+import { isWordSaved } from '@/data/isWordSaved';
 import { styles } from './styles';
 
 export function WordScreen({
@@ -35,16 +36,7 @@ export function WordScreen({
   const word = wordForId(wordId);
   const scene = getScene(word.scene);
   const { play } = useAudio();
-  const isSaved =
-    saved.includes(word.id) ||
-    !!(
-      scanResult &&
-      word.id.startsWith('scan:') &&
-      cards.some(
-        card =>
-          card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase(),
-      )
-    );
+  const isSaved = isWordSaved(word.id, { saved, cards, scanResult });
   const isScan = wordId.startsWith('scan:') && !!scanResult;
   const isSample = !isScan && !word.userFlashcardId;
   const canUpdateSticker = isScan && isSaved && !currentScanSaved;

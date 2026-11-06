@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ScreenProps } from '@/types/screen';
+import { errorMessage } from '@/utils/errorMessage';
 
 export function useAuthForm(onAuth: ScreenProps['onAuth']) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -46,11 +47,7 @@ export function useAuthForm(onAuth: ScreenProps['onAuth']) {
     try {
       await onAuth(mode, username, password, name, email);
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : 'Không thể đăng nhập. Vui lòng thử lại.',
-      );
+      setError(errorMessage(cause, 'Không thể đăng nhập. Vui lòng thử lại.'));
     }
   };
   return {

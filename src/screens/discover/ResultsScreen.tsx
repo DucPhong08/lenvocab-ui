@@ -12,6 +12,7 @@ import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
 import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
+import { isWordSaved } from '@/data/isWordSaved';
 import { styles } from './styles';
 
 export function ResultsScreen({
@@ -35,15 +36,7 @@ export function ResultsScreen({
   const scanId = scanResult ? scanWord(scanResult).id : null;
   const words = scanId ? [wordForId(scanId)] : scene.words;
   const isStored = (id: string) =>
-    saved.includes(id) ||
-    !!(
-      scanResult &&
-      id.startsWith('scan:') &&
-      cards.some(
-        card =>
-          card.keyword.toLowerCase() === scanResult.keyword?.toLowerCase(),
-      )
-    );
+    isWordSaved(id, { saved, cards, scanResult });
   const unsaved = words.filter(word => !isStored(word.id));
   const choices =
     scanResult?.detected_objects.filter(
@@ -180,11 +173,9 @@ export function ResultsScreen({
             ? 'Chọn ảnh thật để tạo thẻ'
             : !user
             ? 'Đăng nhập để lưu từ'
-            : scanResult
-            ? unsaved.length
-              ? 'Lưu từ vào tài khoản'
-              : 'Xem từ đã lưu'
-            : 'Chọn ảnh thật để quét AI'
+            : unsaved.length
+            ? 'Lưu từ vào tài khoản'
+            : 'Xem từ đã lưu'
         }
         disabled={saving}
         onPress={() => {

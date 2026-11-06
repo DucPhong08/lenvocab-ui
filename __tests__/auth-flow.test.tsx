@@ -14,17 +14,7 @@ jest.mock('@react-native-community/image-editor', () => ({
 }));
 jest.mock('@/services/auth/googleSignIn', () => ({ googleIdToken: jest.fn() }));
 
-jest.mock('lucide-react-native', () => {
-  const { View } = require('react-native');
-  const mockReact = require('react');
-  return new Proxy(
-    {},
-    {
-      get: (_target, name) =>
-        name === '__esModule' ? true : () => mockReact.createElement(View),
-    },
-  );
-});
+jest.mock('lucide-react-native');
 jest.mock('react-native-keychain', () => ({
   getGenericPassword: jest.fn().mockResolvedValue(false),
   setGenericPassword: jest.fn().mockResolvedValue(true),

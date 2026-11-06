@@ -5,6 +5,7 @@ import { ApiError } from '@/api/client/ApiError';
 import type { DetectedObject, ScanResult } from '@/api/contracts';
 import { scanImage, selectScanObject } from '@/api/endpoints/scanImage';
 import type { ScanEntry, Screen } from '@/types/screen';
+import { errorMessage } from '@/utils/errorMessage';
 
 type UseScanFlowOptions = {
   navigate: (screen: Screen) => void;
@@ -48,22 +49,23 @@ export function useScanFlow({
   const previousToken = useRef(token);
   currentToken.current = token;
 
-  useEffect(() => {
-    if (previousToken.current !== token) {
-      selections.current.clear();
-      generation.current += 1;
-      selecting.current = false;
-      setSelectingObject(false);
-      setScanning(false);
-    }
-    previousToken.current = token;
-  }, [token]);
-
-  const selectImage = (picked: Asset | null) => {
+  const resetSelection = useCallback(() => {
     selections.current.clear();
     generation.current += 1;
     selecting.current = false;
     setSelectingObject(false);
+  }, []);
+
+  useEffect(() => {
+    if (previousToken.current !== token) {
+      resetSelection();
+      setScanning(false);
+    }
+    previousToken.current = token;
+  }, [token, resetSelection]);
+
+  const selectImage = (picked: Asset | null) => {
+    resetSelection();
     setScanning(false);
     setAsset(picked);
     setImageUri(picked?.uri ?? null);
@@ -81,14 +83,12 @@ export function useScanFlow({
     selections.current.clear();
     const requestToken = token;
     const version = ++generation.current;
+    const isCurrent = () =>
+      currentToken.current === requestToken && version === generation.current;
     setScanning(true);
     try {
       const result = await scanImage(token, asset);
-      if (
-        currentToken.current !== requestToken ||
-        version !== generation.current
-      )
-        return;
+      if (!isCurrent()) return;
       if (result.status === 'AI_COULD_NOT_RECOGNIZE' || !result.keyword) {
         Alert.alert(
           'Chưa nhận diện được',
@@ -113,25 +113,14 @@ export function useScanFlow({
       ]);
       navigate('results');
     } catch (error) {
-      if (
-        currentToken.current !== requestToken ||
-        version !== generation.current
-      )
-        return;
+      if (!isCurrent()) return;
       if (error instanceof ApiError && error.status === 401) {
         await onUnauthorized();
         return;
       }
-      Alert.alert(
-        'Không thể quét ảnh',
-        error instanceof Error ? error.message : 'Vui lòng thử lại.',
-      );
+      Alert.alert('Không thể quét ảnh', errorMessage(error));
     } finally {
-      if (
-        currentToken.current === requestToken &&
-        version === generation.current
-      )
-        setScanning(false);
+      if (isCurrent()) setScanning(false);
     }
   };
 
@@ -158,31 +147,21 @@ export function useScanFlow({
     const version = ++generation.current;
     const requestToken = token;
     const original = scanResult;
+    const isCurrent = () =>
+      currentToken.current === requestToken && version === generation.current;
     try {
       const selected = await selectScanObject(token, item.selection_token);
-      if (
-        version !== generation.current ||
-        currentToken.current !== requestToken
-      )
-        return;
+      if (!isCurrent()) return;
       remember(selected);
       setScanResult({
         ...selected,
         detected_objects: original.detected_objects,
       });
     } catch (error) {
-      if (
-        version !== generation.current ||
-        currentToken.current !== requestToken
-      )
-        return;
+      if (!isCurrent()) return;
       if (error instanceof ApiError && error.status === 401)
         await onUnauthorized();
-      else
-        Alert.alert(
-          'Chưa chọn được vật',
-          error instanceof Error ? error.message : 'Vui lòng thử lại.',
-        );
+      else Alert.alert('Chưa chọn được vật', errorMessage(error));
     } finally {
       if (version === generation.current) {
         selecting.current = false;
@@ -192,12 +171,9 @@ export function useScanFlow({
   };
 
   const openHistory = (entry: ScanEntry) => {
-    selections.current.clear();
+    resetSelection();
     if (entry.result && Date.now() - entry.timestamp < 5 * 60_000)
       remember(entry.result, entry.timestamp);
-    generation.current += 1;
-    selecting.current = false;
-    setSelectingObject(false);
     setSceneId(entry.sceneId);
     setImageUri(entry.imageUri ?? null);
     setScanResult(entry.result ?? null);
@@ -205,16 +181,13 @@ export function useScanFlow({
   };
 
   const resetScan = useCallback(() => {
-    selections.current.clear();
-    generation.current += 1;
-    selecting.current = false;
-    setSelectingObject(false);
+    resetSelection();
     setAsset(null);
     setHistory([]);
     setImageUri(null);
     setScanResult(null);
     setScanning(false);
-  }, []);
+  }, [resetSelection]);
 
   return {
     history,
