@@ -9,11 +9,10 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { TopBar } from '@/components/TopBar';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
-import { colors } from '@/theme/theme';
 import { useAudio } from '@/hooks/useAudio';
 import type { ScreenProps } from '@/types/screen';
 import { isWordSaved } from '@/data/isWordSaved';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function WordScreen({
   navigate,
@@ -33,6 +32,7 @@ export function WordScreen({
   selectImage,
   currentScanSaved = false,
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const word = wordForId(wordId);
   const scene = getScene(word.scene);
   const { play } = useAudio();
@@ -49,7 +49,7 @@ export function WordScreen({
           isSaved ? (
             <Bookmark
               size={21}
-              color={colors.primary}
+              color={colors.primaryText}
               fill={colors.highlight}
             />
           ) : undefined
@@ -123,7 +123,7 @@ export function WordScreen({
       <View style={styles.detailBlock}>
         <Eyebrow>GHI NHỚ NHANH</Eyebrow>
         <View style={styles.tip}>
-          <Lightbulb size={20} color={colors.primary} />
+          <Lightbulb size={20} color={colors.primaryText} />
           <Text style={styles.tipText}>{word.note}</Text>
         </View>
       </View>
@@ -145,7 +145,7 @@ export function WordScreen({
               <Text style={styles.sourceTitle}>{scene.title}</Text>
               <Text style={styles.sourceCaption}>{scene.category}</Text>
             </View>
-            <ArrowRight size={18} color={colors.primary} />
+            <ArrowRight size={18} color={colors.primaryText} />
           </Pressable>
         </View>
       )}

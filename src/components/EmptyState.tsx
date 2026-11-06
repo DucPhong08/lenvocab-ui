@@ -1,8 +1,7 @@
 import { ActivityIndicator, Text, View } from 'react-native';
 import { BookOpen } from 'lucide-react-native';
 import { PrimaryButton } from './PrimaryButton';
-import { styles } from './styles/content.styles';
-import { colors } from '@/theme/theme';
+import { useStyles } from './styles/content.styles';
 
 export function EmptyState({
   title,
@@ -17,13 +16,14 @@ export function EmptyState({
   action?: string;
   loading?: boolean;
 }) {
+  const { styles, colors } = useStyles();
   return (
     <View accessibilityState={{ busy: loading }} style={styles.empty}>
       <View style={styles.emptyIcon}>
         {loading ? (
-          <ActivityIndicator color={colors.primary} />
+          <ActivityIndicator color={colors.primaryText} />
         ) : (
-          <BookOpen size={28} color={colors.primary} />
+          <BookOpen size={28} color={colors.primaryText} />
         )}
       </View>
       <Text style={styles.emptyTitle}>{title}</Text>

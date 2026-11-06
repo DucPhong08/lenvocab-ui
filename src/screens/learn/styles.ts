@@ -1,7 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { createStyles } from '@/theme/styles';
 
-export const styles = StyleSheet.create({
+export const useStyles = createStyles(({ colors, font }) => ({
   libraryTop: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -22,14 +21,14 @@ export const styles = StyleSheet.create({
   answerInk: { color: colors.text },
   answerMeaning: {
     color: colors.text,
-    fontWeight: '800',
-    fontSize: 26,
+    fontWeight: font.weight.heavy,
+    fontSize: font.size.meaning,
     textAlign: 'center',
   },
   answerExample: {
     color: colors.text,
-    fontSize: 17,
-    lineHeight: 26,
+    fontSize: font.size.reading,
+    lineHeight: font.line.reading,
     textAlign: 'center',
   },
   fill: { flex: 1 },
@@ -48,9 +47,9 @@ export const styles = StyleSheet.create({
   },
   gradeDisabled: { opacity: 0.45 },
   gradeText: {
-    color: colors.primary,
-    fontSize: 13,
-    fontWeight: '700',
+    color: colors.primaryText,
+    ...font.action,
+
     textAlign: 'center',
   },
   countCard: {
@@ -63,7 +62,11 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     flexWrap: 'wrap',
   },
-  countText: { fontWeight: '800', fontSize: 16, color: colors.text },
+  countText: {
+    ...font.title,
+
+    color: colors.text,
+  },
   search: {
     minHeight: 52,
     borderRadius: 15,
@@ -82,10 +85,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  listCaption: { color: colors.muted, fontSize: 13, marginBottom: 12 },
+  listCaption: {
+    color: colors.muted,
+    fontSize: font.size.small,
+    marginBottom: 12,
+  },
   searchInput: {
     flex: 1,
-    fontSize: 15,
+    fontSize: font.size.label,
     color: colors.text,
     paddingVertical: 7,
   },
@@ -102,11 +109,19 @@ export const styles = StyleSheet.create({
   },
   filterActive: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    borderColor: colors.primaryText,
   },
-  filterText: { fontSize: 12, fontWeight: '700', color: colors.muted },
-  filterTextActive: { color: colors.surface },
-  counter: { fontSize: 13, fontWeight: '800', color: colors.primary },
+  filterText: {
+    ...font.captionStrong,
+
+    color: colors.muted,
+  },
+  filterTextActive: { color: colors.onPrimary },
+  counter: {
+    fontSize: font.size.small,
+    fontWeight: font.weight.heavy,
+    color: colors.primaryText,
+  },
   flashcardTop: {
     alignSelf: 'stretch',
     gap: 12,
@@ -116,23 +131,27 @@ export const styles = StyleSheet.create({
   },
   flashcardSmall: {
     flexShrink: 1,
-    fontSize: 12,
+    ...font.captionHeavy,
     color: colors.muted,
-    fontWeight: '800',
+
     letterSpacing: 0.2,
   },
   flashcardWord: {
     color: colors.text,
-    fontSize: 35,
-    fontWeight: '800',
+    fontSize: font.size.flashcard,
+    fontWeight: font.weight.heavy,
     textAlign: 'center',
-    lineHeight: 43,
+    lineHeight: font.line.flashcard,
   },
-  flashcardExample: { color: colors.muted, fontSize: 13, textAlign: 'center' },
+  flashcardExample: {
+    color: colors.muted,
+    fontSize: font.size.small,
+    textAlign: 'center',
+  },
   hint: {
     color: colors.muted,
-    fontSize: 13,
-    lineHeight: 20,
+    ...font.description,
+
     textAlign: 'center',
     marginBottom: 19,
   },
@@ -149,19 +168,19 @@ export const styles = StyleSheet.create({
     borderColor: colors.line,
   },
   questionLabel: {
-    fontSize: 12,
+    ...font.captionHeavy,
     letterSpacing: 0.2,
-    fontWeight: '800',
+
     color: colors.muted,
   },
   questionWord: {
     flexShrink: 1,
     textAlign: 'center',
-    fontSize: 30,
-    fontWeight: '800',
+    fontSize: font.size.question,
+    fontWeight: font.weight.heavy,
     color: colors.text,
   },
-  questionIpa: { fontSize: 14, color: colors.muted },
+  questionIpa: { fontSize: font.size.body, color: colors.muted },
   answerList: { gap: 9 },
   answer: {
     backgroundColor: colors.surface,
@@ -188,8 +207,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  answerLetterText: { fontSize: 13, fontWeight: '800', color: colors.primary },
-  answerText: { flex: 1, fontWeight: '700', fontSize: 14, color: colors.text },
+  answerLetterText: {
+    fontSize: font.size.small,
+    fontWeight: font.weight.heavy,
+    color: colors.primaryText,
+  },
+  answerText: {
+    flex: 1,
+    ...font.bodyStrong,
+
+    color: colors.text,
+  },
   feedback: {
     backgroundColor: colors.errorTint,
     padding: 14,
@@ -198,10 +226,10 @@ export const styles = StyleSheet.create({
   },
   feedbackCorrect: { backgroundColor: colors.successTint },
   feedbackText: {
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: font.size.small,
+    lineHeight: font.line.small,
     color: colors.text,
-    fontWeight: '700',
+    fontWeight: font.weight.bold,
   },
   finish: { paddingTop: 65, alignItems: 'center', gap: 13 },
   finishIcon: {
@@ -214,14 +242,14 @@ export const styles = StyleSheet.create({
     marginBottom: 7,
   },
   finishTitle: {
-    fontSize: 28,
-    fontWeight: '800',
+    ...font.heading,
+
     color: colors.text,
     textAlign: 'center',
   },
   finishDescription: {
-    fontSize: 14,
-    lineHeight: 21,
+    ...font.body,
+
     color: colors.muted,
     textAlign: 'center',
   },
@@ -236,8 +264,12 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     marginVertical: 24,
   },
-  scoreValue: { fontSize: 36, fontWeight: '800', color: colors.primary },
-  scoreCaption: { fontSize: 13, color: colors.muted },
+  scoreValue: {
+    fontSize: font.size.word,
+    fontWeight: font.weight.heavy,
+    color: colors.primaryText,
+  },
+  scoreCaption: { fontSize: font.size.small, color: colors.muted },
   historyRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -250,18 +282,26 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   historyImage: { width: 66, height: 66, borderRadius: 12 },
-  historyDate: { fontSize: 11, fontWeight: '800', color: colors.success },
+  historyDate: {
+    ...font.badge,
+
+    color: colors.success,
+  },
   historyTitle: {
-    fontSize: 15,
-    fontWeight: '800',
+    ...font.label,
+
     color: colors.text,
     marginTop: 3,
   },
-  historyCaption: { fontSize: 12, color: colors.muted, marginTop: 3 },
+  historyCaption: {
+    fontSize: font.size.caption,
+    color: colors.muted,
+    marginTop: 3,
+  },
   questionWordRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
   },
-});
+}));

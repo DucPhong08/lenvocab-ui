@@ -1,6 +1,7 @@
+import { createStyles } from '@/theme/styles';
 import { errorMessage } from '@/utils/errorMessage';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { ApiError } from '@/api/client/ApiError';
 import {
@@ -9,7 +10,6 @@ import {
   type CardImage as Photo,
 } from '@/api/endpoints/cardImage';
 import { CardImage } from './CardImage';
-import { colors } from '@/theme/theme';
 import { PHOTO_OPTIONS } from '@/services/images/options';
 
 export function CardPhoto({
@@ -31,6 +31,7 @@ export function CardPhoto({
   onChanged: () => Promise<unknown>;
   onUnauthorized: () => Promise<unknown>;
 }) {
+  const { styles } = useStyles();
   const [photo, setPhoto] = useState<Photo>({
     image_url: imageUrl ?? null,
     has_image: !!hasImage,
@@ -155,10 +156,10 @@ export function CardPhoto({
     </View>
   );
 }
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ colors, font }) => ({
   section: { marginBottom: 18, gap: 8 },
   actions: { flexDirection: 'row', gap: 12 },
   button: { paddingVertical: 12, minHeight: 44 },
-  label: { color: colors.primary, fontWeight: '700' },
-  remove: { color: colors.error, fontWeight: '700' },
-});
+  label: { color: colors.primaryText, fontWeight: font.weight.bold },
+  remove: { color: colors.error, fontWeight: font.weight.bold },
+}));

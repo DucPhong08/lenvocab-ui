@@ -1,22 +1,14 @@
-export const colors = {
-  background: '#FAF7F2',
-  surface: '#FFFFFF',
-  surfaceMuted: '#F2EDE7',
-  text: '#2D2926',
-  muted: '#746A62',
-  line: '#E4DCD3',
-  primary: '#9A4A27',
-  onPrimary: '#FFFFFF',
-  primaryTint: '#F9E8DD',
-  highlight: '#F3D58C',
-  overlay: '#2D2926E8',
-  selectionFill: '#F3D58C33',
-  success: '#2D754F',
-  successTint: '#E7F5E8',
-  error: '#BB4C3B',
-  errorTint: '#FFF1ED',
-  warning: '#946132',
-};
+import { createColors } from './palette';
+import { createTypography } from './typography';
+
+export type ThemeOptions = { primary?: string; fontScale?: number };
+
+export function createTheme({ primary, fontScale }: ThemeOptions = {}) {
+  return { colors: createColors(primary), font: createTypography(fontScale) };
+}
+
+export const defaultTheme = createTheme();
+export type Theme = ReturnType<typeof createTheme>;
 
 export const layout = {
   page: {

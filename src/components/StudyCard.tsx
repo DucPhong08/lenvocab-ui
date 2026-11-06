@@ -1,6 +1,6 @@
+import { createStyles } from '@/theme/styles';
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '@/theme/theme';
+import { Text, View } from 'react-native';
 import { Eyebrow } from './Eyebrow';
 
 export function StudyCard({
@@ -12,6 +12,7 @@ export function StudyCard({
   description: string;
   children: ReactNode;
 }) {
+  const { styles } = useStyles();
   return (
     <View style={styles.card}>
       <Eyebrow>MỘT LƯỢT NGẮN MỖI NGÀY</Eyebrow>
@@ -21,7 +22,7 @@ export function StudyCard({
     </View>
   );
 }
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ colors, font }) => ({
   card: {
     backgroundColor: colors.surface,
     borderRadius: 24,
@@ -31,6 +32,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.line,
   },
-  title: { color: colors.text, fontSize: 28, fontWeight: '800' },
-  description: { color: colors.muted, fontSize: 14, lineHeight: 21 },
-});
+  title: {
+    color: colors.text,
+    ...font.heading,
+  },
+  description: {
+    color: colors.muted,
+    ...font.body,
+  },
+}));

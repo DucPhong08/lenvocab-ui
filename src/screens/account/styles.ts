@@ -1,7 +1,7 @@
+import { createStyles } from '@/theme/styles';
 import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
 
-export const styles = StyleSheet.create({
+export const useStyles = createStyles(({ colors, font }) => ({
   fill: { flex: 1 },
   speedOptions: { flexDirection: 'row', gap: 8, marginVertical: 10 },
   speedOption: {
@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
   speedOptionSelected: { backgroundColor: colors.primaryTint },
   accountActions: { gap: 12, marginBottom: 24 },
   speedText: { color: colors.muted },
-  speedSelected: { color: colors.primary, fontWeight: '700' },
+  speedSelected: { color: colors.primaryText, fontWeight: font.weight.bold },
   identity: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -32,9 +32,21 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarLetter: { fontSize: 23, color: colors.primary, fontWeight: '800' },
-  identityName: { fontSize: 17, fontWeight: '800', color: colors.text },
-  identitySub: { fontSize: 12, color: colors.muted, marginTop: 4 },
+  avatarLetter: {
+    fontSize: font.size.profileAvatar,
+    color: colors.primaryText,
+    fontWeight: font.weight.heavy,
+  },
+  identityName: {
+    fontSize: font.size.reading,
+    fontWeight: font.weight.heavy,
+    color: colors.text,
+  },
+  identitySub: {
+    fontSize: font.size.caption,
+    color: colors.muted,
+    marginTop: 4,
+  },
   profileStats: {
     flexDirection: 'row',
     backgroundColor: colors.surface,
@@ -46,8 +58,12 @@ export const styles = StyleSheet.create({
     borderColor: colors.line,
   },
   stat: { flex: 1, alignItems: 'center', gap: 3 },
-  statValue: { fontSize: 28, fontWeight: '800', color: colors.text },
-  statCaption: { color: colors.muted, fontSize: 12 },
+  statValue: {
+    ...font.heading,
+
+    color: colors.text,
+  },
+  statCaption: { color: colors.muted, fontSize: font.size.caption },
   verticalLine: { backgroundColor: colors.line, width: 1, height: 32 },
   menu: {
     marginTop: 12,
@@ -73,12 +89,21 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  menuText: { fontSize: 14, fontWeight: '700', color: colors.text },
-  menuHint: { fontSize: 13, lineHeight: 19, color: colors.muted, marginTop: 3 },
+  menuText: {
+    ...font.bodyStrong,
+
+    color: colors.text,
+  },
+  menuHint: {
+    fontSize: font.size.small,
+    lineHeight: font.line.hint,
+    color: colors.muted,
+    marginTop: 3,
+  },
   footer: { alignItems: 'center', paddingTop: 7, gap: 11 },
   footerText: {
-    fontSize: 12,
-    lineHeight: 18,
+    ...font.note,
+
     textAlign: 'center',
     color: colors.muted,
   },
@@ -94,7 +119,10 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  skipText: { color: colors.muted, fontWeight: '700', fontSize: 13 },
+  skipText: {
+    color: colors.muted,
+    ...font.action,
+  },
   onboardImage: {
     width: '100%',
     height: 290,
@@ -103,13 +131,17 @@ export const styles = StyleSheet.create({
   },
   onboardText: { gap: 15 },
   onboardTitle: {
-    fontSize: 31,
-    lineHeight: 38,
-    fontWeight: '800',
+    fontSize: font.size.onboarding,
+    lineHeight: font.line.onboarding,
+    fontWeight: font.weight.heavy,
     letterSpacing: -0.6,
     color: colors.text,
   },
-  onboardDescription: { color: colors.muted, fontSize: 15, lineHeight: 23 },
+  onboardDescription: {
+    color: colors.muted,
+    fontSize: font.size.label,
+    lineHeight: font.line.subtitle,
+  },
   dots: { flexDirection: 'row', gap: 4, marginVertical: 8 },
   dotTarget: {
     width: 44,
@@ -130,15 +162,15 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.highlight,
   },
   authTitle: {
-    fontSize: 33,
-    lineHeight: 41,
+    fontSize: font.size.auth,
+    lineHeight: font.line.auth,
     color: colors.text,
-    fontWeight: '800',
+    fontWeight: font.weight.heavy,
     marginBottom: 15,
   },
   authDescription: {
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: font.size.label,
+    lineHeight: font.line.description,
     color: colors.muted,
     marginBottom: 22,
   },
@@ -150,7 +182,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     minHeight: 54,
     color: colors.text,
-    fontSize: 15,
+    fontSize: font.size.label,
     marginBottom: 12,
   },
   passwordField: {
@@ -168,7 +200,7 @@ export const styles = StyleSheet.create({
     minHeight: 54,
     paddingHorizontal: 16,
     color: colors.text,
-    fontSize: 15,
+    fontSize: font.size.label,
   },
   passwordToggle: {
     minWidth: 48,
@@ -178,14 +210,14 @@ export const styles = StyleSheet.create({
   },
   fieldLabel: {
     color: colors.text,
-    fontSize: 14,
-    fontWeight: '700',
+    ...font.bodyStrong,
+
     marginBottom: 7,
   },
   fieldHint: {
     color: colors.muted,
-    fontSize: 12,
-    lineHeight: 18,
+    ...font.note,
+
     marginBottom: 12,
   },
   authDivider: {
@@ -201,9 +233,13 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.line,
     marginBottom: 12,
   },
-  authError: { color: colors.error, fontSize: 13, marginBottom: 14 },
+  authError: {
+    color: colors.error,
+    fontSize: font.size.small,
+    marginBottom: 14,
+  },
   authSwitch: { padding: 15, alignItems: 'center', marginBottom: 12 },
-  authSwitchText: { color: colors.primary, fontWeight: '700' },
+  authSwitchText: { color: colors.primaryText, fontWeight: font.weight.bold },
   authNotice: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -215,8 +251,8 @@ export const styles = StyleSheet.create({
   },
   authNoticeText: {
     flex: 1,
-    fontSize: 13,
-    lineHeight: 20,
+    ...font.description,
+
     color: colors.text,
   },
-});
+}));

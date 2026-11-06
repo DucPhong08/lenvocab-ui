@@ -1,7 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { createStyles } from '@/theme/styles';
 
-export const styles = StyleSheet.create({
+export const useStyles = createStyles(({ colors, font }) => ({
   container: { flex: 1, backgroundColor: colors.background },
   loading: {
     flex: 1,
@@ -46,10 +45,9 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 3,
     color: colors.muted,
-    fontSize: 12,
-    fontWeight: '700',
+    ...font.captionStrong,
   },
-  activeTabLabel: { color: colors.primary, fontWeight: '800' },
+  activeTabLabel: { color: colors.primaryText, fontWeight: font.weight.heavy },
   toast: {
     position: 'absolute',
     left: 24,
@@ -70,9 +68,9 @@ export const styles = StyleSheet.create({
   toastWithTabs: { bottom: 78 },
   toastWithoutTabs: { bottom: 12 },
   toastText: {
-    color: colors.onPrimary,
-    fontSize: 13,
-    fontWeight: '700',
+    color: colors.onOverlay,
+    ...font.action,
+
     flex: 1,
   },
-});
+}));

@@ -12,9 +12,8 @@ import { Brand } from '@/components/Brand';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
-import { styles } from './styles';
+import { useStyles } from './styles';
 import { MenuItem } from './components/MenuItem';
 
 export function ProfileScreen({
@@ -28,6 +27,7 @@ export function ProfileScreen({
   googleLinkBusy,
   onLogout,
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const prefs = user?.preferences;
   const displayName =
     user?.display_name?.trim() ||
@@ -89,17 +89,17 @@ export function ProfileScreen({
       <View style={styles.menu}>
         <MenuItem
           label="Từ vựng đã lưu"
-          icon={<Bookmark size={19} color={colors.primary} />}
+          icon={<Bookmark size={19} color={colors.primaryText} />}
           onPress={() => navigate('saved')}
         />
         <MenuItem
           label="Lịch sử quét"
-          icon={<Clock3 size={19} color={colors.primary} />}
+          icon={<Clock3 size={19} color={colors.primaryText} />}
           onPress={() => navigate('history')}
         />
         <MenuItem
           label="Giới thiệu ứng dụng"
-          icon={<Sparkles size={19} color={colors.primary} />}
+          icon={<Sparkles size={19} color={colors.primaryText} />}
           onPress={() => navigate('onboarding')}
         />
       </View>
@@ -109,7 +109,7 @@ export function ProfileScreen({
           <Eyebrow>Tùy chọn học tập</Eyebrow>
           <View style={styles.menu}>
             <SettingRow
-              icon={<Headphones size={19} color={colors.primary} />}
+              icon={<Headphones size={19} color={colors.primaryText} />}
               label="Giọng phát âm chuẩn"
               description={prefs?.preferred_voice_id ?? 'Joanna'}
             />
@@ -149,12 +149,12 @@ export function ProfileScreen({
               </View>
             </View>
             <SettingRow
-              icon={<Target size={19} color={colors.primary} />}
+              icon={<Target size={19} color={colors.primaryText} />}
               label="Mục tiêu ôn mỗi ngày"
               description={`${prefs?.daily_review_goal ?? 15} từ/ngày`}
             />
             <SettingRow
-              icon={<Gauge size={19} color={colors.primary} />}
+              icon={<Gauge size={19} color={colors.primaryText} />}
               label="Hạn mức quét ảnh"
               description={`${user.daily_quota_left} lượt còn lại hôm nay (Gói ${user.account_tier})`}
             />
@@ -211,6 +211,7 @@ function SettingRow({
   label: string;
   description: string;
 }) {
+  const { styles } = useStyles();
   return (
     <View style={styles.menuItem}>
       <View style={styles.menuIcon}>{icon}</View>

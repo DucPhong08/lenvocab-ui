@@ -2,8 +2,7 @@ import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
 import { IconButton } from './IconButton';
-import { styles } from './styles/headers.styles';
-import { colors } from '@/theme/theme';
+import { useStyles } from './styles/headers.styles';
 
 export function TopBar({
   title,
@@ -14,6 +13,7 @@ export function TopBar({
   onBack: () => void;
   action?: ReactNode;
 }) {
+  const { styles, colors } = useStyles();
   return (
     <View style={styles.topBar}>
       <IconButton

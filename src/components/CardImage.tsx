@@ -1,7 +1,7 @@
+import { createStyles } from '@/theme/styles';
 import { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { getCardImage } from '@/api/endpoints/cardImage';
-import { colors } from '@/theme/theme';
 
 export function CardImage({
   imageUrl,
@@ -20,6 +20,7 @@ export function CardImage({
   fallback?: string;
   isSticker?: boolean;
 }) {
+  const { styles } = useStyles();
   const [uri, setUri] = useState(imageUrl ?? null);
   const [failed, setFailed] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -93,7 +94,7 @@ export function CardImage({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ colors, font }) => ({
   tile: { width: '100%', height: '100%' },
   stickerBackground: { backgroundColor: colors.surfaceMuted, borderRadius: 14 },
   sticker: { width: '100%', height: 150 },
@@ -105,11 +106,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.surfaceMuted,
   },
-  initial: { fontSize: 22, fontWeight: '800', color: colors.primary },
+  initial: {
+    fontSize: font.size.section,
+    fontWeight: font.weight.heavy,
+    color: colors.primaryText,
+  },
   caption: {
     color: colors.muted,
-    fontSize: 13,
+    fontSize: font.size.small,
     textAlign: 'center',
     padding: 8,
   },
-});
+}));

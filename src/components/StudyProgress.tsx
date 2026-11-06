@@ -1,5 +1,5 @@
-import { StyleSheet, View } from 'react-native';
-import { colors } from '@/theme/theme';
+import { createStyles } from '@/theme/styles';
+import { View } from 'react-native';
 
 export function StudyProgress({
   current,
@@ -8,6 +8,7 @@ export function StudyProgress({
   current: number;
   total: number;
 }) {
+  const { styles } = useStyles();
   return (
     <View
       accessibilityRole="progressbar"
@@ -25,7 +26,7 @@ export function StudyProgress({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ colors }) => ({
   track: {
     height: 6,
     borderRadius: 6,
@@ -34,4 +35,4 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   fill: { height: '100%', backgroundColor: colors.success, borderRadius: 6 },
-});
+}));

@@ -1,7 +1,7 @@
-import { Image, Pressable, StyleSheet, Text } from 'react-native';
+import { createStyles } from '@/theme/styles';
+import { Image, Pressable, Text } from 'react-native';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
-import { colors } from '@/theme/theme';
 
 export function SceneThumbnail({
   id,
@@ -12,6 +12,7 @@ export function SceneThumbnail({
   onPress: () => void;
   selected?: boolean;
 }) {
+  const { styles } = useStyles();
   const scene = getScene(id);
   return (
     <Pressable
@@ -33,7 +34,7 @@ export function SceneThumbnail({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ colors, font }) => ({
   sceneChoice: {
     width: 110,
     backgroundColor: colors.surface,
@@ -42,14 +43,14 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  sceneSelected: { borderColor: colors.primary },
+  sceneSelected: { borderColor: colors.primaryText },
   sceneThumb: { height: 68, width: '100%', borderRadius: 10 },
   sceneLabel: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: font.size.badge,
+    fontWeight: font.weight.bold,
     textAlign: 'center',
     marginTop: 7,
     color: colors.text,
   },
   pressed: { opacity: 0.78, transform: [{ scale: 0.985 }] },
-});
+}));

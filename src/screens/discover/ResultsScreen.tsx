@@ -10,10 +10,9 @@ import { TopBar } from '@/components/TopBar';
 import { WordRow } from '@/components/WordRow';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { isWordSaved } from '@/data/isWordSaved';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function ResultsScreen({
   navigate,
@@ -32,6 +31,7 @@ export function ResultsScreen({
   selectingObject = false,
   currentScanSaved = false,
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const scene = getScene(sceneId);
   const scanId = scanResult ? scanWord(scanResult).id : null;
   const words = scanId ? [wordForId(scanId)] : scene.words;
@@ -127,7 +127,7 @@ export function ResultsScreen({
       </View>
       <View style={styles.resultInfo}>
         <View style={styles.resultInfoIcon}>
-          <Sparkles size={21} color={colors.primary} />
+          <Sparkles size={21} color={colors.primaryText} />
         </View>
         <View style={styles.fill}>
           <Text style={styles.resultInfoTitle}>
@@ -139,7 +139,7 @@ export function ResultsScreen({
         </View>
       </View>
       <View style={styles.notice}>
-        <Lightbulb size={18} color={colors.primary} />
+        <Lightbulb size={18} color={colors.primaryText} />
         <Text style={styles.noticeText}>
           {scanResult
             ? `Từ chính được nhận diện: ${scanResult.keyword}. Lưu thẻ để giữ lại từ và ảnh của bạn.`

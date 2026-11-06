@@ -6,11 +6,11 @@ import { ScreenTitle } from '@/components/ScreenTitle';
 import { SectionHeader } from '@/components/SectionHeader';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
+  const { styles, colors } = useStyles();
   return (
     <>
       <ScreenTitle
@@ -19,7 +19,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
         subtitle="Ảnh đã khám phá trong lần mở ứng dụng này. Hãy lưu thẻ để giữ lại từ lâu dài."
       />
       <View style={styles.countCard}>
-        <BookOpen size={22} color={colors.primary} />
+        <BookOpen size={22} color={colors.primaryText} />
         <Text style={styles.countText}>{history.length} lần quét</Text>
       </View>
       <SectionHeader kicker="GẦN ĐÂY" title="Lịch sử phiên này" />

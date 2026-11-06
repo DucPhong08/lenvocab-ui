@@ -3,11 +3,10 @@ import { Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 import { Eye, EyeOff, Settings2, Sparkles } from 'lucide-react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TopBar } from '@/components/TopBar';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { useAuthForm } from './hooks/useAuthForm';
 import { errorMessage } from '@/utils/errorMessage';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function AuthScreen({
   navigate,
@@ -17,6 +16,7 @@ export function AuthScreen({
   scrollToTop,
   authBack = 'profile',
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const {
     username,
     email,
@@ -37,7 +37,7 @@ export function AuthScreen({
     <>
       <TopBar title="Tài khoản" onBack={() => navigate(authBack)} />
       <View style={styles.authGraphic}>
-        <Sparkles size={26} color={colors.primary} />
+        <Sparkles size={26} color={colors.primaryText} />
       </View>
       <Text style={styles.authTitle}>
         {mode === 'login' ? 'Mừng bạn quay lại.' : 'Bắt đầu học cùng lenvocab.'}
@@ -91,9 +91,9 @@ export function AuthScreen({
           style={styles.passwordToggle}
         >
           {passwordVisible ? (
-            <EyeOff size={21} color={colors.primary} />
+            <EyeOff size={21} color={colors.primaryText} />
           ) : (
-            <Eye size={21} color={colors.primary} />
+            <Eye size={21} color={colors.primaryText} />
           )}
         </Pressable>
       </View>
@@ -182,7 +182,7 @@ export function AuthScreen({
         </Text>
       </Pressable>
       <View style={styles.authNotice}>
-        <Settings2 size={19} color={colors.primary} />
+        <Settings2 size={19} color={colors.primaryText} />
         <Text style={styles.authNoticeText}>
           Bạn có thể quét ảnh thật và xem từ vựng minh họa ở chế độ khách. Đăng
           nhập khi muốn lưu từ vào tài khoản.

@@ -9,9 +9,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { cardWord } from '@/api/mappers/cardWord';
 import { allWords } from '@/data/scenes';
 import { SESSION_SIZE } from '@/data/study';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function HomeScreen({
   navigate,
@@ -24,6 +23,7 @@ export function HomeScreen({
   dataError,
   reloadData,
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const words = user ? cards.slice(0, 2).map(cardWord) : allWords.slice(0, 2);
   const count = Math.min(SESSION_SIZE, due.length);
   const hasCards = cards.length > 0;
@@ -82,7 +82,7 @@ export function HomeScreen({
         <PrimaryButton
           label="Chụp ảnh học từ"
           variant="secondary"
-          icon={<Camera size={19} color={colors.primary} />}
+          icon={<Camera size={19} color={colors.primaryText} />}
           onPress={() => navigate('camera')}
         />
       )}

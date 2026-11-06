@@ -7,9 +7,8 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react-native';
-import { colors } from '@/theme/theme';
 import type { Screen } from '@/types/screen';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 const tabs: { screen: Screen; label: string; icon: LucideIcon }[] = [
   { screen: 'home', label: 'Trang chủ', icon: Home },
@@ -28,6 +27,7 @@ export function AppTabs({
   wordBack: Screen;
   navigate: (next: Screen) => void;
 }) {
+  const { styles, colors } = useStyles();
   const parent = screen === 'word' ? wordBack : screen;
   const activeTab =
     parent === 'results' || parent === 'history'
@@ -63,10 +63,12 @@ export function AppTabs({
                   tab.screen === 'camera'
                     ? colors.onPrimary
                     : active
-                    ? colors.primary
+                    ? colors.primaryText
                     : colors.muted
                 }
-                fill={active && tab.screen === 'home' ? colors.primary : 'none'}
+                fill={
+                  active && tab.screen === 'home' ? colors.primaryText : 'none'
+                }
               />
             </View>
             <Text

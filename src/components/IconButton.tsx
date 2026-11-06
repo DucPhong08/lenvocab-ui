@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Pressable } from 'react-native';
-import { styles } from './styles/buttons.styles';
+import { useStyles } from './styles/buttons.styles';
 
 export function IconButton({
   label,
@@ -11,6 +11,7 @@ export function IconButton({
   onPress: () => void;
   icon: ReactNode;
 }) {
+  const { styles } = useStyles();
   return (
     <Pressable
       accessibilityRole="button"

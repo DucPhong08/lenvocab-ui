@@ -6,9 +6,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { WordGrid } from '@/components/WordGrid';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 const filters = [
   { id: 'all', label: 'Tất cả' },
@@ -31,6 +30,7 @@ export function SavedScreen({
   dataError,
   reloadData,
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
@@ -95,9 +95,9 @@ export function SavedScreen({
               }}
             >
               {searchOpen ? (
-                <X size={22} color={colors.primary} />
+                <X size={22} color={colors.primaryText} />
               ) : (
-                <Search size={22} color={colors.primary} />
+                <Search size={22} color={colors.primaryText} />
               )}
             </Pressable>
           </View>

@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react';
-import { Pressable, Text, type StyleProp, type ViewStyle } from 'react-native';
+import {
+  Pressable,
+  Text,
+  type StyleProp,
+  type ViewStyle,
+  type TextStyle,
+} from 'react-native';
 import { ArrowRight } from 'lucide-react-native';
-import { styles } from './styles/buttons.styles';
-import { colors } from '@/theme/theme';
+import { useStyles } from './styles/buttons.styles';
 
 export function PrimaryButton({
   label,
@@ -11,6 +16,7 @@ export function PrimaryButton({
   icon,
   disabled = false,
   style,
+  textStyle,
 }: {
   label: string;
   onPress: () => void;
@@ -18,7 +24,9 @@ export function PrimaryButton({
   icon?: ReactNode;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }) {
+  const { styles, colors } = useStyles();
   return (
     <Pressable
       accessibilityRole="button"
@@ -38,6 +46,7 @@ export function PrimaryButton({
         style={[
           styles.primaryButtonText,
           variant === 'secondary' && styles.secondaryButtonText,
+          textStyle,
         ]}
       >
         {label}
@@ -45,7 +54,7 @@ export function PrimaryButton({
       {icon ?? (
         <ArrowRight
           size={19}
-          color={variant === 'primary' ? colors.onPrimary : colors.primary}
+          color={variant === 'primary' ? colors.onPrimary : colors.primaryText}
         />
       )}
     </Pressable>

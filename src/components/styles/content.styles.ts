@@ -1,7 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { createStyles } from '@/theme/styles';
 
-export const styles = StyleSheet.create({
+export const useStyles = createStyles(({ colors, font }) => ({
   fill: { flex: 1 },
   pressed: { opacity: 0.78, transform: [{ scale: 0.985 }] },
   wordRow: {
@@ -30,9 +29,21 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  wordInitialText: { fontSize: 22, fontWeight: '800', color: colors.primary },
-  wordTerm: { fontSize: 16, fontWeight: '800', color: colors.text },
-  wordMeaning: { fontSize: 12, color: colors.muted, marginTop: 3 },
+  wordInitialText: {
+    fontSize: font.size.section,
+    fontWeight: font.weight.heavy,
+    color: colors.primaryText,
+  },
+  wordTerm: {
+    ...font.title,
+
+    color: colors.text,
+  },
+  wordMeaning: {
+    fontSize: font.size.caption,
+    color: colors.muted,
+    marginTop: 3,
+  },
   bookmark: {
     width: 44,
     height: 48,
@@ -59,15 +70,15 @@ export const styles = StyleSheet.create({
   },
   emptyTitle: {
     color: colors.text,
-    fontSize: 19,
-    fontWeight: '800',
+    fontSize: font.size.emptyTitle,
+    fontWeight: font.weight.heavy,
     textAlign: 'center',
   },
   emptyDescription: {
-    fontSize: 14,
-    lineHeight: 21,
+    ...font.body,
+
     textAlign: 'center',
     color: colors.muted,
   },
   emptyAction: { alignSelf: 'stretch', marginTop: 8 },
-});
+}));

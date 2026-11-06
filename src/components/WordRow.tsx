@@ -4,8 +4,7 @@ import type { Word } from '@/data/scenes';
 import { useAudio } from '@/hooks/useAudio';
 import { AudioButton } from './AudioButton';
 import { CardImage } from './CardImage';
-import { colors } from '@/theme/theme';
-import { styles } from './styles/content.styles';
+import { useStyles } from './styles/content.styles';
 
 export function WordRow({
   word,
@@ -22,6 +21,7 @@ export function WordRow({
   onSave?: () => void;
   disabled?: boolean;
 }) {
+  const { styles, colors } = useStyles();
   const { play } = useAudio();
 
   return (
@@ -84,7 +84,7 @@ export function WordRow({
         >
           <Bookmark
             size={20}
-            color={saved ? colors.primary : colors.muted}
+            color={saved ? colors.primaryText : colors.muted}
             fill={saved ? colors.highlight : 'none'}
           />
         </Pressable>

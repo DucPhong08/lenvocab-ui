@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
-import { colors } from '@/theme/theme';
-import { styles } from '../styles';
+import { useStyles } from '../styles';
 
 export function MenuItem({
   label,
@@ -13,6 +12,7 @@ export function MenuItem({
   icon: ReactNode;
   onPress: () => void;
 }) {
+  const { styles, colors } = useStyles();
   return (
     <Pressable
       accessibilityRole="button"

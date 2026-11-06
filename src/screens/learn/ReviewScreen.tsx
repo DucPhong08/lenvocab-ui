@@ -5,7 +5,7 @@ import { StudyCard } from '@/components/StudyCard';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function ReviewScreen({
   navigate,
@@ -17,6 +17,7 @@ export function ReviewScreen({
   dataError,
   reloadData,
 }: ScreenProps) {
+  const { styles } = useStyles();
   if (loadingData)
     return (
       <EmptyState

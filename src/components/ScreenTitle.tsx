@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 import { Eyebrow } from './Eyebrow';
-import { styles } from './styles/headers.styles';
+import { useStyles } from './styles/headers.styles';
 
 export function ScreenTitle({
   kicker,
@@ -11,6 +11,7 @@ export function ScreenTitle({
   title: string;
   subtitle?: string;
 }) {
+  const { styles } = useStyles();
   return (
     <View style={styles.titleBlock}>
       {kicker && <Eyebrow>{kicker}</Eyebrow>}

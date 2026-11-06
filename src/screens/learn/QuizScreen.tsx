@@ -8,10 +8,9 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { TopBar } from '@/components/TopBar';
 import { useAudio } from '@/hooks/useAudio';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { useQuiz } from './hooks/useQuiz';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function QuizScreen({
   navigate,
@@ -24,6 +23,7 @@ export function QuizScreen({
   dataError,
   reloadData,
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const {
     done,
     index,
@@ -83,7 +83,7 @@ export function QuizScreen({
         <TopBar title="Kết quả Quiz" onBack={() => navigate('review')} />
         <View style={styles.finish}>
           <View style={styles.finishIcon}>
-            <Sparkles size={32} color={colors.primary} />
+            <Sparkles size={32} color={colors.primaryText} />
           </View>
           <Eyebrow>HOÀN THÀNH RỒI</Eyebrow>
           <Text style={styles.finishTitle}>Bạn làm tốt lắm!</Text>

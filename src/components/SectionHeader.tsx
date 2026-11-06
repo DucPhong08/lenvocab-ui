@@ -1,8 +1,7 @@
 import { Pressable, Text, View } from 'react-native';
 import { ArrowRight } from 'lucide-react-native';
 import { Eyebrow } from './Eyebrow';
-import { styles } from './styles/headers.styles';
-import { colors } from '@/theme/theme';
+import { useStyles } from './styles/headers.styles';
 
 export function SectionHeader({
   kicker,
@@ -15,6 +14,7 @@ export function SectionHeader({
   action?: string;
   onAction?: () => void;
 }) {
+  const { styles, colors } = useStyles();
   return (
     <View style={styles.sectionHeader}>
       <View style={styles.fill}>
@@ -31,7 +31,7 @@ export function SectionHeader({
           ]}
         >
           <Text style={styles.sectionActionText}>{action}</Text>
-          <ArrowRight size={15} color={colors.primary} />
+          <ArrowRight size={15} color={colors.primaryText} />
         </Pressable>
       )}
     </View>

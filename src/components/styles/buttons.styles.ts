@@ -1,7 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { createStyles } from '@/theme/styles';
 
-export const styles = StyleSheet.create({
+export const useStyles = createStyles(({ colors, font }) => ({
   primaryButton: {
     minHeight: 54,
     paddingHorizontal: 18,
@@ -17,11 +16,11 @@ export const styles = StyleSheet.create({
   primaryButtonText: {
     flexShrink: 1,
     textAlign: 'center',
-    fontSize: 15,
-    fontWeight: '800',
+    ...font.label,
+
     color: colors.onPrimary,
   },
-  secondaryButtonText: { color: colors.primary },
+  secondaryButtonText: { color: colors.primaryText },
   disabled: { opacity: 0.45 },
   pressed: { opacity: 0.78, transform: [{ scale: 0.985 }] },
   iconButton: {
@@ -32,4 +31,4 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+}));

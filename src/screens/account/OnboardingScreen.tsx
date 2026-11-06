@@ -5,7 +5,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { sceneImage } from '@/theme/sceneImage';
 import type { ScreenProps } from '@/types/screen';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 const slides = [
   {
@@ -29,6 +29,7 @@ const slides = [
   },
 ];
 export function OnboardingScreen({ navigate }: ScreenProps) {
+  const { styles } = useStyles();
   const [step, setStep] = useState(0);
   const slide = slides[step];
   return (

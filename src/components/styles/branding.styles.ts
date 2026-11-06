@@ -1,7 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { createStyles } from '@/theme/styles';
 
-export const styles = StyleSheet.create({
+export const useStyles = createStyles(({ colors, font }) => ({
   brand: { flexDirection: 'row', alignItems: 'center', gap: 9 },
   brandMark: {
     width: 34,
@@ -12,17 +11,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   brandText: {
-    fontSize: 21,
-    fontWeight: '800',
+    fontSize: font.size.brand,
+    fontWeight: font.weight.heavy,
     color: colors.text,
     letterSpacing: -1,
   },
   eyebrow: {
-    fontSize: 12,
-    fontWeight: '800',
+    fontSize: font.size.caption,
+    fontWeight: font.weight.heavy,
     letterSpacing: 0.3,
     color: colors.muted,
     textTransform: 'uppercase',
-    lineHeight: 18,
+    lineHeight: font.line.caption,
   },
-});
+}));

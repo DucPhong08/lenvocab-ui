@@ -1,7 +1,6 @@
-import { StyleSheet } from 'react-native';
-import { colors } from '@/theme/theme';
+import { createStyles } from '@/theme/styles';
 
-export const styles = StyleSheet.create({
+export const useStyles = createStyles(({ colors, font }) => ({
   fill: { flex: 1 },
   actionTop20: { marginTop: 20 },
   actionTop12: { marginTop: 12 },
@@ -19,11 +18,15 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  avatarText: { fontSize: 18, fontWeight: '800', color: colors.primary },
+  avatarText: {
+    fontSize: font.size.avatar,
+    fontWeight: font.weight.heavy,
+    color: colors.primaryText,
+  },
   demoNote: {
     color: colors.muted,
-    fontSize: 12,
-    lineHeight: 18,
+    ...font.note,
+
     marginTop: 10,
     marginBottom: 17,
   },
@@ -44,8 +47,8 @@ export const styles = StyleSheet.create({
     borderRadius: 18,
   },
   cameraTagText: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...font.captionHeavy,
+
     color: colors.text,
     letterSpacing: 0.2,
   },
@@ -77,9 +80,12 @@ export const styles = StyleSheet.create({
     borderWidth: 5,
     borderColor: colors.highlight,
   },
-  captureLabel: { color: colors.primary, fontSize: 12, fontWeight: '700' },
+  captureLabel: {
+    color: colors.primaryText,
+    ...font.captionStrong,
+  },
   cameraCaption: {
-    fontSize: 12,
+    fontSize: font.size.caption,
     textAlign: 'center',
     color: colors.muted,
     marginTop: 12,
@@ -104,9 +110,9 @@ export const styles = StyleSheet.create({
     gap: 5,
   },
   resultImageTitle: {
-    fontSize: 21,
-    fontWeight: '800',
-    color: colors.onPrimary,
+    fontSize: font.size.brand,
+    fontWeight: font.weight.heavy,
+    color: colors.onOverlay,
   },
   resultInfo: {
     flexDirection: 'row',
@@ -125,8 +131,15 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  resultInfoTitle: { fontSize: 15, color: colors.text, fontWeight: '800' },
-  resultInfoCaption: { fontSize: 12, color: colors.muted, marginTop: 4 },
+  resultInfoTitle: {
+    ...font.label,
+    color: colors.text,
+  },
+  resultInfoCaption: {
+    fontSize: font.size.caption,
+    color: colors.muted,
+    marginTop: 4,
+  },
   notice: {
     flexDirection: 'row',
     gap: 10,
@@ -136,7 +149,12 @@ export const styles = StyleSheet.create({
     padding: 13,
     marginBottom: 27,
   },
-  noticeText: { flex: 1, color: colors.text, fontSize: 12, lineHeight: 19 },
+  noticeText: {
+    flex: 1,
+    color: colors.text,
+    fontSize: font.size.caption,
+    lineHeight: font.line.hint,
+  },
   wordFeature: {
     backgroundColor: colors.surface,
     borderRadius: 25,
@@ -156,17 +174,23 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 11,
     paddingVertical: 7,
   },
-  levelText: { fontSize: 11, color: colors.primary, fontWeight: '800' },
+  levelText: {
+    ...font.badge,
+    color: colors.primaryText,
+  },
   bigWord: {
     color: colors.text,
-    fontSize: 36,
-    fontWeight: '800',
+    fontSize: font.size.word,
+    fontWeight: font.weight.heavy,
     letterSpacing: -1,
     maxWidth: '100%',
   },
-  ipa: { color: colors.muted, fontSize: 16 },
+  ipa: { color: colors.muted, fontSize: font.size.subtitle },
   detailBlock: { gap: 11, marginBottom: 25 },
-  meaning: { color: colors.text, fontWeight: '800', fontSize: 28 },
+  meaning: {
+    color: colors.text,
+    ...font.heading,
+  },
   example: {
     backgroundColor: colors.surface,
     borderRadius: 18,
@@ -176,12 +200,16 @@ export const styles = StyleSheet.create({
     borderLeftColor: colors.highlight,
   },
   exampleEnglish: {
-    fontSize: 17,
-    lineHeight: 25,
+    fontSize: font.size.reading,
+    lineHeight: font.line.example,
     color: colors.text,
-    fontWeight: '700',
+    fontWeight: font.weight.bold,
   },
-  exampleVietnamese: { fontSize: 13, lineHeight: 20, color: colors.muted },
+  exampleVietnamese: {
+    ...font.description,
+
+    color: colors.muted,
+  },
   tip: {
     flexDirection: 'row',
     gap: 10,
@@ -189,7 +217,12 @@ export const styles = StyleSheet.create({
     borderRadius: 17,
     padding: 15,
   },
-  tipText: { flex: 1, fontSize: 14, lineHeight: 21, color: colors.text },
+  tipText: {
+    flex: 1,
+    ...font.body,
+
+    color: colors.text,
+  },
   source: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -199,12 +232,20 @@ export const styles = StyleSheet.create({
     padding: 10,
   },
   sourceImage: { width: 54, height: 54, borderRadius: 11 },
-  sourceTitle: { fontSize: 15, fontWeight: '800', color: colors.text },
-  sourceCaption: { fontSize: 12, color: colors.muted, marginTop: 4 },
+  sourceTitle: {
+    ...font.label,
+
+    color: colors.text,
+  },
+  sourceCaption: {
+    fontSize: font.size.caption,
+    color: colors.muted,
+    marginTop: 4,
+  },
   ipaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
     marginTop: 2,
   },
-});
+}));

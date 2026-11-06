@@ -23,7 +23,6 @@ import { gradeReview } from '@/api/endpoints/gradeReview';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { scheduleDailyStudyReminder } from '@/services/notifications/scheduleDailyStudyReminder';
-import { colors } from '@/theme/theme';
 import type { Screen, ScreenProps } from '@/types/screen';
 import { AppTabs } from './AppTabs';
 import { ScreenContent } from './ScreenContent';
@@ -32,9 +31,10 @@ import { useScanFlow } from './hooks/useScanFlow';
 import { useSession } from './hooks/useSession';
 import { useVocabularyLibrary } from './hooks/useVocabularyLibrary';
 import { errorMessage } from '@/utils/errorMessage';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function AppContent() {
+  const { styles, colors } = useStyles();
   const [screen, setScreen] = useState<Screen>('home');
   const pendingSave = useRef<string | null>(null);
   const currentScreen = useRef<Screen>('home');
@@ -296,7 +296,7 @@ export function AppContent() {
     return (
       <SafeAreaView style={styles.loading}>
         <ActivityIndicator
-          color={colors.primary}
+          color={colors.primaryText}
           accessibilityLabel="Đang tải phiên đăng nhập"
         />
       </SafeAreaView>
@@ -351,7 +351,7 @@ export function AppContent() {
               ]}
               accessibilityLiveRegion="polite"
             >
-              <Bookmark size={16} color={colors.surface} />
+              <Bookmark size={16} color={colors.onOverlay} />
               <Text style={styles.toastText}>{feedback}</Text>
             </View>
           )}

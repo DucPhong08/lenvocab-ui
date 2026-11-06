@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { createStyles } from '@/theme/styles';
+import { Pressable, Text, View } from 'react-native';
 import type { Word } from '@/data/scenes';
-import { colors } from '@/theme/theme';
 import { CardImage } from './CardImage';
 
 export function WordGrid({
@@ -12,6 +12,7 @@ export function WordGrid({
   token?: string | null;
   onOpen: (id: string) => void;
 }) {
+  const { styles } = useStyles();
   return (
     <View style={styles.grid}>
       {words.map(word => (
@@ -46,7 +47,7 @@ export function WordGrid({
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ colors, font }) => ({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -69,8 +70,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 8,
   },
-  initial: { color: colors.primary, fontWeight: '800', fontSize: 44 },
+  initial: {
+    color: colors.primaryText,
+    fontWeight: font.weight.heavy,
+    fontSize: font.size.initial,
+  },
   copy: { padding: 10, gap: 5 },
-  term: { color: colors.text, fontWeight: '800', fontSize: 15 },
-  meaning: { color: colors.muted, fontSize: 13 },
-});
+  term: {
+    color: colors.text,
+    ...font.label,
+  },
+  meaning: { color: colors.muted, fontSize: font.size.small },
+}));

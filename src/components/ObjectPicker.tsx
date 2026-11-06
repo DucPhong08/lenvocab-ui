@@ -1,7 +1,7 @@
+import { createStyles } from '@/theme/styles';
 import { useEffect, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Box, DetectedObject } from '@/api/contracts';
-import { colors } from '@/theme/theme';
 
 export function containRect(
   width: number,
@@ -16,6 +16,7 @@ export function containRect(
 }
 
 export function CropPreview({ uri, box }: { uri: string; box: Box }) {
+  const { styles: css } = useStyles();
   const [size, setSize] = useState({ width: 1, height: 1 });
   const [width, setWidth] = useState(0);
   useEffect(() => {
@@ -91,6 +92,7 @@ export function ObjectPicker({
   busy: boolean;
   onSelect: (item: DetectedObject) => void;
 }) {
+  const { styles: css } = useStyles();
   const [size, setSize] = useState({ width: 1, height: 1 });
   const [width, setWidth] = useState(0);
   const rect = containRect(width || 1, 290, size.width, size.height);
@@ -172,7 +174,7 @@ export function ObjectPicker({
     </View>
   );
 }
-const css = StyleSheet.create({
+const useStyles = createStyles(({ colors, font }) => ({
   cropWindow: { position: 'absolute', overflow: 'hidden' },
   absoluteImage: { position: 'absolute' },
   scene: {
@@ -195,14 +197,18 @@ const css = StyleSheet.create({
   number: {
     alignSelf: 'flex-start',
     backgroundColor: colors.surface,
-    color: colors.primary,
+    color: colors.primaryText,
     paddingHorizontal: 5,
-    fontWeight: '800',
+    ...font.badge,
     borderRadius: 4,
-    fontSize: 11,
   },
   activeNumber: { backgroundColor: colors.highlight },
-  hint: { color: colors.muted, fontSize: 12, marginTop: 10, marginBottom: 9 },
+  hint: {
+    color: colors.muted,
+    fontSize: font.size.caption,
+    marginTop: 10,
+    marginBottom: 9,
+  },
   choices: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
   chip: {
     borderWidth: 1,
@@ -213,8 +219,14 @@ const css = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
   },
-  activeChip: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.primary, fontWeight: '700', fontSize: 12 },
+  activeChip: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primaryText,
+  },
+  chipText: {
+    color: colors.primaryText,
+    ...font.captionStrong,
+  },
   activeText: { color: colors.onPrimary },
   crop: {
     overflow: 'hidden',
@@ -222,4 +234,4 @@ const css = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     marginVertical: 12,
   },
-});
+}));

@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { Text } from 'react-native';
-import { styles } from './styles/branding.styles';
-import { colors } from '@/theme/theme';
+import { useStyles } from './styles/branding.styles';
 
 export function Eyebrow({
   children,
@@ -10,8 +9,9 @@ export function Eyebrow({
   children: ReactNode;
   light?: boolean;
 }) {
+  const { styles, colors } = useStyles();
   return (
-    <Text style={[styles.eyebrow, light && { color: colors.onPrimary }]}>
+    <Text style={[styles.eyebrow, light && { color: colors.onOverlay }]}>
       {children}
     </Text>
   );

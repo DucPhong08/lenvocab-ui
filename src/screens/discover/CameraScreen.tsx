@@ -7,11 +7,10 @@ import { TopBar } from '@/components/TopBar';
 import { getScene } from '@/data/getScene';
 import { scenes } from '@/data/scenes';
 import { sceneImage } from '@/theme/sceneImage';
-import { colors } from '@/theme/theme';
 import type { ScreenProps } from '@/types/screen';
 import { SceneThumbnail } from './components/SceneThumbnail';
 import { useImagePicker } from './hooks/useImagePicker';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function CameraScreen({
   navigate,
@@ -23,6 +22,7 @@ export function CameraScreen({
   scanning,
   user,
 }: ScreenProps) {
+  const { styles, colors } = useStyles();
   const scene = getScene(sceneId);
   const pickImage = useImagePicker(selectImage);
   return (
@@ -68,7 +68,7 @@ export function CameraScreen({
           onPress={() => pickImage('library')}
           style={styles.captureSide}
         >
-          <ImagePlus size={23} color={colors.primary} />
+          <ImagePlus size={23} color={colors.primaryText} />
           <Text style={styles.captureLabel}>Thư viện</Text>
         </Pressable>
         <Pressable
@@ -89,7 +89,7 @@ export function CameraScreen({
           onPress={() => selectImage(null)}
           style={styles.captureSide}
         >
-          <RotateCcw size={22} color={colors.primary} />
+          <RotateCcw size={22} color={colors.primaryText} />
           <Text style={styles.captureLabel}>Ảnh mẫu</Text>
         </Pressable>
       </View>

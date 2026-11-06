@@ -1,6 +1,6 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { createStyles } from '@/theme/styles';
+import { Pressable } from 'react-native';
 import { Volume2 } from 'lucide-react-native';
-import { colors } from '@/theme/theme';
 
 export function AudioButton({
   label,
@@ -13,6 +13,7 @@ export function AudioButton({
   playing?: boolean;
   disabled?: boolean;
 }) {
+  const { styles, colors } = useStyles();
   return (
     <Pressable
       accessibilityRole="button"
@@ -28,12 +29,12 @@ export function AudioButton({
         (pressed || playing || disabled) && styles.pressed,
       ]}
     >
-      <Volume2 size={20} color={colors.primary} />
+      <Volume2 size={20} color={colors.primaryText} />
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createStyles(({ colors }) => ({
   button: {
     width: 44,
     height: 44,
@@ -43,4 +44,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryTint,
   },
   pressed: { opacity: 0.65 },
-});
+}));

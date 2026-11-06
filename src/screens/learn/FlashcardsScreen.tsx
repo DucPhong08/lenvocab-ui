@@ -9,7 +9,7 @@ import { useAudio } from '@/hooks/useAudio';
 import { memoryLevels, SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
 import { useFlashcards } from './hooks/useFlashcards';
-import { styles } from './styles';
+import { useStyles } from './styles';
 
 export function FlashcardsScreen({
   navigate,
@@ -21,6 +21,7 @@ export function FlashcardsScreen({
   dataError,
   reloadData,
 }: ScreenProps) {
+  const { styles } = useStyles();
   const {
     flip,
     flipped,
