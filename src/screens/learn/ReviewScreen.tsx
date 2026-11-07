@@ -1,5 +1,5 @@
-import { vi } from '@/i18n/vi';
 import { Text } from 'react-native';
+import { useI18n } from '@/i18n';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { StudyCard } from '@/components/StudyCard';
@@ -19,29 +19,30 @@ export function ReviewScreen({
   reloadData,
 }: ScreenProps) {
   const { styles } = useStyles();
+  const { strings } = useI18n();
   if (loadingData)
     return (
       <EmptyState
         loading
-        title="Đang tải lịch ôn"
-        description="Vui lòng chờ trong giây lát."
+        title={strings.review.loadingTitle}
+        description={strings.review.loadingDescription}
       />
     );
   if (dataError)
     return (
       <EmptyState
-        title="Không thể tải lịch ôn"
+        title={strings.review.loadErrorTitle}
         description={dataError}
-        action="Thử lại"
+        action={strings.common.retry}
         onPress={() => reloadData()}
       />
     );
   if (user && !totalSaved && !cards.length && !due.length)
     return (
       <EmptyState
-        title="Chưa có từ để luyện tập"
-        description="Quét và lưu từ đầu tiên để bắt đầu ôn tập."
-        action="Quét từ mới"
+        title={strings.review.noWordsTitle}
+        description={strings.review.noWordsDescription}
+        action={strings.review.scanNewWord}
         onPress={() => navigate('camera')}
       />
     );
@@ -49,29 +50,29 @@ export function ReviewScreen({
   const count = user ? Math.min(SESSION_SIZE, due.length) : SESSION_SIZE;
   return (
     <>
-      <ScreenTitle title={vi.review.title} subtitle={vi.review.subtitle} />
+      <ScreenTitle title={strings.review.title} subtitle={strings.review.subtitle} />
       <StudyCard
-        title={done ? 'Chưa có từ đến hạn.' : `Chỉ ${count} từ một lượt.`}
+        title={done ? strings.review.notDueYet : strings.review.roundCount(count)}
         description={
           user
             ? done
-              ? 'Bạn vẫn có thể luyện phản xạ bằng Quiz.'
-              : `${due.length} từ đang chờ ôn. Chọn mức nhớ để hẹn lần ôn tiếp theo.`
-            : 'Đây là thẻ mẫu. Đăng nhập để có lịch ôn của riêng bạn.'
+              ? strings.review.quizPracticeHint
+              : strings.review.waitingDueHint(due.length)
+            : strings.review.sampleCardHint
         }
       >
         <PrimaryButton
-          label={done ? 'Hôm nay chưa cần ôn' : vi.review.start(count)}
+          label={done ? strings.review.notDueToday : strings.review.start(count)}
           disabled={done}
           onPress={() => navigate('flashcards')}
         />
       </StudyCard>
       <PrimaryButton
-        label={vi.review.quiz}
+        label={strings.review.quiz}
         variant="secondary"
         onPress={() => navigate('quiz')}
       />
-      <Text style={styles.hint}>{vi.review.hint(SESSION_SIZE)}</Text>
+      <Text style={styles.hint}>{strings.review.hint(SESSION_SIZE)}</Text>
     </>
   );
 }

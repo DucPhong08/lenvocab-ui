@@ -3,6 +3,7 @@ import { Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 import { Eye, EyeOff, Settings2, Sparkles } from 'lucide-react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TopBar } from '@/components/TopBar';
+import { useI18n } from '@/i18n';
 import type { ScreenProps } from '@/types/screen';
 import { useAuthForm } from './hooks/useAuthForm';
 import { errorMessage } from '@/utils/errorMessage';
@@ -17,6 +18,7 @@ export function AuthScreen({
   authBack = 'profile',
 }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const { strings } = useI18n();
   const {
     username,
     email,
@@ -35,21 +37,21 @@ export function AuthScreen({
   const [passwordVisible, setPasswordVisible] = useState(false);
   return (
     <>
-      <TopBar title="Tài khoản" onBack={() => navigate(authBack)} />
+      <TopBar title={strings.auth.title} onBack={() => navigate(authBack)} />
       <View style={styles.authGraphic}>
         <Sparkles size={26} color={colors.primaryText} />
       </View>
       <Text style={styles.authTitle}>
-        {mode === 'login' ? 'Mừng bạn quay lại.' : 'Bắt đầu học cùng lenvocab.'}
+        {mode === 'login' ? strings.auth.welcomeBack : strings.auth.startLearning}
       </Text>
       <Text style={styles.authDescription}>
-        Đăng nhập để lưu từ đã quét, đồng bộ kho từ và ôn tập theo lịch của bạn.
+        {strings.auth.description}
       </Text>
-      <Text style={styles.fieldLabel}>Tên đăng nhập</Text>
+      <Text style={styles.fieldLabel}>{strings.auth.usernameLabel}</Text>
       <TextInput
         accessibilityLabel="Username"
         placeholder={
-          mode === 'login' ? 'Tên đăng nhập hoặc email cũ' : 'Ví dụ: phong_01'
+          mode === 'login' ? strings.auth.usernameLoginPlaceholder : strings.auth.usernameRegisterPlaceholder
         }
         placeholderTextColor={colors.muted}
         value={username}
@@ -63,14 +65,14 @@ export function AuthScreen({
       />
       {mode === 'register' && (
         <Text style={styles.fieldHint}>
-          3–30 ký tự: chữ không dấu, số, dấu chấm hoặc gạch dưới.
+          {strings.auth.usernameHint}
         </Text>
       )}
-      <Text style={styles.fieldLabel}>Mật khẩu</Text>
+      <Text style={styles.fieldLabel}>{strings.auth.passwordLabel}</Text>
       <View style={styles.passwordField}>
         <TextInput
           accessibilityLabel="Mật khẩu"
-          placeholder="Mật khẩu"
+          placeholder={strings.auth.passwordPlaceholder}
           placeholderTextColor={colors.muted}
           value={password}
           onChangeText={setPassword}
@@ -86,7 +88,7 @@ export function AuthScreen({
         />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={passwordVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+          accessibilityLabel={passwordVisible ? strings.auth.hidePassword : strings.auth.showPassword}
           onPress={() => setPasswordVisible(visible => !visible)}
           style={styles.passwordToggle}
         >
@@ -100,12 +102,12 @@ export function AuthScreen({
       {mode === 'register' && (
         <>
           <Text style={styles.fieldHint}>
-            Ít nhất 6 ký tự. Email và tên hiển thị có thể bỏ trống.
+            {strings.auth.passwordHint}
           </Text>
-          <Text style={styles.fieldLabel}>Email (không bắt buộc)</Text>
+          <Text style={styles.fieldLabel}>{strings.auth.emailOptionalLabel}</Text>
           <TextInput
             accessibilityLabel="Email (không bắt buộc)"
-            placeholder="Email (không bắt buộc)"
+            placeholder={strings.auth.emailOptionalLabel}
             placeholderTextColor={colors.muted}
             value={email}
             onChangeText={setEmail}
@@ -117,10 +119,10 @@ export function AuthScreen({
             editable={!authBusy}
             style={styles.authInput}
           />
-          <Text style={styles.fieldLabel}>Tên hiển thị (không bắt buộc)</Text>
+          <Text style={styles.fieldLabel}>{strings.auth.nameOptionalLabel}</Text>
           <TextInput
             accessibilityLabel="Tên hiển thị (không bắt buộc)"
-            placeholder="Tên hiển thị (không bắt buộc)"
+            placeholder={strings.auth.nameOptionalLabel}
             placeholderTextColor={colors.muted}
             value={name}
             onChangeText={setName}
@@ -139,27 +141,27 @@ export function AuthScreen({
       <PrimaryButton
         label={
           authBusy
-            ? 'Đang xử lý...'
+            ? strings.auth.processing
             : mode === 'login'
-            ? 'Đăng nhập'
-            : 'Tạo tài khoản'
+            ? strings.auth.loginAction
+            : strings.auth.registerAction
         }
         disabled={authBusy}
         onPress={() => submit()}
       />
       <View style={styles.authDivider}>
         <View style={styles.dividerLine} />
-        <Text style={styles.fieldHint}>hoặc</Text>
+        <Text style={styles.fieldHint}>{strings.common.or}</Text>
         <View style={styles.dividerLine} />
       </View>
       <PrimaryButton
-        label="Tiếp tục với Google"
+        label={strings.auth.googleAction}
         variant="secondary"
         disabled={authBusy}
         onPress={() => {
           setError('');
           onGoogleAuth().catch(cause =>
-            setError(errorMessage(cause, 'Chưa thể đăng nhập Google.')),
+            setError(errorMessage(cause, strings.auth.googleError)),
           );
         }}
       />
@@ -177,15 +179,14 @@ export function AuthScreen({
       >
         <Text style={styles.authSwitchText}>
           {mode === 'login'
-            ? 'Chưa có tài khoản? Đăng ký'
-            : 'Đã có tài khoản? Đăng nhập'}
+            ? strings.auth.noAccountSwitch
+            : strings.auth.hasAccountSwitch}
         </Text>
       </Pressable>
       <View style={styles.authNotice}>
         <Settings2 size={19} color={colors.primaryText} />
         <Text style={styles.authNoticeText}>
-          Bạn có thể quét ảnh thật và xem từ vựng minh họa ở chế độ khách. Đăng
-          nhập khi muốn lưu từ vào tài khoản.
+          {strings.auth.guestNotice}
         </Text>
       </View>
     </>

@@ -8,8 +8,9 @@ import {
   Headphones,
   Sparkles,
   Target,
+  Languages,
 } from 'lucide-react-native';
-import { vi } from '@/i18n/vi';
+import { useI18n } from '@/i18n';
 import { Brand } from '@/components/Brand';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -30,21 +31,22 @@ export function ProfileScreen({
   onLogout,
 }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const { strings, locale, setLocale } = useI18n();
   const prefs = user?.preferences;
   const displayName =
     user?.display_name?.trim() ||
     user?.username ||
-    (user ? 'Người học' : 'Khách tham quan');
+    (user ? strings.profile.learner : strings.profile.guest);
 
   return (
     <>
       <ScreenTitle
-        kicker="GÓC CỦA BẠN"
-        title="Góc học tập của bạn"
+        kicker={strings.profile.kicker}
+        title={strings.profile.title}
         subtitle={
           user
-            ? 'Từ đã lưu và lịch ôn luôn theo tài khoản của bạn.'
-            : 'Dùng thử không cần tài khoản · Không lưu bộ từ.'
+            ? strings.profile.userSubtitle
+            : strings.profile.guestSubtitle
         }
       />
 
@@ -61,7 +63,7 @@ export function ProfileScreen({
               ? `${user.username || user.email || 'Tài khoản Google'} · Gói ${
                   user.account_tier
                 }`
-              : 'Đăng nhập để lưu từ và tiến độ học'}
+              : strings.profile.guestIdentitySub}
           </Text>
         </View>
       </View>
@@ -69,67 +71,72 @@ export function ProfileScreen({
       <View style={styles.profileStats}>
         <View style={styles.stat}>
           <Text style={styles.statValue}>{totalSaved}</Text>
-          <Text style={styles.statCaption}>từ đã lưu</Text>
+          <Text style={styles.statCaption}>{strings.profile.savedCountCaption}</Text>
         </View>
         <View style={styles.verticalLine} />
         <View style={styles.stat}>
           <Text style={styles.statValue}>{history.length}</Text>
-          <Text style={styles.statCaption}>quét phiên này</Text>
+          <Text style={styles.statCaption}>{strings.profile.sessionScansCaption}</Text>
         </View>
         {user && (
           <>
             <View style={styles.verticalLine} />
             <View style={styles.stat}>
               <Text style={styles.statValue}>{user.daily_quota_left}</Text>
-              <Text style={styles.statCaption}>lượt quét còn</Text>
+              <Text style={styles.statCaption}>{strings.profile.dailyQuotaCaption}</Text>
             </View>
           </>
         )}
       </View>
 
-      <Eyebrow>HỌC TẬP</Eyebrow>
+      <Eyebrow>{strings.profile.learningEyebrow}</Eyebrow>
       <View style={styles.menu}>
         <MenuItem
-          label="Từ vựng đã lưu"
+          label={strings.profile.savedWords}
           icon={<Bookmark size={19} color={colors.primaryText} />}
           onPress={() => navigate('saved')}
         />
         <MenuItem
-          label="Lịch sử quét"
+          label={strings.profile.scanHistory}
           icon={<Clock3 size={19} color={colors.primaryText} />}
           onPress={() => navigate('history')}
         />
         <MenuItem
-          label="Giới thiệu ứng dụng"
+          label={strings.profile.appIntro}
           icon={<Sparkles size={19} color={colors.primaryText} />}
           onPress={() => navigate('onboarding')}
+        />
+        <MenuItem
+          label={locale === 'vi' ? 'Ngôn ngữ: Tiếng Việt' : 'Language: English'}
+          icon={<Languages size={19} color={colors.primaryText} />}
+          onPress={() => setLocale(locale === 'vi' ? 'en' : 'vi')}
         />
       </View>
 
       {user && (
         <>
           <MenuItem
-            label={vi.offline.title}
+            label={strings.offline.title}
             icon={<Download size={19} color={colors.primaryText} />}
             onPress={() => navigate('sync')}
           />
-          <Eyebrow>Tùy chọn học tập</Eyebrow>
+          <Eyebrow>{strings.profile.voiceSettings}</Eyebrow>
           <View style={styles.menu}>
             <SettingRow
               icon={<Headphones size={19} color={colors.primaryText} />}
-              label="Giọng phát âm chuẩn"
+              label={strings.profile.standardVoice}
               description={prefs?.preferred_voice_id ?? 'Joanna'}
             />
 
             <View style={styles.menuItem}>
               <View style={styles.fill}>
-                <Text style={styles.menuText}>Tốc độ phát âm</Text>
+                <Text style={styles.menuText}>{strings.profile.voiceSpeed}</Text>
                 <View style={styles.speedOptions}>
                   {[0.75, 1, 1.25].map(speed => (
                     <Pressable
                       key={speed}
                       accessibilityRole="button"
-                      accessibilityLabel={`Tốc độ ${speed}x`}
+                      accessibilityLabel={strings.profile.voiceSpeedLabel.replace('{speed}', String(speed))}
                       accessibilityState={{
                         selected: (prefs?.voice_speed ?? 1) === speed,
                       }}
@@ -174,10 +181,10 @@ export function ProfileScreen({
           <PrimaryButton
             label={
               googleLinkBusy
-                ? 'Đang liên kết Google...'
+                ? strings.profile.googleLinking
                 : user.google_linked
-                ? 'Đã liên kết Google'
-                : 'Liên kết Google'
+                ? strings.profile.googleLinked
+                : strings.profile.googleLink
             }
             variant="secondary"
             disabled={googleLinkBusy || user.google_linked === true}
@@ -186,13 +193,13 @@ export function ProfileScreen({
         )}
         {user ? (
           <PrimaryButton
-            label="Đăng xuất"
+            label={strings.profile.logout}
             variant="secondary"
             onPress={() => onLogout()}
           />
         ) : (
           <PrimaryButton
-            label="Đăng nhập để đồng bộ"
+            label={strings.profile.loginToSync}
             onPress={() => navigate('auth')}
           />
         )}
@@ -201,8 +208,8 @@ export function ProfileScreen({
         <Brand />
         <Text style={styles.footerText}>
           {user
-            ? 'Mở Học không cần mạng để xem bản lưu và trạng thái đồng bộ.'
-            : 'Chế độ khách không lưu bộ từ hoặc lịch sử. Đăng nhập để sử dụng đầy đủ tính năng.'}
+            ? strings.profile.footerUser
+            : strings.profile.footerGuest}
         </Text>
       </View>
     </>

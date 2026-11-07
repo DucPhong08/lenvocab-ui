@@ -1,9 +1,11 @@
+> **BẢN NHÁP CHƯA XÁC MINH — KHÔNG PHÁT HÀNH.** Người dùng đã tạm hoãn phần pháp lý. Chưa có thông tin đơn vị vận hành hay liên hệ được xác nhận. Nội dung bên dưới còn cần đối chiếu, đặc biệt các mô tả mã hóa bộ nhớ offline và xóa tài khoản chưa đúng chức năng hiện tại.
+
 # ĐIỀU KHOẢN DỊCH VỤ (TERMS OF SERVICE) - LENVOCAB
 
-**Ngày có hiệu lực (Effective Date):** 07/11/2026  
-**Ứng dụng:** LenVocab (Mã gói: `com.lenvocab.app`)  
-**Đơn vị phát triển:** LenVocab Team  
-**Email liên hệ:** support@lenvocab.app
+**Ngày có hiệu lực (Effective Date):** Chưa có — bản nháp
+**Ứng dụng:** LenVocab (Mã gói: `com.lenvocab.app`)
+**Đơn vị phát triển:** Chưa xác nhận
+**Email liên hệ:** [email chưa cung cấp]
 
 ---
 
@@ -23,7 +25,7 @@ Bạn phải từ đủ 13 tuổi trở lên (hoặc độ tuổi theo luật đ
 
 - Bạn chịu trách nhiệm duy trì tính bảo mật của thông tin tài khoản (thông tin đăng nhập Google hoặc mật khẩu cá nhân).
 - Bạn cam kết cung cấp thông tin chính xác, cập nhật khi tạo hồ sơ người dùng.
-- Bạn phải thông báo ngay lập tức cho chúng tôi qua email `support@lenvocab.app` nếu phát hiện bất kỳ hành vi truy cập trái phép nào vào tài khoản của mình.
+- Bạn phải thông báo ngay lập tức cho chúng tôi qua email `[email chưa cung cấp]` nếu phát hiện bất kỳ hành vi truy cập trái phép nào vào tài khoản của mình.
 
 ---
 
@@ -109,5 +111,5 @@ Các Điều khoản này được điều chỉnh và giải thích theo quy đ
 Nếu bạn có câu hỏi hoặc cần hỗ trợ về Điều khoản Dịch vụ của LenVocab, vui lòng liên hệ:
 
 - **Bộ phận Chăm sóc Người dùng LenVocab**
-- **Email:** support@lenvocab.app
-- **Website:** https://lenvocab.app
+- **Email:** [email chưa cung cấp]
+- **Website:** [website chưa cung cấp]

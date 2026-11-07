@@ -1,9 +1,11 @@
+> **BẢN NHÁP CHƯA XÁC MINH — KHÔNG PHÁT HÀNH.** Người dùng đã tạm hoãn phần pháp lý. Chưa có thông tin đơn vị vận hành hay liên hệ được xác nhận. Nội dung bên dưới còn cần đối chiếu, đặc biệt các mô tả mã hóa bộ nhớ offline và xóa tài khoản chưa đúng chức năng hiện tại.
+
 # CHÍNH SÁCH BẢO MẬT (PRIVACY POLICY) - LENVOCAB
 
-**Ngày có hiệu lực (Effective Date):** 07/11/2026  
-**Ứng dụng:** LenVocab (Mã gói: `com.lenvocab.app`)  
-**Đơn vị phát triển:** LenVocab Team  
-**Email liên hệ:** privacy@lenvocab.app (hoặc support@lenvocab.app)
+**Ngày có hiệu lực (Effective Date):** Chưa có — bản nháp
+**Ứng dụng:** LenVocab (Mã gói: `com.lenvocab.app`)
+**Đơn vị phát triển:** Chưa xác nhận
+**Email liên hệ:** [email chưa cung cấp] (hoặc [email chưa cung cấp])
 
 ---
 
@@ -94,7 +96,7 @@ Theo chính sách của Apple App Store và Google Play, bạn có toàn quyền
 2. **Hủy cấp quyền thiết bị:** Bạn có thể thu hồi quyền Camera, Ảnh hoặc Thông báo bất cứ lúc nào trong Cài đặt thiết bị (Settings -> Applications -> LenVocab).
 3. **Yêu cầu Xóa Tài khoản & Dữ liệu (Account & Data Deletion Request):**
    - Bạn có thể yêu cầu xóa tài khoản trực tiếp ngay trong ứng dụng qua mục **Cài đặt > Xóa tài khoản**, hoặc:
-   - Gửi email yêu cầu xóa dữ liệu tới: **privacy@lenvocab.app** với tiêu đề `[Yêu cầu xóa tài khoản LenVocab]`.
+   - Gửi email yêu cầu xóa dữ liệu tới: **[email chưa cung cấp]** với tiêu đề `[Yêu cầu xóa tài khoản LenVocab]`.
    - Khi tài khoản bị xóa, toàn bộ dữ liệu cá nhân, lịch sử quét và tiến độ học tập liên kết với bạn trên hệ thống máy chủ sẽ được xóa vĩnh viễn hoặc ẩn danh hóa không thể phục hồi trong vòng 30 ngày.
 
 ---
@@ -116,5 +118,5 @@ Chúng tôi có thể cập nhật Chính sách bảo mật này theo thời gia
 Nếu bạn có bất kỳ câu hỏi, thắc mắc hoặc khiếu nại nào liên quan đến Chính sách bảo mật này hoặc việc xử lý dữ liệu của LenVocab, vui lòng liên hệ:
 
 - **LenVocab Privacy Team**
-- **Email:** privacy@lenvocab.app
-- **Website / Hỗ trợ:** https://lenvocab.app/support
+- **Email:** [email chưa cung cấp]
+- **Website / Hỗ trợ:** [website chưa cung cấp]/support

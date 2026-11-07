@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
-import { vi } from '@/i18n/vi';
+import { useI18n } from '@/i18n';
 import { Camera } from 'lucide-react-native';
 import { Brand } from '@/components/Brand';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -28,6 +28,7 @@ export function HomeScreen({
   selectImage,
 }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const { strings } = useI18n();
   const words = user ? cards.slice(0, 2).map(cardWord) : allWords.slice(0, 2);
   const count = Math.min(SESSION_SIZE, due.length);
   const hasCards = cards.length > 0;
@@ -37,7 +38,7 @@ export function HomeScreen({
         <Brand />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Mở hồ sơ"
+          accessibilityLabel={strings.profile.title}
           onPress={() => navigate('profile')}
           style={styles.avatar}
         >
@@ -46,43 +47,43 @@ export function HomeScreen({
           </Text>
         </Pressable>
       </View>
-      <Text style={styles.homeGreeting}>Chào bạn, học một chút nhé!</Text>
+      <Text style={styles.homeGreeting}>{strings.home.greeting}</Text>
       <Text style={styles.homeTitle}>
-        Từ quen quanh mình,{'\n'}nhớ thêm mỗi ngày.
+        {strings.home.heroTitle}
       </Text>
       <StudyCard
         label={
           user && count
-            ? `${due.length} từ đang đến hạn`
-            : 'Học từ thế giới của bạn'
+            ? strings.home.dueLabel(due.length)
+            : strings.home.worldLabel
         }
         illustration={<LenCamera size={96} />}
         title={
           user && count
-            ? 'Nhớ lại trước khi quên nhé.'
+            ? strings.home.dueTitle
             : hasCards
-            ? 'Dùng lại từ của bạn.'
-            : 'Chụp một vật, giữ một từ.'
+            ? strings.home.reuseTitle
+            : strings.home.captureTitle
         }
         description={
           dataError
-            ? 'Lịch ôn chưa đồng bộ. Bạn có thể thử tải lại bên dưới.'
+            ? strings.home.errorDescription
             : loadingData
-            ? 'Đang đồng bộ lịch ôn và kho từ của bạn.'
+            ? strings.home.loadingDescription
             : user && count
-            ? `Chỉ ${count} từ cho lượt này.`
+            ? strings.home.sessionDescription(count)
             : hasCards
-            ? 'Chưa có từ đến hạn. Thử một câu hỏi từ kho cá nhân.'
-            : 'Chụp vật quen thuộc, lưu sticker cùng nghĩa và câu ví dụ.'
+            ? strings.home.noDueDescription
+            : strings.home.captureDescription
         }
       >
         <PrimaryButton
           label={
             user && count
-              ? `Ôn nhanh ${count} từ`
+              ? strings.home.startDue(count)
               : hasCards
-              ? 'Quiz từ của bạn'
-              : 'Chụp ảnh học từ'
+              ? strings.home.startQuiz
+              : strings.home.startCamera
           }
           disabled={!!user && loadingData && !hasCards}
           onPress={() =>
@@ -94,7 +95,7 @@ export function HomeScreen({
       </StudyCard>
       {(hasCards || count > 0) && (
         <PrimaryButton
-          label="Chụp ảnh học từ"
+          label={strings.home.startCamera}
           variant="secondary"
           icon={<Camera size={21} color={colors.accentText} />}
           style={styles.homeCapture}
@@ -104,7 +105,7 @@ export function HomeScreen({
       )}
       {dataError && words.length > 0 && (
         <PrimaryButton
-          label="Tải lại lịch ôn"
+          label={strings.home.reloadSchedule}
           variant="secondary"
           onPress={() => reloadData().catch(() => {})}
           style={styles.actionTop12}
@@ -112,18 +113,18 @@ export function HomeScreen({
       )}
       {!user && (
         <Text style={styles.demoNote}>
-          Thử ngay. Đăng nhập khi bạn muốn lưu thẻ.
+          {strings.home.guestNote}
         </Text>
       )}
       <SectionHeader
-        title={user ? 'Bộ sưu tập của bạn' : 'Thẻ mẫu để thử'}
-        action={user ? 'Mở kho từ' : 'Thử ôn mẫu'}
+        title={user ? strings.home.collectionTitle : strings.home.sampleCollectionTitle}
+        action={user ? strings.home.openSaved : strings.home.trySample}
         onAction={() => navigate(user ? 'saved' : 'flashcards')}
       />
       <WordGrid words={words} token={token} onOpen={openWord} />
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Khám phá từ mẫu A2–B2"
+        accessibilityLabel={strings.home.sampleA2B2}
         onPress={() => {
           setSceneId('desk');
           selectImage(null);
@@ -132,7 +133,7 @@ export function HomeScreen({
         style={styles.sampleLink}
       >
         <Text style={styles.sampleLinkText}>
-          {vi.library.samples(allWords.length)}
+          {strings.library.samples(allWords.length)}
         </Text>
       </Pressable>
       {user && !words.length && (
@@ -140,20 +141,20 @@ export function HomeScreen({
           loading={loadingData}
           title={
             loadingData
-              ? 'Đang tải kho từ'
+              ? strings.home.loadingCards
               : dataError
-              ? 'Chưa tải được kho từ'
-              : 'Tạo thẻ đầu tiên của bạn'
+              ? strings.home.loadCardsError
+              : strings.home.createFirstCard
           }
           description={
-            dataError || 'Chụp một vật quen thuộc và lưu thẻ kèm sticker.'
+            dataError || strings.home.captureDescription
           }
           action={
             loadingData
               ? undefined
               : dataError
-              ? 'Tải lại kho từ'
-              : 'Quét ảnh đầu tiên'
+              ? strings.home.reloadCards
+              : strings.home.scanFirstPhoto
           }
           onPress={
             dataError
