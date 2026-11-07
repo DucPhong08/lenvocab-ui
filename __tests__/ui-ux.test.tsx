@@ -393,16 +393,25 @@ test('home can open the A2–B2 sample library without scanning or saving', asyn
   expect(data.toggleSaved).not.toHaveBeenCalled();
 });
 
-test('B2 practice receives the filtered sample collection instead of the guest default', async () => {
-  const data = props();
-  await mount(<ResultsScreen {...data} />);
-  await Renderer.act(async () => button('Lọc từ mẫu B2').props.onPress());
-  await Renderer.act(async () => button('Luyện 3 từ B2').props.onPress());
-  const words = jest.mocked(data.startPractice).mock.calls[0][0];
-  expect(words.every(word => word.level === 'B2')).toBe(true);
-  expect(words.map(word => word.id)).toContain('keep-track-of');
-  expect(data.toggleSaved).not.toHaveBeenCalled();
-});
+test.each(['A2', 'B1', 'B2'])(
+  'sample %s practice offers ten words at the selected level',
+  async level => {
+    const data = props();
+    await mount(<ResultsScreen {...data} />);
+    await Renderer.act(async () =>
+      button(`Lọc từ mẫu ${level}`).props.onPress(),
+    );
+    await Renderer.act(async () =>
+      button(`Luyện 10 từ ${level}`).props.onPress(),
+    );
+    const words = jest.mocked(data.startPractice).mock.calls[0][0];
+    expect(words.length).toBeGreaterThanOrEqual(10);
+    expect(words.every(word => word.level === level)).toBe(true);
+    expect(new Set(words.map(word => word.id)).size).toBe(words.length);
+    expect(words[0].scene).toBe('desk');
+    expect(data.toggleSaved).not.toHaveBeenCalled();
+  },
+);
 
 test('leaving an unfinished quiz requires an explicit choice and cancel keeps the answer', async () => {
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});

@@ -381,7 +381,7 @@ test('sample practice hides tabs, confirms exit, and clears the sample selection
     });
     await press('Khám phá từ mẫu A2–B2');
     await press('Lọc từ mẫu B2');
-    await press('Luyện 3 từ B2');
+    await press('Luyện 10 từ B2');
     expect(
       renderer.root.findAll(node => node.props.children === 'minimalist')
         .length,

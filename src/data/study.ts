@@ -1,4 +1,4 @@
-export const SESSION_SIZE = 3;
+export const SESSION_SIZE = 10;
 
 export const memoryLevels = [
   { label: 'Chưa nhớ', quality: 1 },

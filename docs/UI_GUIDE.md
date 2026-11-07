@@ -43,8 +43,8 @@ Cảnh mẫu có bộ lọc A2/B1/B2 và cụm từ dùng trong ngữ cảnh. C�
 
 ## Phiên luyện ngắn
 
-- Quiz lấy tối đa `SESSION_SIZE` (3) từ; “Luyện thêm” mở nhóm tiếp theo. Lựa chọn và câu hỏi được giữ trong suốt lượt, kể cả khi dữ liệu tài khoản tải lại.
-- Bộ lọc mẫu truyền đúng các từ đang hiển thị vào Quiz. Luyện mẫu không lưu thẻ hoặc chấm lịch ôn cá nhân, kể cả khi đã đăng nhập.
+- Quiz lấy tối đa `SESSION_SIZE` (10) từ; “Luyện thêm” mở nhóm tiếp theo. Lựa chọn và câu hỏi được giữ trong suốt lượt, kể cả khi dữ liệu tài khoản tải lại.
+- Bộ lọc mẫu ưu tiên từ trong cảnh đang xem, rồi bổ sung từ cùng mức ở các cảnh mẫu khác để đủ 10 từ mỗi lượt. Khi chọn Tất cả, từ bổ sung lấy từ toàn bộ cảnh mẫu. Luyện mẫu không lưu thẻ hoặc chấm lịch ôn cá nhân, kể cả khi đã đăng nhập.
 - Mỗi câu trắc nghiệm có các lựa chọn khác nghĩa; loại nhãn trùng sau khi chuẩn hóa chữ hoa/thường, khoảng trắng, dấu câu và các nghĩa ngăn bằng dấu phẩy/chấm phẩy.
 - Thêm một câu điền từ nếu ví dụ có đúng một lần xuất hiện nguyên từ/cụm đang học. Không cắt một phần của từ hoặc đoán biến thể. Chấp nhận khác chữ hoa/thường và khoảng trắng; đây là luyện đúng từ đã học, không chấm câu tự do hay đánh giá CEFR.
 - Kết quả đếm câu đúng của lượt và liệt kê từ cần luyện thêm, không suy ra ghi nhớ lâu dài. Ôn từ sai giữ nhóm tiếp theo để người học có thể tiếp tục.

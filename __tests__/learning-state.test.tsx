@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import type { Flashcard, ReviewCard, User } from '@/api/contracts';
 import { useFlashcards } from '@/screens/learn/hooks/useFlashcards';
 import { getWord } from '@/data/getWord';
-import type { Word } from '@/data/scenes';
+import { allWords, type Word } from '@/data/scenes';
 import { useQuiz } from '@/screens/learn/hooks/useQuiz';
 
 const user: User = {
@@ -134,8 +134,8 @@ test('flashcard grading blocks duplicate submits and keeps review_id for retry',
   await ReactTestRenderer.act(async () => renderer.unmount());
 });
 
-test('a short session keeps three cards, then restarts with current remaining cards', async () => {
-  const due = Array.from({ length: 5 }, (_, i) =>
+test('a session keeps ten cards, then restarts with current remaining cards', async () => {
+  const due = Array.from({ length: 12 }, (_, i) =>
     reviewCard(`card-${i}`, `word-${i}`),
   );
   const submitReview = jest.fn().mockResolvedValue(undefined);
@@ -155,21 +155,19 @@ test('a short session keeps three cards, then restarts with current remaining ca
     renderer = ReactTestRenderer.create(<Harness remaining={due} />);
   });
   try {
-    expect(state.words).toHaveLength(3);
-    for (let i = 0; i < 3; i++) {
+    expect(state.words).toHaveLength(10);
+    for (let i = 0; i < 10; i++) {
       await ReactTestRenderer.act(async () => state.grade(5));
       await ReactTestRenderer.act(async () =>
         renderer.update(<Harness remaining={due.slice(i + 1)} />),
       );
     }
     expect(state.word).toBeUndefined();
-    expect(submitReview.mock.calls.map(call => call[0])).toEqual([
-      'card-0',
-      'card-1',
-      'card-2',
-    ]);
+    expect(submitReview.mock.calls.map(call => call[0])).toEqual(
+      due.slice(0, 10).map(card => card.user_flashcard_id),
+    );
     await ReactTestRenderer.act(async () => state.restart());
-    expect(state.words.map(word => word.id)).toEqual(['card-3', 'card-4']);
+    expect(state.words.map(word => word.id)).toEqual(['card-10', 'card-11']);
     expect(state.index).toBe(0);
     expect(state.flipped).toBe(false);
   } finally {
@@ -228,25 +226,21 @@ test('quiz removes distractors with the same meaning, including case, punctuatio
   }
 });
 
-test('a large quiz takes three words and continues with the next group', async () => {
+test('a large quiz takes ten words and continues with the next group', async () => {
   const cards = Array.from({ length: 60 }, (_, i) =>
     flashcard(`card-${i}`, `word-${i}`),
   );
   const session = await quizSession({ cards });
   try {
-    expect(session.state.questions.map(item => item.id)).toEqual([
-      'card-0',
-      'card-1',
-      'card-2',
-    ]);
-    expect(session.state.remaining).toBe(57);
+    expect(session.state.questions.map(item => item.id)).toEqual(
+      Array.from({ length: 10 }, (_, i) => `card-${i}`),
+    );
+    expect(session.state.remaining).toBe(50);
     await ReactTestRenderer.act(async () => session.state.more());
-    expect(session.state.questions.map(item => item.id)).toEqual([
-      'card-3',
-      'card-4',
-      'card-5',
-    ]);
-    expect(session.state.remaining).toBe(54);
+    expect(session.state.questions.map(item => item.id)).toEqual(
+      Array.from({ length: 10 }, (_, i) => `card-${i + 10}`),
+    );
+    expect(session.state.remaining).toBe(40);
   } finally {
     await session.close();
   }
@@ -331,11 +325,9 @@ test('context extraction does not hide a term inside another word or skip its fi
 
 test('retry preserves the next group and a word missed twice appears once', async () => {
   const practiceWords = [
-    'keep-track-of',
-    'cut-down-on',
-    'allow-for',
-    'headphones',
-  ].map(getWord);
+    getWord('keep-track-of'),
+    ...allWords.filter(word => word.id !== 'keep-track-of'),
+  ].slice(0, 11);
   const session = await quizSession({ practiceWords });
   try {
     const wrong = session.state.options.find(
@@ -345,7 +337,7 @@ test('retry preserves the next group and a word missed twice appears once', asyn
       session.state.selectOption(wrong.id),
     );
     await ReactTestRenderer.act(async () => session.state.nextQuestion());
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 9; i++) {
       await ReactTestRenderer.act(async () =>
         session.state.selectOption(session.state.word.id),
       );
@@ -359,7 +351,7 @@ test('retry preserves the next group and a word missed twice appears once', asyn
     await ReactTestRenderer.act(async () => session.state.retryMissed());
     expect(session.state.remaining).toBe(1);
     await ReactTestRenderer.act(async () => session.state.more());
-    expect(session.state.word.id).toBe('headphones');
+    expect(session.state.word.id).toBe(practiceWords[10].id);
   } finally {
     await session.close();
   }

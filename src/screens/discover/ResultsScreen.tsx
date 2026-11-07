@@ -11,6 +11,7 @@ import { SectionHeader } from '@/components/SectionHeader';
 import { TopBar } from '@/components/TopBar';
 import { WordRow } from '@/components/WordRow';
 import { SESSION_SIZE } from '@/data/study';
+import { allWords } from '@/data/scenes';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
 import type { ScreenProps } from '@/types/screen';
@@ -46,6 +47,13 @@ export function ResultsScreen({
     scanId || level === 'Tất cả'
       ? words
       : words.filter(word => word.level === level);
+  const practiceWords = [
+    ...visible,
+    ...allWords.filter(
+      word =>
+        word.scene !== scene.id && (level === 'Tất cả' || word.level === level),
+    ),
+  ];
   const unsaved = words.filter(word => !isStored(word.id));
   const choices =
     scanResult?.detected_objects.filter(
@@ -193,15 +201,20 @@ export function ResultsScreen({
             {level === 'B2'
               ? 'B2: chú ý cụm đi kèm và cách dùng trong câu. '
               : ''}
+            {visible.length > 0 && visible.length < SESSION_SIZE
+              ? `Lượt luyện có thêm từ${
+                  level === 'Tất cả' ? '' : ` ${level}`
+                } ở cảnh mẫu khác. `
+              : ''}
             Cấp độ của nội dung mẫu là tham khảo, không phải kết quả đánh giá
             trình độ.
           </Text>
           {!!visible.length && (
             <PrimaryButton
-              label={`Luyện ${Math.min(SESSION_SIZE, visible.length)} từ${
+              label={`Luyện ${Math.min(SESSION_SIZE, practiceWords.length)} từ${
                 level === 'Tất cả' ? '' : ` ${level}`
               }`}
-              onPress={() => startPractice(visible)}
+              onPress={() => startPractice(practiceWords)}
               style={styles.practiceAction}
             />
           )}
