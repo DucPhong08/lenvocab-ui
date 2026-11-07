@@ -8,6 +8,7 @@ import { TopBar } from '@/components/TopBar';
 import { useAudio } from '@/hooks/useAudio';
 import { memoryLevels, SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
+import { useStudyExit } from './hooks/useStudyExit';
 import { useFlashcards } from './hooks/useFlashcards';
 import { useStyles } from './styles';
 
@@ -37,10 +38,11 @@ export function FlashcardsScreen({
   const { play, isPlaying } = useAudio();
   const loading = loadingData && queue === null;
   const finished = index > 0 && !word;
+  const exit = useStudyExit({ navigate, active: !!word, busy: submitting });
   if (!word)
     return (
       <>
-        <TopBar title="Ôn nhanh" onBack={() => navigate('review')} />
+        <TopBar title="Ôn nhanh" onBack={exit} />
         <EmptyState
           loading={loading}
           title={
@@ -86,7 +88,7 @@ export function FlashcardsScreen({
     <>
       <TopBar
         title="Ôn nhanh"
-        onBack={() => navigate('review')}
+        onBack={exit}
         action={
           <Text style={styles.counter}>
             {index + 1}/{words.length}

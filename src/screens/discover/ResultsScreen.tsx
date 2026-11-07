@@ -10,6 +10,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { SectionHeader } from '@/components/SectionHeader';
 import { TopBar } from '@/components/TopBar';
 import { WordRow } from '@/components/WordRow';
+import { SESSION_SIZE } from '@/data/study';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
 import type { ScreenProps } from '@/types/screen';
@@ -18,6 +19,7 @@ import { useStyles } from './styles';
 
 export function ResultsScreen({
   navigate,
+  startPractice,
   token,
   sceneId,
   imageUri,
@@ -194,6 +196,15 @@ export function ResultsScreen({
             Cấp độ của nội dung mẫu là tham khảo, không phải kết quả đánh giá
             trình độ.
           </Text>
+          {!!visible.length && (
+            <PrimaryButton
+              label={`Luyện ${Math.min(SESSION_SIZE, visible.length)} từ${
+                level === 'Tất cả' ? '' : ` ${level}`
+              }`}
+              onPress={() => startPractice(visible)}
+              style={styles.practiceAction}
+            />
+          )}
           {!visible.length && (
             <EmptyState
               title="Cảnh này chưa có từ ở mức đã chọn"

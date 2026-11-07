@@ -3,6 +3,8 @@ import ReactTestRenderer from 'react-test-renderer';
 import { Alert } from 'react-native';
 import type { Flashcard, ReviewCard, User } from '@/api/contracts';
 import { useFlashcards } from '@/screens/learn/hooks/useFlashcards';
+import { getWord } from '@/data/getWord';
+import type { Word } from '@/data/scenes';
 import { useQuiz } from '@/screens/learn/hooks/useQuiz';
 
 const user: User = {
@@ -172,5 +174,250 @@ test('a short session keeps three cards, then restarts with current remaining ca
     expect(state.flipped).toBe(false);
   } finally {
     await ReactTestRenderer.act(async () => renderer.unmount());
+  }
+});
+
+async function quizSession(
+  overrides: Partial<Parameters<typeof useQuiz>[0]> = {},
+) {
+  let state!: ReturnType<typeof useQuiz>;
+  const Harness = () => {
+    state = useQuiz({
+      cards: [],
+      due: [],
+      user,
+      loadingData: false,
+      dataError: null,
+      scrollToEnd: jest.fn(),
+      scrollToTop: jest.fn(),
+      ...overrides,
+    });
+    return null;
+  };
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  await ReactTestRenderer.act(async () => {
+    renderer = ReactTestRenderer.create(<Harness />);
+  });
+  return {
+    get state() {
+      return state;
+    },
+    close: async () => {
+      await ReactTestRenderer.act(async () => renderer.unmount());
+    },
+  };
+}
+
+test('quiz removes distractors with the same meaning, including case, punctuation and aliases', async () => {
+  const cards = [
+    { ...flashcard('cup', 'cup'), meaning_vi: 'Cái cốc' },
+    { ...flashcard('mug', 'mug'), meaning_vi: '  cái CỐC! ' },
+    { ...flashcard('teacup', 'teacup'), meaning_vi: 'cái cốc, tách trà' },
+  ];
+  const session = await quizSession({ cards });
+  try {
+    expect(session.state.options.map(item => item.id)).not.toEqual(
+      expect.arrayContaining(['mug']),
+    );
+    expect(session.state.options.map(item => item.id)).not.toContain('teacup');
+    expect(session.state.options).toContainEqual(
+      expect.objectContaining({ id: 'cup' }),
+    );
+  } finally {
+    await session.close();
+  }
+});
+
+test('a large quiz takes three words and continues with the next group', async () => {
+  const cards = Array.from({ length: 60 }, (_, i) =>
+    flashcard(`card-${i}`, `word-${i}`),
+  );
+  const session = await quizSession({ cards });
+  try {
+    expect(session.state.questions.map(item => item.id)).toEqual([
+      'card-0',
+      'card-1',
+      'card-2',
+    ]);
+    expect(session.state.remaining).toBe(57);
+    await ReactTestRenderer.act(async () => session.state.more());
+    expect(session.state.questions.map(item => item.id)).toEqual([
+      'card-3',
+      'card-4',
+      'card-5',
+    ]);
+    expect(session.state.remaining).toBe(54);
+  } finally {
+    await session.close();
+  }
+});
+
+test('selected B2 samples work while account data is unavailable and never use personal cards', async () => {
+  const practiceWords = ['keep-track-of', 'cut-down-on', 'allow-for'].map(
+    getWord,
+  );
+  const session = await quizSession({
+    practiceWords,
+    cards: [flashcard('personal', 'cup')],
+    loadingData: true,
+    dataError: 'offline',
+  });
+  try {
+    expect(session.state.questions).toEqual(practiceWords);
+    expect(session.state.context?.word.id).toBe('keep-track-of');
+    expect(session.state.context?.sentence).toContain('I ____ deadlines');
+  } finally {
+    await session.close();
+  }
+});
+
+test('context task checks the learned phrase once and retry contains only missed words', async () => {
+  const practiceWords = ['keep-track-of', 'cut-down-on', 'allow-for'].map(
+    getWord,
+  );
+  const session = await quizSession({ practiceWords });
+  try {
+    const wrong = session.state.options.find(
+      item => item.id !== session.state.word.id,
+    )!;
+    await ReactTestRenderer.act(async () =>
+      session.state.selectOption(wrong.id),
+    );
+    await ReactTestRenderer.act(async () => session.state.nextQuestion());
+    for (let i = 0; i < 2; i++) {
+      await ReactTestRenderer.act(async () =>
+        session.state.selectOption(session.state.word.id),
+      );
+      await ReactTestRenderer.act(async () => session.state.nextQuestion());
+    }
+    expect(session.state.isContext).toBe(true);
+    expect(session.state.total).toBe(4);
+    expect(session.state.done).toBe(false);
+    await ReactTestRenderer.act(async () => {
+      session.state.answerContext('  KEEP   TRACK OF  ');
+      session.state.answerContext('keep track of');
+    });
+    expect(session.state.score).toBe(3);
+    await ReactTestRenderer.act(async () => session.state.nextQuestion());
+    expect(session.state.done).toBe(true);
+    expect(session.state.missed.map(item => item.id)).toEqual([
+      'keep-track-of',
+    ]);
+    await ReactTestRenderer.act(async () => session.state.retryMissed());
+    expect(session.state.questions.map(item => item.id)).toEqual([
+      'keep-track-of',
+    ]);
+    expect(session.state.score).toBe(0);
+    expect(session.state.done).toBe(false);
+  } finally {
+    await session.close();
+  }
+});
+
+test('context extraction does not hide a term inside another word or skip its first character', async () => {
+  const word: Word = {
+    ...getWord('mug'),
+    id: 'pan',
+    term: 'pan',
+    example: 'We make pancakes.',
+  };
+  const session = await quizSession({ practiceWords: [word] });
+  try {
+    expect(session.state.context).toBeUndefined();
+  } finally {
+    await session.close();
+  }
+});
+
+test('retry preserves the next group and a word missed twice appears once', async () => {
+  const practiceWords = [
+    'keep-track-of',
+    'cut-down-on',
+    'allow-for',
+    'headphones',
+  ].map(getWord);
+  const session = await quizSession({ practiceWords });
+  try {
+    const wrong = session.state.options.find(
+      item => item.id !== session.state.word.id,
+    )!;
+    await ReactTestRenderer.act(async () =>
+      session.state.selectOption(wrong.id),
+    );
+    await ReactTestRenderer.act(async () => session.state.nextQuestion());
+    for (let i = 0; i < 2; i++) {
+      await ReactTestRenderer.act(async () =>
+        session.state.selectOption(session.state.word.id),
+      );
+      await ReactTestRenderer.act(async () => session.state.nextQuestion());
+    }
+    await ReactTestRenderer.act(async () =>
+      session.state.answerContext('track'),
+    );
+    await ReactTestRenderer.act(async () => session.state.nextQuestion());
+    expect(session.state.missed).toHaveLength(1);
+    await ReactTestRenderer.act(async () => session.state.retryMissed());
+    expect(session.state.remaining).toBe(1);
+    await ReactTestRenderer.act(async () => session.state.more());
+    expect(session.state.word.id).toBe('headphones');
+  } finally {
+    await session.close();
+  }
+});
+
+test('context keeps the actual second example when the first has no exact term', async () => {
+  const word = {
+    ...getWord('mug'),
+    term: 'mug (large)',
+    example: 'A large cup.',
+    example2: 'I use a mug (large) every day.',
+  };
+  const session = await quizSession({ practiceWords: [word] });
+  try {
+    expect(session.state.context?.sentence).toBe('I use a ____ every day.');
+    expect(session.state.context?.example).toBe(word.example2);
+  } finally {
+    await session.close();
+  }
+});
+
+test('quiz retains distinct hyphenated and unhyphenated terms', async () => {
+  const word = getWord('mug');
+  const session = await quizSession({
+    practiceWords: [
+      {
+        ...word,
+        id: 'carry-on',
+        term: 'carry-on',
+        meaning: 'hành lý xách tay',
+      },
+      { ...word, id: 'carry-on-verb', term: 'carry on', meaning: 'tiếp tục' },
+    ],
+  });
+  try {
+    expect(session.state.questions).toHaveLength(2);
+  } finally {
+    await session.close();
+  }
+});
+
+test('context does not accept incorrect internal punctuation as the learned phrase', async () => {
+  const session = await quizSession({
+    practiceWords: [getWord('keep-track-of')],
+  });
+  try {
+    await ReactTestRenderer.act(async () =>
+      session.state.selectOption(session.state.word.id),
+    );
+    await ReactTestRenderer.act(async () => session.state.nextQuestion());
+    await ReactTestRenderer.act(async () =>
+      session.state.answerContext('keep-track-of'),
+    );
+    expect(session.state.score).toBe(1);
+    expect(session.state.missed.map(word => word.id)).toEqual([
+      'keep-track-of',
+    ]);
+  } finally {
+    await session.close();
   }
 });

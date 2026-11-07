@@ -74,7 +74,8 @@ export function ReviewScreen({
         onPress={() => navigate('quiz')}
       />
       <Text style={styles.hint}>
-        Chọn nghĩa đúng. Quiz không thay đổi lịch ôn.
+        Mỗi lượt tối đa 3 từ và 1 câu điền từ khi có ví dụ phù hợp. Quiz không
+        thay đổi lịch ôn.
       </Text>
     </>
   );

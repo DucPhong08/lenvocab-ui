@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import App from '../App';
+import { FlashcardsScreen } from '@/screens/learn/FlashcardsScreen';
+import { Alert } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import * as Keychain from 'react-native-keychain';
 import { authenticate } from '@/api/endpoints/authenticate';
@@ -248,7 +250,6 @@ test('uses the real API root, Bearer token, multipart scan and review rating', a
 });
 
 test('does not apply a completed grade after logout', async () => {
-  jest.useFakeTimers();
   const previousFetch = globalThis.fetch;
   let resolveGrade!: (value: unknown) => void;
   const gradeResponse = new Promise(resolve => {
@@ -333,12 +334,9 @@ test('does not apply a completed grade after logout', async () => {
       pendingGrade = grade.props.onPress();
     });
 
-    const profileTab = renderer.root.findByProps({
-      accessibilityLabel: 'Cá nhân',
-    });
-    await ReactTestRenderer.act(async () => profileTab.props.onPress());
-    const logout = renderer.root.findByProps({ label: 'Đăng xuất' });
-    await ReactTestRenderer.act(async () => logout.props.onPress());
+    // Session expiry can sign out even while a review request is pending.
+    const session = renderer.root.findByType(FlashcardsScreen);
+    await ReactTestRenderer.act(async () => session.props.onLogout());
     await ReactTestRenderer.act(async () => {
       resolveGrade({
         ok: true,
@@ -364,7 +362,47 @@ test('does not apply a completed grade after logout', async () => {
   } finally {
     globalThis.fetch = previousFetch;
     await ReactTestRenderer.act(async () => renderer?.unmount());
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+  }
+});
+
+test('sample practice hides tabs, confirms exit, and clears the sample selection on return', async () => {
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  let renderer!: ReactTestRenderer.ReactTestRenderer;
+  const press = async (label: string) => {
+    const action = renderer.root.findAll(
+      node => node.props.accessibilityLabel === label && node.props.onPress,
+    )[0];
+    expect(action).toBeDefined();
+    await ReactTestRenderer.act(async () => action.props.onPress());
+  };
+  try {
+    await ReactTestRenderer.act(async () => {
+      renderer = ReactTestRenderer.create(<App />);
+    });
+    await press('Khám phá từ mẫu A2–B2');
+    await press('Lọc từ mẫu B2');
+    await press('Luyện 3 từ B2');
+    expect(
+      renderer.root.findAll(node => node.props.children === 'minimalist')
+        .length,
+    ).toBeGreaterThan(0);
+    expect(
+      renderer.root.findAll(node => node.props.accessibilityRole === 'tab'),
+    ).toHaveLength(0);
+    await press('Quay lại');
+    await ReactTestRenderer.act(async () =>
+      alert.mock.calls.at(-1)![2]![1].onPress?.(),
+    );
+    expect(
+      renderer.root.findAll(node => node.props.accessibilityRole === 'tab')
+        .length,
+    ).toBeGreaterThan(0);
+    await press('Quiz nhanh');
+    expect(
+      renderer.root.findAll(node => node.props.children === 'notebook').length,
+    ).toBeGreaterThan(0);
+  } finally {
+    await ReactTestRenderer.act(async () => renderer?.unmount());
+    alert.mockRestore();
   }
 });

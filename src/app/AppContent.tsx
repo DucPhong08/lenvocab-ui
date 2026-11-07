@@ -23,6 +23,7 @@ import { gradeReview } from '@/api/endpoints/gradeReview';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { scheduleDailyStudyReminder } from '@/services/notifications/scheduleDailyStudyReminder';
+import type { Word } from '@/data/scenes';
 import type { Screen, ScreenProps } from '@/types/screen';
 import { AppTabs } from './AppTabs';
 import { ScreenContent } from './ScreenContent';
@@ -36,6 +37,7 @@ import { useStyles } from './styles';
 export function AppContent() {
   const { styles, colors } = useStyles();
   const [screen, setScreen] = useState<Screen>('home');
+  const [practiceWords, setPracticeWords] = useState<Word[]>();
   const pendingSave = useRef<string | null>(null);
   const currentScreen = useRef<Screen>('home');
   const authBack = useRef<Screen>('profile');
@@ -50,6 +52,7 @@ export function AppContent() {
     if (next === 'auth' && currentScreen.current !== 'auth')
       authBack.current = currentScreen.current;
     if (next !== 'auth') pendingSave.current = null;
+    if (next !== 'quiz') setPracticeWords(undefined);
     currentScreen.current = next;
     setScreen(next);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
@@ -182,16 +185,16 @@ export function AppContent() {
     if (screen === 'home') return false;
     if (screen === 'word') navigate(wordBack);
     else if (screen === 'results') navigate('camera');
-    else if (screen === 'quiz' || screen === 'flashcards') navigate('review');
     else if (screen === 'auth') navigate(authBack.current);
     else navigate('home');
     return true;
   }, [screen, wordBack, navigate]);
 
   useEffect(() => {
+    if (screen === 'quiz' || screen === 'flashcards') return;
     const listener = BackHandler.addEventListener('hardwareBackPress', goBack);
     return () => listener.remove();
-  }, [goBack]);
+  }, [goBack, screen]);
   useEffect(() => {
     if (reduceMotion.current) {
       fade.setValue(1);
@@ -248,6 +251,11 @@ export function AppContent() {
   const props: ScreenProps = {
     token,
     navigate,
+    practiceWords,
+    startPractice: words => {
+      setPracticeWords([...words]);
+      navigate('quiz');
+    },
     sceneId,
     setSceneId,
     imageUri,
@@ -290,7 +298,9 @@ export function AppContent() {
     authBusy,
     authBack: authBack.current,
   };
-  const showTabs = screen !== 'onboarding' && screen !== 'auth';
+  const showTabs = !['onboarding', 'auth', 'quiz', 'flashcards'].includes(
+    screen,
+  );
 
   if (restoringSession)
     return (

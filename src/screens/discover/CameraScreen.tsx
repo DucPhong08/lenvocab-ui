@@ -93,6 +93,18 @@ export function CameraScreen({
           <Text style={styles.captureLabel}>Ảnh mẫu</Text>
         </Pressable>
       </View>
+      <PrimaryButton
+        label={
+          scanning
+            ? 'Đang nhận diện ảnh...'
+            : imageUri
+            ? 'Quét ảnh bằng AI'
+            : 'Xem từ vựng minh họa'
+        }
+        disabled={scanning}
+        onPress={scan}
+        style={styles.actionTop20}
+      />
       <Text style={styles.cameraCaption}>
         {imageUri
           ? user
@@ -120,18 +132,6 @@ export function CameraScreen({
           ))}
         </ScrollView>
       )}
-      <PrimaryButton
-        label={
-          scanning
-            ? 'Đang nhận diện ảnh...'
-            : imageUri
-            ? 'Quét ảnh bằng AI'
-            : 'Xem từ vựng minh họa'
-        }
-        disabled={scanning}
-        onPress={scan}
-        style={styles.actionTop20}
-      />
     </>
   );
 }

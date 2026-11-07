@@ -33,6 +33,8 @@ export type ScanEntry = {
 export type ScreenProps = {
   token: string | null;
   navigate: (next: Screen) => void;
+  practiceWords?: Word[];
+  startPractice: (words: Word[]) => void;
   sceneId: string;
   setSceneId: (id: string) => void;
   imageUri: string | null;

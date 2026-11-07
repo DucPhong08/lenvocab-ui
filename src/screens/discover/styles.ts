@@ -4,6 +4,7 @@ export const useStyles = createStyles(({ colors, font }) => ({
   fill: { flex: 1 },
   actionTop20: { marginTop: 20 },
   actionTop12: { marginTop: 12 },
+  practiceAction: { marginBottom: 16 },
   homeGreeting: { ...font.description, color: colors.muted, marginBottom: 6 },
   homeTitle: {
     ...font.heading,

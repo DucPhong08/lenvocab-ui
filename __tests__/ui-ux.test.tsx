@@ -1,12 +1,13 @@
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import { Text } from 'react-native';
+import { Alert, Text } from 'react-native';
 import { ResultsScreen } from '@/screens/discover/ResultsScreen';
 import { cardWord } from '@/api/mappers/cardWord';
 import { HomeScreen } from '@/screens/discover/HomeScreen';
 import { WordScreen } from '@/screens/discover/WordScreen';
 import { SavedScreen } from '@/screens/learn/SavedScreen';
 import { FlashcardsScreen } from '@/screens/learn/FlashcardsScreen';
+import { QuizScreen } from '@/screens/learn/QuizScreen';
 import { ReviewScreen } from '@/screens/learn/ReviewScreen';
 import { ProfileScreen } from '@/screens/account/ProfileScreen';
 import { AppTabs } from '@/app/AppTabs';
@@ -53,6 +54,9 @@ const card: Flashcard = {
 function props(overrides: Partial<ScreenProps> = {}): ScreenProps {
   return {
     navigate: jest.fn(),
+    startPractice: jest.fn(),
+    scrollToEnd: jest.fn(),
+    scrollToTop: jest.fn(),
     cards: [],
     due: [],
     saved: [],
@@ -387,4 +391,77 @@ test('home can open the A2–B2 sample library without scanning or saving', asyn
   expect(data.selectImage).toHaveBeenCalledWith(null);
   expect(data.navigate).toHaveBeenCalledWith('results');
   expect(data.toggleSaved).not.toHaveBeenCalled();
+});
+
+test('B2 practice receives the filtered sample collection instead of the guest default', async () => {
+  const data = props();
+  await mount(<ResultsScreen {...data} />);
+  await Renderer.act(async () => button('Lọc từ mẫu B2').props.onPress());
+  await Renderer.act(async () => button('Luyện 3 từ B2').props.onPress());
+  const words = jest.mocked(data.startPractice).mock.calls[0][0];
+  expect(words.every(word => word.level === 'B2')).toBe(true);
+  expect(words.map(word => word.id)).toContain('keep-track-of');
+  expect(data.toggleSaved).not.toHaveBeenCalled();
+});
+
+test('leaving an unfinished quiz requires an explicit choice and cancel keeps the answer', async () => {
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  const data = props();
+  try {
+    await mount(<QuizScreen {...data} />);
+    const choice = view.root.findAll(
+      node =>
+        /^A\. /.test(node.props.accessibilityLabel ?? '') && node.props.onPress,
+    )[0];
+    await Renderer.act(async () => choice.props.onPress());
+    await Renderer.act(async () => button('Quay lại').props.onPress());
+    expect(data.navigate).not.toHaveBeenCalled();
+    expect(alert).toHaveBeenCalledWith(
+      'Rời lượt học này?',
+      expect.any(String),
+      expect.any(Array),
+    );
+    const actions = alert.mock.calls.at(-1)![2]!;
+    expect(actions[0].text).toBe('Học tiếp');
+    expect(button('Câu tiếp theo').props.disabled).toBe(false);
+    await Renderer.act(async () => actions[1].onPress?.());
+    expect(data.navigate).toHaveBeenCalledWith('review');
+  } finally {
+    alert.mockRestore();
+  }
+});
+
+test('leaving waits for an in-flight personal grade and completion exits directly', async () => {
+  let resolve!: () => void;
+  const pending = new Promise<void>(done => {
+    resolve = done;
+  });
+  const data = props({
+    user: { id: 'u' } as ScreenProps['user'],
+    due: [card],
+    submitReview: jest.fn(() => pending),
+  });
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  try {
+    await mount(<FlashcardsScreen {...data} />);
+    await Renderer.act(async () => button('Xem nghĩa').props.onPress());
+    let submission!: Promise<void>;
+    await Renderer.act(async () => {
+      submission = button('Nhớ rõ').props.onPress();
+    });
+    await Renderer.act(async () => button('Quay lại').props.onPress());
+    expect(alert).toHaveBeenCalledWith('Đang lưu lần ôn', expect.any(String));
+    expect(data.navigate).not.toHaveBeenCalled();
+    await Renderer.act(async () => {
+      resolve();
+      await submission;
+    });
+    alert.mockClear();
+    await Renderer.act(async () => button('Quay lại').props.onPress());
+    expect(data.navigate).toHaveBeenCalledWith('review');
+    expect(alert).not.toHaveBeenCalled();
+  } finally {
+    resolve();
+    alert.mockRestore();
+  }
 });
