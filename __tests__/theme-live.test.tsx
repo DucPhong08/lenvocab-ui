@@ -58,7 +58,7 @@ test('theme updates affect shared styles without remounting screen state', async
     );
   });
   const original = background('Count 0');
-  expect(original.backgroundColor).toBe('#9A4A27');
+  expect(original.backgroundColor).toBe('#6B46E5');
   await Renderer.act(async () => button('Count 0').props.onPress());
   expect(background('Count 1')).toEqual(original);
 
@@ -75,7 +75,7 @@ test('theme updates affect shared styles without remounting screen state', async
   expect(textStyle('Count 1').fontSize).toBeCloseTo(18);
   await Renderer.act(async () => theme.resetTheme());
   expect(textStyle('Count 1').fontSize).toBe(15);
-  expect(background('Count 1').backgroundColor).toBe('#9A4A27');
+  expect(background('Count 1').backgroundColor).toBe('#6B46E5');
 });
 
 test('component overrides stay last while inherited theme values still update', async () => {

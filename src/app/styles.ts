@@ -39,6 +39,8 @@ export const useStyles = createStyles(({ colors, font }) => ({
     borderRadius: 15,
     backgroundColor: colors.primary,
     marginTop: -8,
+    borderBottomWidth: 3,
+    borderBottomColor: colors.primaryEdge,
   },
   tabLabel: {
     width: '100%',

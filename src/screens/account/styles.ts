@@ -133,7 +133,7 @@ export const useStyles = createStyles(({ colors, font }) => ({
   onboardTitle: {
     fontSize: font.size.onboarding,
     lineHeight: font.line.onboarding,
-    fontWeight: font.weight.heavy,
+    ...font.display,
     letterSpacing: -0.6,
     color: colors.text,
   },
@@ -165,7 +165,7 @@ export const useStyles = createStyles(({ colors, font }) => ({
     fontSize: font.size.auth,
     lineHeight: font.line.auth,
     color: colors.text,
-    fontWeight: font.weight.heavy,
+    ...font.display,
     marginBottom: 15,
   },
   authDescription: {

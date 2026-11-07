@@ -55,8 +55,8 @@ export function WordScreen({
           ) : undefined
         }
       />
-      <View style={styles.wordFeature}>
-        {word.imageStyle === 'sticker' && word.imageUrl ? (
+      {word.imageStyle === 'sticker' && word.imageUrl ? (
+        <View style={styles.wordSticker}>
           <CardImage
             imageUrl={word.imageUrl}
             cardId={word.userFlashcardId}
@@ -65,13 +65,15 @@ export function WordScreen({
             variant="sticker"
             label={`Sticker của bạn: ${word.term}`}
           />
-        ) : null}
+        </View>
+      ) : null}
+      <View style={styles.wordFeature}>
         <View style={styles.levelPill}>
           <Text style={styles.levelText}>
-            {word.level} · {word.type.toUpperCase()}
+            {word.level} · {word.type}
           </Text>
         </View>
-        <Text style={styles.bigWord} adjustsFontSizeToFit numberOfLines={1}>
+        <Text style={styles.bigWord} adjustsFontSizeToFit numberOfLines={2}>
           {word.term}
         </Text>
         <View style={styles.ipaRow}>
@@ -106,11 +108,11 @@ export function WordScreen({
         />
       ) : null}
       <View style={styles.detailBlock}>
-        <Eyebrow>NGHĨA TIẾNG VIỆT</Eyebrow>
+        <Eyebrow>Nghĩa tiếng Việt</Eyebrow>
         <Text style={styles.meaning}>{word.meaning}</Text>
       </View>
       <View style={styles.detailBlock}>
-        <Eyebrow>TRONG MỘT CÂU</Eyebrow>
+        <Eyebrow>Dùng trong một câu</Eyebrow>
         <View style={styles.example}>
           <Text style={styles.exampleEnglish}>"{word.example}"</Text>
           {word.example2 ? (
@@ -121,7 +123,7 @@ export function WordScreen({
         </View>
       </View>
       <View style={styles.detailBlock}>
-        <Eyebrow>GHI NHỚ NHANH</Eyebrow>
+        <Eyebrow>Cách dùng cần nhớ</Eyebrow>
         <View style={styles.tip}>
           <Lightbulb size={20} color={colors.primaryText} />
           <Text style={styles.tipText}>{word.note}</Text>
@@ -129,7 +131,7 @@ export function WordScreen({
       </View>
       {isSample && (
         <View style={styles.detailBlock}>
-          <Eyebrow>TỪ NÀY CÓ TRONG</Eyebrow>
+          <Eyebrow>Khám phá trong cảnh</Eyebrow>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Xem cảnh ${scene.title}`}

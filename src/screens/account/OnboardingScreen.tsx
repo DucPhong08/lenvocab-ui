@@ -10,20 +10,21 @@ import { useStyles } from './styles';
 const slides = [
   {
     image: 'desk',
-    label: '01 / KHÁM PHÁ',
+    label: 'Chụp một vật',
     title: 'Học từ chính thế giới quanh bạn.',
     description:
       'Chụp một vật quen thuộc, chọn vật trong ảnh và xem nghĩa cùng cách phát âm.',
   },
   {
     image: 'kitchen',
-    label: '02 / GHI NHỚ',
+    label: 'Giữ lại từ',
     title: 'Nhìn thấy. Hiểu rõ. Nhớ lâu.',
-    description: 'Học từ vựng cùng hình ảnh, ví dụ và cách dùng gần gũi.',
+    description:
+      'Khám phá từ và cụm A2–B2 qua cảnh mẫu, câu ví dụ và cách dùng.',
   },
   {
     image: 'library',
-    label: '03 / TIẾN BỘ',
+    label: 'Dùng từ linh hoạt',
     title: 'Một chút mỗi ngày, giỏi hơn mỗi ngày.',
     description: 'Lưu từ yêu thích, ôn bằng flashcard và thử sức với quiz.',
   },

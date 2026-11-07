@@ -2,11 +2,11 @@ import { createStyles } from '@/theme/styles';
 
 export const useStyles = createStyles(({ colors, font }) => ({
   fill: { flex: 1 },
-  titleBlock: { gap: 9, marginBottom: 25 },
+  titleBlock: { gap: 8, marginBottom: 22 },
   screenTitle: {
     fontSize: font.size.screen,
     lineHeight: font.line.screen,
-    fontWeight: font.weight.heavy,
+    ...font.display,
     letterSpacing: -1.2,
     color: colors.text,
   },
@@ -39,7 +39,7 @@ export const useStyles = createStyles(({ colors, font }) => ({
   sectionTitle: {
     fontSize: font.size.section,
     lineHeight: font.line.section,
-    fontWeight: font.weight.heavy,
+    ...font.display,
     color: colors.text,
     letterSpacing: -0.6,
     marginTop: 5,

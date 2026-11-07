@@ -28,11 +28,11 @@ export function StudyProgress({
 
 const useStyles = createStyles(({ colors }) => ({
   track: {
-    height: 6,
+    height: 10,
     borderRadius: 6,
     backgroundColor: colors.line,
     overflow: 'hidden',
     marginBottom: 20,
   },
-  fill: { height: '100%', backgroundColor: colors.success, borderRadius: 6 },
+  fill: { height: '100%', backgroundColor: colors.primary, borderRadius: 6 },
 }));

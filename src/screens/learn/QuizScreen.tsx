@@ -86,7 +86,11 @@ export function QuizScreen({
             <Sparkles size={32} color={colors.primaryText} />
           </View>
           <Eyebrow>HOÀN THÀNH RỒI</Eyebrow>
-          <Text style={styles.finishTitle}>Bạn làm tốt lắm!</Text>
+          <Text style={styles.finishTitle}>
+            {score === questions.length
+              ? 'Nhớ tốt lắm!'
+              : 'Mỗi lần thử, nhớ thêm một chút.'}
+          </Text>
           <Text style={styles.finishDescription}>
             Mỗi lần thử là một lần bạn nhớ từ lâu hơn.
           </Text>
@@ -121,14 +125,9 @@ export function QuizScreen({
           </Text>
         }
       />
-      <ScreenTitle
-        kicker={`CÂU HỎI ${index + 1}`}
-        title="Từ này có nghĩa là gì?"
-        subtitle="Chọn đáp án đúng nhất nhé."
-      />
+      <ScreenTitle title="Chọn nghĩa đúng nhé!" />
       <StudyProgress current={index + 1} total={questions.length} />
       <View style={styles.question}>
-        <Text style={styles.questionLabel}>TỪ TIẾNG ANH</Text>
         <View style={styles.questionWordRow}>
           <Text
             adjustsFontSizeToFit
@@ -198,7 +197,7 @@ export function QuizScreen({
         >
           <Text style={styles.feedbackText}>
             {selected === word.id
-              ? 'Chính xác! Bạn đang làm rất tốt.'
+              ? 'Đúng rồi, bạn nhớ tốt đó!'
               : `Chưa đúng. “${word.term}” nghĩa là “${word.meaning}”.`}
           </Text>
         </View>

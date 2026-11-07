@@ -346,3 +346,45 @@ test('closing search clears invisible filters and restores the grid', async () =
     view.root.findAll(node => node.props.accessibilityLabel === 'Tìm từ vựng'),
   ).toHaveLength(0);
 });
+
+test('sample B2 filter exposes contextual phrases without affecting a real AI result', async () => {
+  const data = props();
+  await mount(<ResultsScreen {...data} />);
+  await Renderer.act(async () => button('Lọc từ mẫu B2').props.onPress());
+  expect(text()).toContain('keep track of');
+  expect(text()).not.toContain('quyển sổ tay');
+  expect(text()).toContain('Cấp độ của nội dung mẫu là tham khảo');
+  await Renderer.act(async () => button('Lọc từ mẫu Tất cả').props.onPress());
+  expect(text()).toContain('quyển sổ tay');
+  await Renderer.act(async () =>
+    view.update(
+      <ResultsScreen
+        {...data}
+        scanResult={
+          {
+            keyword: 'cup',
+            detected_objects: [],
+          } as unknown as ScreenProps['scanResult']
+        }
+        wordForId={() => getWord('notebook')}
+      />,
+    ),
+  );
+  expect(
+    view.root.findAll(
+      node => node.props.accessibilityLabel === 'Lọc từ mẫu B2',
+    ),
+  ).toHaveLength(0);
+});
+
+test('home can open the A2–B2 sample library without scanning or saving', async () => {
+  const data = props();
+  await mount(<HomeScreen {...data} />);
+  await Renderer.act(async () =>
+    button('Khám phá từ mẫu A2–B2').props.onPress(),
+  );
+  expect(data.setSceneId).toHaveBeenCalledWith('desk');
+  expect(data.selectImage).toHaveBeenCalledWith(null);
+  expect(data.navigate).toHaveBeenCalledWith('results');
+  expect(data.toggleSaved).not.toHaveBeenCalled();
+});

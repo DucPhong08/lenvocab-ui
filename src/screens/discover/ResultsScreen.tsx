@@ -1,5 +1,7 @@
-import { Image, Text, View } from 'react-native';
+import { useState } from 'react';
+import { Image, Pressable, Text, View } from 'react-native';
 import { Lightbulb, Sparkles } from 'lucide-react-native';
+import { EmptyState } from '@/components/EmptyState';
 import { CardImage } from '@/components/CardImage';
 import { CropPreview, ObjectPicker } from '@/components/ObjectPicker';
 import { scanWord } from '@/api/mappers/scanWord';
@@ -32,11 +34,16 @@ export function ResultsScreen({
   currentScanSaved = false,
 }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const [level, setLevel] = useState('Tất cả');
   const scene = getScene(sceneId);
   const scanId = scanResult ? scanWord(scanResult).id : null;
   const words = scanId ? [wordForId(scanId)] : scene.words;
   const isStored = (id: string) =>
     isWordSaved(id, { saved, cards, scanResult });
+  const visible =
+    scanId || level === 'Tất cả'
+      ? words
+      : words.filter(word => word.level === level);
   const unsaved = words.filter(word => !isStored(word.id));
   const choices =
     scanResult?.detected_objects.filter(
@@ -105,7 +112,9 @@ export function ResultsScreen({
         title={scanResult ? 'Kết quả quét AI' : 'Kết quả minh họa'}
         onBack={() => navigate('camera')}
       />
-      <View style={styles.resultImageWrap}>
+      <View
+        style={[styles.resultImageWrap, !scanResult && styles.sampleSceneImage]}
+      >
         <Image
           source={imageUri ? { uri: imageUri } : sceneImage(sceneId)}
           style={styles.resultImage}
@@ -125,32 +134,77 @@ export function ResultsScreen({
           </Text>
         </View>
       </View>
-      <View style={styles.resultInfo}>
-        <View style={styles.resultInfoIcon}>
-          <Sparkles size={21} color={colors.primaryText} />
+      {scanResult && (
+        <View style={styles.resultInfo}>
+          <View style={styles.resultInfoIcon}>
+            <Sparkles size={21} color={colors.primaryText} />
+          </View>
+          <View style={styles.fill}>
+            <Text style={styles.resultInfoTitle}>
+              {words.length} từ vựng để khám phá
+            </Text>
+            <Text style={styles.resultInfoCaption}>
+              Chạm vào một từ để tìm hiểu thêm
+            </Text>
+          </View>
         </View>
-        <View style={styles.fill}>
-          <Text style={styles.resultInfoTitle}>
-            {words.length} từ vựng để khám phá
-          </Text>
-          <Text style={styles.resultInfoCaption}>
-            Chạm vào một từ để tìm hiểu thêm
-          </Text>
-        </View>
-      </View>
+      )}
       <View style={styles.notice}>
         <Lightbulb size={18} color={colors.primaryText} />
         <Text style={styles.noticeText}>
           {scanResult
             ? `Từ chính được nhận diện: ${scanResult.keyword}. Lưu thẻ để giữ lại từ và ảnh của bạn.`
-            : 'Các câu ví dụ và từ trong cảnh này là nội dung minh họa, không được tạo từ ảnh của bạn.'}
+            : 'Từ và câu trong cảnh là nội dung mẫu, không tạo từ ảnh của bạn.'}
         </Text>
       </View>
       <SectionHeader
         kicker={scanResult ? 'TỪ ĐƯỢC NHẬN DIỆN' : 'TỪ TRONG CẢNH MẪU'}
-        title="Khám phá từng từ"
+        title={scanResult ? 'Khám phá từng từ' : `${visible.length} từ và cụm`}
       />
-      {words.map(word => (
+      {!scanResult && (
+        <>
+          <View style={styles.levelFilters}>
+            {['Tất cả', 'A2', 'B1', 'B2'].map(item => (
+              <Pressable
+                key={item}
+                accessibilityRole="button"
+                accessibilityLabel={`Lọc từ mẫu ${item}`}
+                accessibilityState={{ selected: item === level }}
+                onPress={() => setLevel(item)}
+                style={[
+                  styles.levelFilter,
+                  item === level && styles.levelFilterActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.levelFilterText,
+                    item === level && styles.levelFilterTextActive,
+                  ]}
+                >
+                  {item}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+          <Text style={styles.levelCaption}>
+            {level === 'B2'
+              ? 'B2: chú ý cụm đi kèm và cách dùng trong câu. '
+              : ''}
+            Cấp độ của nội dung mẫu là tham khảo, không phải kết quả đánh giá
+            trình độ.
+          </Text>
+          {!visible.length && (
+            <EmptyState
+              title="Cảnh này chưa có từ ở mức đã chọn"
+              description="Chọn Tất cả để tiếp tục khám phá."
+              action="Xem tất cả từ mẫu"
+              onPress={() => setLevel('Tất cả')}
+            />
+          )}
+        </>
+      )}
+      {visible.map(word => (
         <WordRow
           key={word.id}
           word={word}

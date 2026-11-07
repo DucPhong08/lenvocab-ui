@@ -1,12 +1,12 @@
 import { createTheme } from '@/theme/theme';
 
-test('default theme preserves the current colors and text sizes', () => {
+test('default theme uses the youthful palette and shared text sizes', () => {
   const { colors, font } = createTheme();
   expect(colors).toMatchObject({
-    background: '#FAF7F2',
-    primary: '#9A4A27',
-    primaryTint: '#F9E8DD',
-    highlight: '#F3D58C',
+    background: '#FFFFFF',
+    primary: '#6B46E5',
+    primaryTint: '#EDE7FF',
+    highlight: '#FFD96A',
     onPrimary: '#FFFFFF',
   });
   expect(font.size.body).toBe(14);
@@ -35,8 +35,8 @@ test('light accents still have readable labels on light surfaces', () => {
 
 test('supports short hex and falls back safely for invalid colors', () => {
   expect(createTheme({ primary: '#abc' }).colors.primary).toBe('#AABBCC');
-  expect(createTheme({ primary: 'red' }).colors.primary).toBe('#9A4A27');
-  expect(createTheme({ primary: '#12345' }).colors.primary).toBe('#9A4A27');
+  expect(createTheme({ primary: 'red' }).colors.primary).toBe('#6B46E5');
+  expect(createTheme({ primary: '#12345' }).colors.primary).toBe('#6B46E5');
 });
 
 test('scales sizes and line spacing together without scaling font weight', () => {

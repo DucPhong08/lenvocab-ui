@@ -6,14 +6,15 @@ export const useStyles = createStyles(({ colors, font }) => ({
     width: 34,
     height: 34,
     borderRadius: 12,
-    backgroundColor: colors.highlight,
+    backgroundColor: colors.primaryTint,
+    transform: [{ rotate: '-7deg' }],
     alignItems: 'center',
     justifyContent: 'center',
   },
   brandText: {
     fontSize: font.size.brand,
-    fontWeight: font.weight.heavy,
-    color: colors.text,
+    ...font.display,
+    color: colors.primaryText,
     letterSpacing: -1,
   },
   eyebrow: {
@@ -21,7 +22,7 @@ export const useStyles = createStyles(({ colors, font }) => ({
     fontWeight: font.weight.heavy,
     letterSpacing: 0.3,
     color: colors.muted,
-    textTransform: 'uppercase',
+    textTransform: 'none',
     lineHeight: font.line.caption,
   },
 }));

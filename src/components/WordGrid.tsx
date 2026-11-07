@@ -15,7 +15,7 @@ export function WordGrid({
   const { styles } = useStyles();
   return (
     <View style={styles.grid}>
-      {words.map(word => (
+      {words.map((word, index) => (
         <Pressable
           key={word.id}
           accessibilityRole="button"
@@ -23,7 +23,9 @@ export function WordGrid({
           onPress={() => onOpen(word.id)}
           style={({ pressed }) => [styles.card, pressed && styles.pressed]}
         >
-          <View style={styles.image}>
+          <View
+            style={[styles.image, index % 2 === 1 && styles.alternateImage]}
+          >
             {word.imageUrl || word.hasImage ? (
               <CardImage
                 imageUrl={word.imageUrl}
@@ -57,19 +59,18 @@ const useStyles = createStyles(({ colors, font }) => ({
   card: {
     width: '48%',
     backgroundColor: colors.surface,
-    borderRadius: 18,
+    borderRadius: 19,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.line,
   },
   pressed: { opacity: 0.75 },
   image: {
-    height: 112,
-    backgroundColor: colors.surfaceMuted,
+    height: 104,
+    backgroundColor: colors.stickerTint,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
   },
+  alternateImage: { backgroundColor: colors.accentTint },
   initial: {
     color: colors.primaryText,
     fontWeight: font.weight.heavy,

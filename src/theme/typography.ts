@@ -49,15 +49,17 @@ export function createTypography(value = 1) {
   const sizes = scale(size, factor);
   const heights = scale(line, factor);
   const weight = { bold: '700', heavy: '800' } as const;
+  const display = { fontFamily: 'Quicksand', fontWeight: weight.bold };
   return {
     size: sizes,
     line: heights,
     weight,
+    display,
     badge: { fontSize: sizes.badge, fontWeight: weight.heavy },
     action: { fontSize: sizes.small, fontWeight: weight.bold },
     label: { fontSize: sizes.label, fontWeight: weight.heavy },
     title: { fontSize: sizes.subtitle, fontWeight: weight.heavy },
-    heading: { fontSize: sizes.heading, fontWeight: weight.heavy },
+    heading: { fontSize: sizes.heading, ...display },
     body: { fontSize: sizes.body, lineHeight: heights.body },
     note: { fontSize: sizes.caption, lineHeight: heights.caption },
     description: { fontSize: sizes.small, lineHeight: heights.small },
