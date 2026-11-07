@@ -10,7 +10,7 @@ import { sceneImage } from '@/theme/sceneImage';
 import type { ScreenProps } from '@/types/screen';
 import { SceneThumbnail } from './components/SceneThumbnail';
 import { useImagePicker } from './hooks/useImagePicker';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function CameraScreen({
   navigate,

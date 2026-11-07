@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
-import { useStyles } from '../styles';
+import { useStyles } from '../styles/styles';
 
 export function MenuItem({
   label,

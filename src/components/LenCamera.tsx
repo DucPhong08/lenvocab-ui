@@ -1,5 +1,5 @@
 import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
-import { useTheme } from '@/theme/ThemeProvider';
+import { useTheme } from '@/theme/context/ThemeProvider';
 
 export function LenCamera({ size = 116 }: { size?: number }) {
   const { colors } = useTheme();

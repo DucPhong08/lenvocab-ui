@@ -5,6 +5,7 @@ import { getCardAudio } from '@/api/endpoints/getCardAudio';
 import { AudioContext } from './audioContext';
 import RNFS from 'react-native-fs';
 import Sound from 'react-native-sound';
+import { vi } from '@/i18n/vi';
 import { errorMessage } from '@/utils/errorMessage';
 
 try {
@@ -21,7 +22,7 @@ let nextPlayerId = 0;
 
 export function useAudio() {
   const [playerId] = useState(() => ++nextPlayerId);
-  const { token, speed, onUnauthorized } = useContext(AudioContext);
+  const { token, speed, onUnauthorized, offline } = useContext(AudioContext);
   const soundRef = useRef<Sound | null>(null);
   const fileRef = useRef<string | null>(null);
   const requestRef = useRef(0);
@@ -69,6 +70,10 @@ export function useAudio() {
 
   const play = useCallback(
     async (base64: string | null | undefined, cardId?: string) => {
+      if (offline && !base64) {
+        Alert.alert(vi.offline.audioTitle, vi.offline.audioMessage);
+        return;
+      }
       if (!base64 && (!cardId || !token)) return;
 
       const requestId = ++requestRef.current;
@@ -138,7 +143,7 @@ export function useAudio() {
         }
       }
     },
-    [token, speed, playerId, onUnauthorized],
+    [token, speed, playerId, onUnauthorized, offline],
   );
 
   return { play, stop, isPlaying };

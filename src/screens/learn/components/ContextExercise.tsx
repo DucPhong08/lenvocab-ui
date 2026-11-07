@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Keyboard, Text, TextInput, View } from 'react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import type { Word } from '@/data/scenes';
-import { useStyles } from '../styles';
+import { useStyles } from '../styles/styles';
 
 export function ContextExercise({
   word,

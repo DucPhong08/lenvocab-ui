@@ -10,7 +10,7 @@ import { memoryLevels, SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
 import { useStudyExit } from './hooks/useStudyExit';
 import { useFlashcards } from './hooks/useFlashcards';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function FlashcardsScreen({
   navigate,

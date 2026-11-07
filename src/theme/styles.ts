@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from './context/ThemeProvider';
 import type { Theme } from './theme';
 
 type Styles = Parameters<typeof StyleSheet.create>[0];

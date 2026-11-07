@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { layout } from '@/theme/theme';
 import { AuthScreen } from '@/screens/account/AuthScreen';
 import { OnboardingScreen } from '@/screens/account/OnboardingScreen';
+import { SyncScreen } from '@/screens/account/SyncScreen';
 import { ProfileScreen } from '@/screens/account/ProfileScreen';
 import { CameraScreen } from '@/screens/discover/CameraScreen';
 import { HomeScreen } from '@/screens/discover/HomeScreen';
@@ -26,6 +27,7 @@ const screens = {
   quiz: QuizScreen,
   history: HistoryScreen,
   profile: ProfileScreen,
+  sync: SyncScreen,
   onboarding: OnboardingScreen,
   auth: AuthScreen,
 } satisfies Record<Screen, ComponentType<ScreenProps>>;

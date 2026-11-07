@@ -10,11 +10,13 @@ import type {
   FlashcardPage,
   SubmitReviewResponse,
 } from '@/api/contracts';
+import { useOfflineLearning } from './useOfflineLearning';
 import { errorMessage } from '@/utils/errorMessage';
 
 export function useLearningData(
   token: string | null,
   onUnauthorized: () => Promise<unknown>,
+  cacheKey: string | null = null,
 ) {
   const [pending, setPending] = useState<{
     token: string;
@@ -32,6 +34,16 @@ export function useLearningData(
     },
     [onUnauthorized],
   );
+  const reviewHandler = useRef<(result: SubmitReviewResponse) => Promise<void>>(
+    async () => {},
+  );
+  const offline = useOfflineLearning({
+    sessionKey: cacheKey,
+    token,
+    onUnauthorized,
+    onReview: result => reviewHandler.current(result),
+  });
+  const { saveSnapshot } = offline;
   const config = { shouldRetryOnError: false, onError: handleError };
   const userQuery = useSWR(
     token ? ['me', token] : null,
@@ -56,7 +68,18 @@ export function useLearningData(
     ([, authToken]) => reviewToday(authToken),
     config,
   );
-  const pages = cardsQuery.data ?? [];
+  const error = userQuery.error ?? cardsQuery.error ?? dueQuery.error;
+  const authError =
+    error instanceof ApiError && (error.status === 401 || error.status === 403);
+  const snapshot = token && !authError ? offline.snapshot : null;
+  const usingCache =
+    !!snapshot &&
+    (!!error || !userQuery.data || !cardsQuery.data || !dueQuery.data);
+  const pages =
+    cardsQuery.data ??
+    (snapshot
+      ? [{ items: snapshot.cards, total: snapshot.total, next_offset: null }]
+      : []);
   const serverCards = [
     ...new Map(
       pages
@@ -87,7 +110,9 @@ export function useLearningData(
     });
   }, [cardsQuery.data, token]);
   const hasMoreCards =
-    pages.length > 0 && pages[pages.length - 1].next_offset !== null;
+    !usingCache &&
+    pages.length > 0 &&
+    pages[pages.length - 1].next_offset !== null;
   const loadingMoreCards = cardsQuery.isValidating;
   const loadMoreCards = async () => {
     if (!hasMoreCards || cardsQuery.isValidating) return;
@@ -97,7 +122,6 @@ export function useLearningData(
     }
     await cardsQuery.setSize(cardsQuery.size + 1);
   };
-  const error = userQuery.error ?? cardsQuery.error ?? dueQuery.error;
   const reloadData = async () => {
     await Promise.all([
       userQuery.mutate(),
@@ -105,6 +129,38 @@ export function useLearningData(
       dueQuery.mutate(),
     ]);
   };
+  useEffect(() => {
+    if (
+      !cacheKey ||
+      !token ||
+      !userQuery.data ||
+      !cardsQuery.data ||
+      !dueQuery.data
+    )
+      return;
+    const downloaded = cardsQuery.data.flatMap(page => page.items);
+    const local = pending?.token === token ? pending.cards : [];
+    const cachedCards = [
+      ...new Map(
+        [...downloaded, ...local].map(card => [card.user_flashcard_id, card]),
+      ).values(),
+    ];
+    saveSnapshot({
+      user: userQuery.data,
+      cards: cachedCards,
+      due: dueQuery.data,
+      total: cardsQuery.data[0]?.total ?? 0,
+      savedAt: new Date().toISOString(),
+    });
+  }, [
+    cacheKey,
+    token,
+    userQuery.data,
+    cardsQuery.data,
+    dueQuery.data,
+    pending,
+    saveSnapshot,
+  ]);
   const applyCard = async (card: Flashcard) => {
     if (!token || currentToken.current !== token) return;
     // Keep an overlay when there is no server page yet. Never fabricate totals/cursors.
@@ -185,7 +241,20 @@ export function useLearningData(
       ),
     ]);
   };
+  reviewHandler.current = applyReview;
+  const pendingIds = new Set(offline.queue.map(item => item.cardId));
   return {
+    usingCache,
+    offlineReady: offline.ready,
+    savedAt: snapshot?.savedAt ?? null,
+    cachedCount: snapshot?.cards.length ?? 0,
+    reviewQueue: offline.queue,
+    queueReview: offline.enqueue,
+    syncReviews: offline.retry,
+    discardReview: offline.discard,
+    syncingReviews: offline.syncing,
+    syncError: offline.syncError,
+    storageError: offline.storageError,
     cards,
     totalSaved: pages[0]?.total ?? 0,
     hasMoreCards,
@@ -193,16 +262,23 @@ export function useLearningData(
     loadMoreCards,
     applyReview,
     applyCard,
-    dataError: error
-      ? errorMessage(error, 'Không thể tải dữ liệu học tập.')
-      : null,
-    due: dueQuery.data ?? [],
+    dataError:
+      error && (!snapshot || authError)
+        ? errorMessage(error, 'Không thể tải dữ liệu học tập.')
+        : null,
+    due: (dueQuery.data ?? snapshot?.due ?? []).filter(
+      card => !pendingIds.has(card.user_flashcard_id),
+    ),
     loadingData:
-      userQuery.isLoading || cardsQuery.isLoading || dueQuery.isLoading,
+      !snapshot &&
+      (userQuery.isLoading ||
+        cardsQuery.isLoading ||
+        dueQuery.isLoading ||
+        (!!cacheKey && !offline.ready)),
     reloadCards: cardsQuery.mutate,
     reloadData,
     reloadDue: dueQuery.mutate,
     reloadUser: userQuery.mutate,
-    user: userQuery.data ?? null,
+    user: token ? userQuery.data ?? snapshot?.user ?? null : null,
   };
 }

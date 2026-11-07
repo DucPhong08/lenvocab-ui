@@ -7,7 +7,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { WordGrid } from '@/components/WordGrid';
 import type { ScreenProps } from '@/types/screen';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 const filters = [
   { id: 'all', label: 'Tất cả' },

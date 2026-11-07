@@ -1,3 +1,4 @@
+import { vi } from '@/i18n/vi';
 import { Text } from 'react-native';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenTitle } from '@/components/ScreenTitle';
@@ -5,7 +6,7 @@ import { StudyCard } from '@/components/StudyCard';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function ReviewScreen({
   navigate,
@@ -48,10 +49,7 @@ export function ReviewScreen({
   const count = user ? Math.min(SESSION_SIZE, due.length) : SESSION_SIZE;
   return (
     <>
-      <ScreenTitle
-        title="Nhớ và dùng từ"
-        subtitle="Thử nhớ trước. Xem nghĩa sau."
-      />
+      <ScreenTitle title={vi.review.title} subtitle={vi.review.subtitle} />
       <StudyCard
         title={done ? 'Chưa có từ đến hạn.' : `Chỉ ${count} từ một lượt.`}
         description={
@@ -63,20 +61,17 @@ export function ReviewScreen({
         }
       >
         <PrimaryButton
-          label={done ? 'Hôm nay chưa cần ôn' : `Ôn nhanh ${count} từ`}
+          label={done ? 'Hôm nay chưa cần ôn' : vi.review.start(count)}
           disabled={done}
           onPress={() => navigate('flashcards')}
         />
       </StudyCard>
       <PrimaryButton
-        label="Quiz nhanh"
+        label={vi.review.quiz}
         variant="secondary"
         onPress={() => navigate('quiz')}
       />
-      <Text style={styles.hint}>
-        Mỗi lượt tối đa {SESSION_SIZE} từ và 1 câu điền từ khi có ví dụ phù hợp.
-        Quiz không thay đổi lịch ôn.
-      </Text>
+      <Text style={styles.hint}>{vi.review.hint(SESSION_SIZE)}</Text>
     </>
   );
 }

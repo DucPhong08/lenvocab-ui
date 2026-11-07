@@ -1,3 +1,4 @@
+jest.mock('react-native-fs');
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import { SWRConfig } from 'swr';

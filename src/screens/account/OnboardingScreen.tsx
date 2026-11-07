@@ -5,7 +5,7 @@ import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { sceneImage } from '@/theme/sceneImage';
 import type { ScreenProps } from '@/types/screen';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 const slides = [
   {

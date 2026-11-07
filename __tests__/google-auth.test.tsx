@@ -1,3 +1,4 @@
+jest.mock('react-native-fs');
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
 import * as Keychain from 'react-native-keychain';
@@ -107,7 +108,7 @@ test('stores only the backend JWT in Keychain after Google verification', async 
     await ReactTestRenderer.act(async () => view.state.signInGoogle());
     expect(authenticateGoogle).toHaveBeenCalledWith('verified-by-backend');
     expect(Keychain.setGenericPassword).toHaveBeenCalledWith(
-      'session',
+      expect.stringMatching(/^offline:[0-9a-f-]{36}$/),
       'app-session',
       { service: 'lenvocab.session' },
     );

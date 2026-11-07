@@ -1,3 +1,4 @@
+import { useI18n } from '@/i18n';
 import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 import { ArrowLeft } from 'lucide-react-native';
@@ -14,10 +15,11 @@ export function TopBar({
   action?: ReactNode;
 }) {
   const { styles, colors } = useStyles();
+  const { strings } = useI18n();
   return (
     <View style={styles.topBar}>
       <IconButton
-        label="Quay lại"
+        label={strings.common.back}
         onPress={onBack}
         icon={<ArrowLeft size={21} color={colors.text} />}
       />

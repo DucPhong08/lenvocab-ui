@@ -5,6 +5,7 @@ import { cardWord } from '@/api/mappers/cardWord';
 import { SESSION_SIZE } from '@/data/study';
 import { allWords } from '@/data/scenes';
 import type { ScreenProps } from '@/types/screen';
+import { createId } from '@/utils/createId';
 import { errorMessage } from '@/utils/errorMessage';
 
 export function useFlashcards({
@@ -54,13 +55,7 @@ export function useFlashcards({
     setSubmitting(true);
     try {
       reviewAttempt.current ??= {
-        reviewId: 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-          /[xy]/g,
-          character => {
-            const value = Math.floor(Math.random() * 16);
-            return (character === 'x' ? value : 8 + (value % 4)).toString(16);
-          },
-        ),
+        reviewId: createId(),
         quality,
       };
       await submitReview(

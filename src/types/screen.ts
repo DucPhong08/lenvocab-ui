@@ -1,3 +1,4 @@
+import type { ReviewAttempt } from '@/services/offline/storage';
 import type { Asset } from 'react-native-image-picker';
 import type {
   DetectedObject,
@@ -19,6 +20,7 @@ export type Screen =
   | 'quiz'
   | 'history'
   | 'profile'
+  | 'sync'
   | 'onboarding'
   | 'auth';
 
@@ -32,6 +34,15 @@ export type ScanEntry = {
 
 export type ScreenProps = {
   token: string | null;
+  offline?: boolean;
+  cachedCount: number;
+  savedAt: string | null;
+  reviewQueue: ReviewAttempt[];
+  syncReviews: () => Promise<void>;
+  discardReview: (reviewId: string) => Promise<void>;
+  syncingReviews: boolean;
+  syncError: string | null;
+  storageError: string | null;
   navigate: (next: Screen) => void;
   practiceWords?: Word[];
   startPractice: (words: Word[]) => void;

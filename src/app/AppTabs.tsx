@@ -7,16 +7,9 @@ import {
   UserRound,
   type LucideIcon,
 } from 'lucide-react-native';
+import { useI18n } from '@/i18n';
 import type { Screen } from '@/types/screen';
 import { useStyles } from './styles';
-
-const tabs: { screen: Screen; label: string; icon: LucideIcon }[] = [
-  { screen: 'home', label: 'Trang chủ', icon: Home },
-  { screen: 'saved', label: 'Từ đã lưu', icon: Bookmark },
-  { screen: 'camera', label: 'Quét ảnh', icon: Camera },
-  { screen: 'review', label: 'Ôn tập', icon: Layers3 },
-  { screen: 'profile', label: 'Cá nhân', icon: UserRound },
-];
 
 export function AppTabs({
   screen,
@@ -28,9 +21,20 @@ export function AppTabs({
   navigate: (next: Screen) => void;
 }) {
   const { styles, colors } = useStyles();
+  const { strings } = useI18n();
+
+  const tabs: { screen: Screen; label: string; icon: LucideIcon }[] = [
+    { screen: 'home', label: strings.nav.home, icon: Home },
+    { screen: 'saved', label: strings.nav.saved, icon: Bookmark },
+    { screen: 'camera', label: strings.nav.camera, icon: Camera },
+    { screen: 'review', label: strings.nav.review, icon: Layers3 },
+    { screen: 'profile', label: strings.nav.profile, icon: UserRound },
+  ];
   const parent = screen === 'word' ? wordBack : screen;
   const activeTab =
-    parent === 'results' || parent === 'history'
+    parent === 'sync'
+      ? 'profile'
+      : parent === 'results' || parent === 'history'
       ? 'camera'
       : parent === 'quiz' || parent === 'flashcards'
       ? 'review'

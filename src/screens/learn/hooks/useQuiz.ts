@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { cardWord } from '@/api/mappers/cardWord';
 import { allWords, type Word } from '@/data/scenes';
 import type { ScreenProps } from '@/types/screen';
-import { createQuiz, normalize } from '../quiz';
+import { createQuiz, normalize } from '../util/quiz';
 
 export function useQuiz({
   scrollToEnd,

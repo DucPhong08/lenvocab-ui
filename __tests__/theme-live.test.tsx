@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Renderer from 'react-test-renderer';
 import { StyleSheet, Text } from 'react-native';
-import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
+import { ThemeProvider, useTheme } from '@/theme/context/ThemeProvider';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { AppTabs } from '@/app/AppTabs';
 import { Eyebrow } from '@/components/Eyebrow';

@@ -13,7 +13,7 @@ import type { ScreenProps } from '@/types/screen';
 import { ContextExercise } from './components/ContextExercise';
 import { useStudyExit } from './hooks/useStudyExit';
 import { useQuiz } from './hooks/useQuiz';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function QuizScreen(props: ScreenProps) {
   const { navigate, practiceWords, loadingData, dataError, reloadData } = props;

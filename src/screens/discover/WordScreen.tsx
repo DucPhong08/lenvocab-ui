@@ -12,7 +12,7 @@ import { sceneImage } from '@/theme/sceneImage';
 import { useAudio } from '@/hooks/useAudio';
 import type { ScreenProps } from '@/types/screen';
 import { isWordSaved } from '@/data/isWordSaved';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function WordScreen({
   navigate,

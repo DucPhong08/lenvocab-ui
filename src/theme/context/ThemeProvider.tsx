@@ -11,7 +11,7 @@ import {
   defaultTheme,
   type Theme,
   type ThemeOptions,
-} from './theme';
+} from '../theme';
 
 function missingProvider() {
   throw new Error('ThemeProvider is required to update the theme.');

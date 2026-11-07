@@ -1,4 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
+import { vi } from '@/i18n/vi';
 import { Camera } from 'lucide-react-native';
 import { Brand } from '@/components/Brand';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -11,7 +12,7 @@ import { cardWord } from '@/api/mappers/cardWord';
 import { allWords } from '@/data/scenes';
 import { SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function HomeScreen({
   navigate,
@@ -130,7 +131,9 @@ export function HomeScreen({
         }}
         style={styles.sampleLink}
       >
-        <Text style={styles.sampleLinkText}>Khám phá từ và cụm A2–B2</Text>
+        <Text style={styles.sampleLinkText}>
+          {vi.library.samples(allWords.length)}
+        </Text>
       </Pressable>
       {user && !words.length && (
         <EmptyState

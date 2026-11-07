@@ -6,7 +6,7 @@ import { TopBar } from '@/components/TopBar';
 import type { ScreenProps } from '@/types/screen';
 import { useAuthForm } from './hooks/useAuthForm';
 import { errorMessage } from '@/utils/errorMessage';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function AuthScreen({
   navigate,

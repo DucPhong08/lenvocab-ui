@@ -13,6 +13,8 @@ import {
   type ScrollViewInstance,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { vi } from '@/i18n/vi';
+import { SyncNotice } from '@/components/SyncNotice';
 import { Bookmark } from 'lucide-react-native';
 import { ApiError } from '@/api/client/ApiError';
 import { updatePreferences } from '@/api/endpoints/updatePreferences';
@@ -57,8 +59,15 @@ export function AppContent() {
     setScreen(next);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []);
-  const { authBusy, restoringSession, signIn, signInGoogle, signOut, token } =
-    useSession();
+  const {
+    authBusy,
+    restoringSession,
+    signIn,
+    signInGoogle,
+    signOut,
+    token,
+    cacheKey,
+  } = useSession();
   const currentToken = useRef(token);
   currentToken.current = token;
   const logoutSession = useCallback(async () => {
@@ -76,6 +85,16 @@ export function AppContent() {
   const {
     applyReview,
     applyCard,
+    usingCache,
+    cachedCount,
+    savedAt,
+    reviewQueue,
+    queueReview,
+    syncReviews,
+    discardReview,
+    syncingReviews,
+    syncError,
+    storageError,
     cards,
     totalSaved,
     hasMoreCards,
@@ -89,7 +108,7 @@ export function AppContent() {
     reloadDue,
     reloadUser,
     user,
-  } = useLearningData(token, logoutSession);
+  } = useLearningData(token, logoutSession, cacheKey);
   const {
     history,
     imageUri,
@@ -117,11 +136,35 @@ export function AppContent() {
     }
     previousToken.current = token;
   }, [navigate, resetScan, token]);
-  const logout = useCallback(async () => {
+  const logoutNow = useCallback(async () => {
     if (!(await logoutSession())) return;
     resetScan();
     navigate('home');
   }, [logoutSession, navigate, resetScan]);
+  const logout = async () => {
+    if (!reviewQueue.length) {
+      await logoutNow();
+      return;
+    }
+    Alert.alert(vi.offline.logoutTitle, vi.offline.logoutMessage, [
+      { text: vi.common.continue, style: 'cancel' },
+      {
+        text: vi.offline.retry,
+        onPress: () => {
+          syncReviews().catch(cause =>
+            Alert.alert('Chưa đồng bộ được', errorMessage(cause)),
+          );
+        },
+      },
+      {
+        text: vi.offline.logout,
+        style: 'destructive',
+        onPress: () => {
+          logoutNow();
+        },
+      },
+    ]);
+  };
   const { saved, saving, toggleSaved, wordForId, currentScanSaved } =
     useVocabularyLibrary({
       cards,
@@ -167,6 +210,10 @@ export function AppContent() {
     reviewId: string,
   ) => {
     if (!token) return;
+    if (cacheKey) {
+      await queueReview(id, quality, reviewId);
+      return;
+    }
     const requestToken = token;
     try {
       const result = await gradeReview(token, id, quality, reviewId);
@@ -185,6 +232,7 @@ export function AppContent() {
     if (screen === 'home') return false;
     if (screen === 'word') navigate(wordBack);
     else if (screen === 'results') navigate('camera');
+    else if (screen === 'sync') navigate('profile');
     else if (screen === 'auth') navigate(authBack.current);
     else navigate('home');
     return true;
@@ -251,6 +299,18 @@ export function AppContent() {
   const props: ScreenProps = {
     token,
     navigate,
+    offline: usingCache,
+    cachedCount,
+    savedAt,
+    reviewQueue,
+    syncReviews: async () => {
+      await syncReviews();
+      await reloadData();
+    },
+    discardReview,
+    syncingReviews,
+    syncError,
+    storageError,
     practiceWords,
     startPractice: words => {
       setPracticeWords([...words]);
@@ -316,6 +376,7 @@ export function AppContent() {
     <AudioContext.Provider
       value={{
         token,
+        offline: usingCache,
         speed: user?.preferences?.voice_speed ?? 1,
         onUnauthorized: logoutSession,
       }}
@@ -350,6 +411,16 @@ export function AppContent() {
               contentContainerStyle={styles.scrollContent}
               key={screen}
             >
+              {!!token && (
+                <SyncNotice
+                  cached={usingCache}
+                  pending={reviewQueue.filter(item => !item.error).length}
+                  failed={reviewQueue.filter(item => !!item.error).length}
+                  syncing={syncingReviews}
+                  storageError={storageError}
+                  onPress={() => navigate('sync')}
+                />
+              )}
               <ScreenContent screen={screen} props={props} />
             </ScrollView>
           </Animated.View>

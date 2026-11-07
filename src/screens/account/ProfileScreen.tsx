@@ -2,18 +2,20 @@ import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import {
   Bookmark,
+  Download,
   Clock3,
   Gauge,
   Headphones,
   Sparkles,
   Target,
 } from 'lucide-react-native';
+import { vi } from '@/i18n/vi';
 import { Brand } from '@/components/Brand';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import type { ScreenProps } from '@/types/screen';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 import { MenuItem } from './components/MenuItem';
 
 export function ProfileScreen({
@@ -106,6 +108,11 @@ export function ProfileScreen({
 
       {user && (
         <>
+          <MenuItem
+            label={vi.offline.title}
+            icon={<Download size={19} color={colors.primaryText} />}
+            onPress={() => navigate('sync')}
+          />
           <Eyebrow>Tùy chọn học tập</Eyebrow>
           <View style={styles.menu}>
             <SettingRow
@@ -194,7 +201,7 @@ export function ProfileScreen({
         <Brand />
         <Text style={styles.footerText}>
           {user
-            ? 'Từ đã lưu và tiến độ ôn tập được giữ an toàn trên máy chủ LensVocab.'
+            ? 'Mở Học không cần mạng để xem bản lưu và trạng thái đồng bộ.'
             : 'Chế độ khách không lưu bộ từ hoặc lịch sử. Đăng nhập để sử dụng đầy đủ tính năng.'}
         </Text>
       </View>

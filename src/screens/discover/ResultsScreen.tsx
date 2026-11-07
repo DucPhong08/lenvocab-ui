@@ -16,7 +16,7 @@ import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
 import type { ScreenProps } from '@/types/screen';
 import { isWordSaved } from '@/data/isWordSaved';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function ResultsScreen({
   navigate,

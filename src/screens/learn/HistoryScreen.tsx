@@ -7,7 +7,7 @@ import { SectionHeader } from '@/components/SectionHeader';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
 import type { ScreenProps } from '@/types/screen';
-import { useStyles } from './styles';
+import { useStyles } from './styles/styles';
 
 export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
   const { styles, colors } = useStyles();
