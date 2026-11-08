@@ -1,0 +1,21 @@
+{
+  "title": "Quét offline thử nghiệm",
+  "entry": "Thử quét offline",
+  "intro": "Nhận diện tại máy, không gửi ảnh lên mạng. Hỗ trợ {categories} nhóm vật thông dụng, tối đa {max} vật mỗi ảnh.",
+  "library": "Chọn ảnh",
+  "camera": "Chụp ảnh",
+  "scan": "Nhận diện trên máy",
+  "busy": "Đang nhận diện...",
+  "hint": "Chọn ảnh JPG/PNG rõ nét, vật đủ lớn và đủ sáng.",
+  "empty": "Chưa tìm được vật đủ rõ",
+  "retry": "Thử ảnh khác, đưa vật gần hơn hoặc đổi góc chụp.",
+  "limit": "Nhãn có thể sai. Bản thử chưa tạo sticker, sinh câu ví dụ hay lưu thẻ.",
+  "unavailable": "Cần bản Android thử nghiệm",
+  "unavailableHint": "Tính năng này chưa có trong bản app thường hoặc trên iOS.",
+  "back": "Về màn quét ảnh",
+  "photo": "Ảnh được xử lý trên máy",
+  "settings": "Đổi cài đặt",
+  "synced": "Áp dụng tùy chọn tài khoản và giới hạn hệ thống đã đồng bộ.",
+  "cached": "Đang dùng cài đặt đã đồng bộ gần nhất trên máy.",
+  "defaults": "Chưa nhận cài đặt từ máy chủ; đang dùng giới hạn mặc định. Đăng nhập và đồng bộ để áp dụng cài đặt tài khoản."
+}

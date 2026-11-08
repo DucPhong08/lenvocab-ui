@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { CheckCircle2, Sparkles, X } from 'lucide-react-native';
 import { Eyebrow } from '@/components/Eyebrow';
@@ -8,16 +9,20 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { TopBar } from '@/components/TopBar';
 import { useAudio } from '@/hooks/useAudio';
+import { useI18n } from '@/i18n';
+import { playSfx } from '@/utils/sfx';
 import { SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
 import { ContextExercise } from './components/ContextExercise';
 import { useStudyExit } from './hooks/useStudyExit';
 import { useQuiz } from './hooks/useQuiz';
+import { normalize } from './util/quiz';
 import { useStyles } from './styles/styles';
 
 export function QuizScreen(props: ScreenProps) {
   const { navigate, practiceWords, loadingData, dataError, reloadData } = props;
   const { styles, colors } = useStyles();
+  const { strings, locale } = useI18n();
   const {
     done,
     index,
@@ -40,7 +45,32 @@ export function QuizScreen(props: ScreenProps) {
   } = useQuiz(props);
   const exit = useStudyExit({ navigate, active: !!word && !done });
   const { play, isPlaying } = useAudio();
-  const title = practiceWords ? 'Luyện từ mẫu' : 'Quiz nhanh';
+  const prevDoneRef = useRef(done);
+
+  useEffect(() => {
+    if (done && !prevDoneRef.current) {
+      playSfx('levelUp');
+    }
+    prevDoneRef.current = done;
+  }, [done]);
+
+  const onSelectOption = (optionId: string) => {
+    if (selected || !word) return;
+    const isCorrect = optionId === word.id;
+    playSfx(isCorrect ? 'correct' : 'wrong');
+    selectOption(optionId);
+  };
+
+  const onAnswerContext = (value: string) => {
+    if (selected || !word) return;
+    const isCorrect = normalize(value) === normalize(word.term);
+    playSfx(isCorrect ? 'correct' : 'wrong');
+    answerContext(value);
+  };
+
+  const title = practiceWords
+    ? (locale === 'vi' ? 'Luyện từ mẫu' : 'Sample Practice')
+    : strings.review.quiz;
 
   if (!word)
     return (
@@ -50,18 +80,18 @@ export function QuizScreen(props: ScreenProps) {
           loading={loadingData}
           title={
             loadingData
-              ? 'Đang chuẩn bị câu hỏi'
+              ? (locale === 'vi' ? 'Đang chuẩn bị câu hỏi' : 'Preparing questions')
               : dataError
-              ? 'Không thể tải câu hỏi'
-              : 'Chưa có từ để luyện tập'
+              ? strings.review.loadErrorTitle
+              : strings.review.noWordsTitle
           }
           description={
             loadingData
-              ? 'Vui lòng chờ trong giây lát.'
-              : dataError ?? 'Quét và lưu từ đầu tiên để bắt đầu quiz.'
+              ? strings.review.loadingDescription
+              : dataError ?? strings.review.noWordsDescription
           }
           action={
-            dataError ? 'Thử lại' : !loadingData ? 'Quét từ mới' : undefined
+            dataError ? strings.common.retry : !loadingData ? strings.review.scanNewWord : undefined
           }
           onPress={dataError ? () => reloadData() : () => navigate('camera')}
         />
@@ -71,29 +101,29 @@ export function QuizScreen(props: ScreenProps) {
   if (done)
     return (
       <>
-        <TopBar title="Kết quả luyện tập" onBack={exit} />
+        <TopBar title={strings.quiz.topBarResult} onBack={exit} />
         <View style={styles.finish}>
           <View style={styles.finishIcon}>
             <Sparkles size={32} color={colors.primaryText} />
           </View>
-          <Eyebrow>XONG MỘT LƯỢT RỒI!</Eyebrow>
+          <Eyebrow>{strings.quiz.roundDoneKicker}</Eyebrow>
           <Text style={styles.finishTitle}>
-            {missed.length ? 'Mình thử lại vài từ nhé?' : 'Làm tốt lắm!'}
+            {missed.length ? strings.quiz.tryAgainTitle : strings.quiz.wellDoneTitle}
           </Text>
           <Text style={styles.finishDescription}>
             {missed.length
-              ? `${missed.length} từ cần luyện thêm trong lượt này.`
-              : 'Bạn đã trả lời đúng tất cả câu trong lượt này.'}
+              ? strings.quiz.missedDescription(missed.length)
+              : strings.quiz.perfectDescription}
           </Text>
           <View style={styles.score}>
             <Text style={styles.scoreValue}>
               {score}/{total}
             </Text>
-            <Text style={styles.scoreCaption}>câu đúng</Text>
+            <Text style={styles.scoreCaption}>{strings.quiz.correctCountCaption}</Text>
           </View>
           {!!missed.length && (
             <View style={styles.missedList}>
-              <Eyebrow>TỪ CẦN XEM LẠI</Eyebrow>
+              <Eyebrow>{strings.quiz.missedKicker}</Eyebrow>
               {missed.map(item => (
                 <View key={item.id}>
                   <Text style={styles.missedWord}>{item.term}</Text>
@@ -104,14 +134,14 @@ export function QuizScreen(props: ScreenProps) {
           )}
           {!!missed.length && (
             <PrimaryButton
-              label="Ôn lại từ chưa đúng"
+              label={strings.quiz.retryMissed}
               onPress={retryMissed}
               style={styles.stretch}
             />
           )}
           {remaining > 0 ? (
             <PrimaryButton
-              label={`Luyện thêm ${Math.min(SESSION_SIZE, remaining)} từ`}
+              label={strings.quiz.practiceMore(Math.min(SESSION_SIZE, remaining))}
               onPress={more}
               variant={missed.length ? 'secondary' : 'primary'}
               style={styles.stretch}
@@ -119,14 +149,14 @@ export function QuizScreen(props: ScreenProps) {
           ) : (
             !missed.length && (
               <PrimaryButton
-                label="Luyện lại bộ này"
+                label={strings.quiz.retrySet}
                 onPress={restart}
                 style={styles.stretch}
               />
             )
           )}
           <PrimaryButton
-            label="Quay về ôn tập"
+            label={strings.quiz.backToReview}
             variant="secondary"
             onPress={exit}
             style={styles.stretch}
@@ -147,11 +177,11 @@ export function QuizScreen(props: ScreenProps) {
         }
       />
       <ScreenTitle
-        title={isContext ? 'Dùng từ trong câu' : 'Chọn nghĩa đúng nhé!'}
+        title={isContext ? strings.quiz.contextTitle : strings.quiz.chooseTitle}
         subtitle={
           isContext
-            ? 'Điền đúng từ hoặc cụm vừa học.'
-            : `${questions.length} từ${context ? ' · thêm 1 câu điền từ' : ''}`
+            ? strings.quiz.contextSubtitle
+            : `${strings.quiz.chooseSubtitle(questions.length)}${context ? strings.quiz.plusContext : ''}`
         }
       />
       <StudyProgress current={index + 1} total={total} />
@@ -160,7 +190,7 @@ export function QuizScreen(props: ScreenProps) {
           word={word}
           sentence={context.sentence}
           answered={!!selected}
-          onAnswer={answerContext}
+          onAnswer={onAnswerContext}
         />
       ) : (
         <>
@@ -175,7 +205,7 @@ export function QuizScreen(props: ScreenProps) {
               </Text>
               {(word.audio || word.userFlashcardId) && (
                 <AudioButton
-                  label="Nghe phát âm từ"
+                  label={strings.quiz.listenWordAudio}
                   playing={isPlaying}
                   onPress={() => play(word.audio, word.userFlashcardId)}
                 />
@@ -198,13 +228,13 @@ export function QuizScreen(props: ScreenProps) {
                   }}
                   accessibilityLabel={`${letter}. ${option.meaning}${
                     selected && correct
-                      ? ', đáp án đúng'
+                      ? (locale === 'vi' ? ', đáp án đúng' : ', correct answer')
                       : selected && chosen
-                      ? ', chưa đúng'
+                      ? (locale === 'vi' ? ', chưa đúng' : ', incorrect')
                       : ''
                   }`}
                   disabled={!!selected}
-                  onPress={() => selectOption(option.id)}
+                  onPress={() => onSelectOption(option.id)}
                   style={[
                     styles.answer,
                     selected && correct && styles.answerCorrect,
@@ -237,8 +267,10 @@ export function QuizScreen(props: ScreenProps) {
         >
           <Text style={styles.feedbackText}>
             {selected === word.id
-              ? 'Chính xác!'
-              : `Từ đang luyện là “${word.term}”: ${word.meaning}.`}
+              ? strings.quiz.correct
+              : locale === 'vi'
+              ? `Từ đang luyện là “${word.term}”: ${word.meaning}.`
+              : `The target word is "${word.term}": ${word.meaning}.`}
           </Text>
           {isContext && (
             <Text style={styles.feedbackText}>{context?.example}</Text>
@@ -247,7 +279,11 @@ export function QuizScreen(props: ScreenProps) {
       )}
       {(!isContext || selected) && (
         <PrimaryButton
-          label={index === total - 1 ? 'Xem kết quả' : 'Câu tiếp theo'}
+          label={
+            index === total - 1
+              ? (locale === 'vi' ? 'Xem kết quả' : 'View Results')
+              : (locale === 'vi' ? 'Câu tiếp theo' : 'Next Question')
+          }
           onPress={nextQuestion}
           disabled={!selected}
           style={styles.actionTop18}

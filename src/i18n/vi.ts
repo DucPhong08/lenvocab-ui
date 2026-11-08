@@ -67,6 +67,8 @@ export const vi = {
     wordsToExplore: (count: number) => format(viJson.results.wordsToExplore, count),
     mainWordNotice: (keyword: string) => format(viJson.results.mainWordNotice, { keyword }),
   },
+  notifications: viJson.notifications,
+  scenes: viJson.scenes,
 };
 
 export type Translations = typeof vi;

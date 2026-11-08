@@ -10,6 +10,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { SectionHeader } from '@/components/SectionHeader';
 import { TopBar } from '@/components/TopBar';
 import { WordRow } from '@/components/WordRow';
+import { useI18n } from '@/i18n';
 import { SESSION_SIZE } from '@/data/study';
 import { allWords } from '@/data/scenes';
 import { getScene } from '@/data/getScene';
@@ -37,8 +38,9 @@ export function ResultsScreen({
   currentScanSaved = false,
 }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const { strings, locale } = useI18n();
   const [level, setLevel] = useState('Tất cả');
-  const scene = getScene(sceneId);
+  const scene = getScene(sceneId, locale);
   const scanId = scanResult ? scanWord(scanResult).id : null;
   const words = scanId ? [wordForId(scanId)] : scene.words;
   const isStored = (id: string) =>
@@ -64,7 +66,7 @@ export function ResultsScreen({
     const existing = isStored(word.id);
     return (
       <>
-        <TopBar title="Chọn vật muốn học" onBack={() => navigate('camera')} />
+        <TopBar title={strings.results.topBarSelect} onBack={() => navigate('camera')} />
         <ObjectPicker
           uri={imageUri}
           objects={choices}
@@ -92,20 +94,20 @@ export function ResultsScreen({
         />
         <Text style={styles.resultInfoCaption}>
           {currentScanSaved
-            ? 'Sticker đã lưu. Bạn có thể chọn thêm vật khác trong ảnh.'
-            : 'Lưu để tách nền và thêm viền trắng. Mỗi từ giữ một sticker.'}
+            ? strings.results.savedStickerCaption
+            : strings.results.unsavedStickerCaption}
         </Text>
         <PrimaryButton
           label={
             saving
-              ? 'Đang tạo sticker...'
+              ? strings.results.makingSticker
               : selectingObject
-              ? 'Đang chọn vật...'
+              ? strings.results.selectingObject
               : currentScanSaved
-              ? 'Xem sticker đã lưu'
+              ? strings.results.viewSavedSticker
               : existing
-              ? 'Đổi sticker của thẻ đã lưu'
-              : 'Lưu thẻ với sticker'
+              ? strings.results.changeSticker
+              : strings.results.saveCardWithSticker
           }
           disabled={saving || selectingObject}
           style={styles.actionTop12}
@@ -119,7 +121,7 @@ export function ResultsScreen({
   return (
     <>
       <TopBar
-        title={scanResult ? 'Kết quả quét AI' : 'Kết quả minh họa'}
+        title={scanResult ? strings.results.topBarAi : strings.results.topBarSample}
         onBack={() => navigate('camera')}
       />
       <View
@@ -134,13 +136,13 @@ export function ResultsScreen({
         <View style={styles.resultOverlay}>
           <Eyebrow light>
             {scanResult
-              ? 'ẢNH CỦA BẠN · QUÉT AI'
+              ? strings.results.overlayUserAi
               : imageUri
-              ? 'ẢNH CỦA BẠN · TỪ MẪU'
-              : 'CẢNH MẪU · TỪ MẪU'}
+              ? strings.results.overlayUserSample
+              : strings.results.overlaySample}
           </Eyebrow>
           <Text style={styles.resultImageTitle}>
-            {imageUri ? 'Khám phá qua ảnh' : scene.title}
+            {imageUri ? strings.results.explorePhoto : scene.title}
           </Text>
         </View>
       </View>
@@ -151,10 +153,10 @@ export function ResultsScreen({
           </View>
           <View style={styles.fill}>
             <Text style={styles.resultInfoTitle}>
-              {words.length} từ vựng để khám phá
+              {strings.results.wordsToExplore(words.length)}
             </Text>
             <Text style={styles.resultInfoCaption}>
-              Chạm vào một từ để tìm hiểu thêm
+              {strings.results.tapToLearnMore}
             </Text>
           </View>
         </View>
@@ -163,8 +165,8 @@ export function ResultsScreen({
         <Lightbulb size={18} color={colors.primaryText} />
         <Text style={styles.noticeText}>
           {scanResult
-            ? `Từ chính được nhận diện: ${scanResult.keyword}. Lưu thẻ để giữ lại từ và ảnh của bạn.`
-            : 'Từ và câu trong cảnh là nội dung mẫu, không tạo từ ảnh của bạn.'}
+            ? strings.results.mainWordNotice(scanResult.keyword || '')
+            : strings.results.sampleNotice}
         </Text>
       </View>
       <SectionHeader

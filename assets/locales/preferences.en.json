@@ -1,0 +1,7 @@
+{
+  "objects": "Objects per photo",
+  "effective": "You selected {requested}; currently up to {count} objects within the system limit.",
+  "goal": "Daily review goal (words)",
+  "reviewLimit": "Review queue: up to {count} words per day within your account and system limits.",
+  "title": "Learning settings"
+}

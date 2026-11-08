@@ -68,4 +68,6 @@ export const en: Translations = {
     wordsToExplore: (count: number) => format(enJson.results.wordsToExplore, count),
     mainWordNotice: (keyword: string) => format(enJson.results.mainWordNotice, { keyword }),
   },
+  notifications: enJson.notifications,
+  scenes: enJson.scenes,
 };

@@ -1,10 +1,11 @@
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import { DAILY_REMINDER_CHANNEL_ID } from './constants';
+import { getLocale, type Language, t } from '@/i18n';
 
-export function setupNotificationChannel() {
+export function setupNotificationChannel(locale: Language = getLocale()) {
   return notifee.createChannel({
     id: DAILY_REMINDER_CHANNEL_ID,
-    name: 'Nhắc nhở ôn tập hằng ngày',
+    name: t('notifications.channelName', undefined, locale),
     importance: AndroidImportance.HIGH,
     sound: 'default',
   });

@@ -39,12 +39,12 @@ Chuỗi dùng chung và luồng offline nằm trong `assets/locales/vi.json`, qu
 
 Phần chính sách riêng tư, thông tin người vận hành và xóa tài khoản được người dùng tạm hoãn. Các file pháp lý nháp chưa được phép dùng làm chính sách phát hành.
 
-## Đánh giá AI trên thiết bị — chưa tích hợp
+## AI trên thiết bị: đánh giá ban đầu và bản thử Android
 
 Đối chiếu tĩnh ngày 07/11/2026: 430 nhãn trong [danh mục chính thức ML Kit](https://developers.google.com/ml-kit/vision/image-labeling/label-map) khớp chuỗi chính xác với 9/200 từ mẫu. Đây chỉ là kiểm tra từ vựng nhãn, **không phải độ chính xác nhận diện**; không tính từ đồng nghĩa và nhiều mục học là động từ/cụm từ.
 
 [Object detection mặc định](https://developers.google.com/ml-kit/vision/object-detection/android) trả hộp và tối đa 5 vật, nhưng phân loại chỉ ở nhóm rộng. [Image labeling](https://developers.google.com/ml-kit/vision/image-labeling/android) có thể đóng gói model, tăng khoảng 5,7 MB theo Google; nhãn toàn ảnh không đủ để gắn chính xác tên vào từng hộp. [Subject segmentation](https://developers.google.com/ml-kit/vision/subject-segmentation/android) là API khác, beta và cần tải model.
 
-Vì vậy chưa đưa model hay runtime không dùng vào bản chính. Nhận diện cloud hiện tại được giữ nguyên. Chưa chạy inference hoặc đo độ trễ trên điện thoại; không cam kết offline lần đầu, cắt nền chuẩn hoặc tốc độ gần 0.
+Bản app thường tiếp tục dùng Cloud. Bản thử Android có cờ build riêng dùng TFLite EfficientDet-Lite0; đọc [OFFLINE_SCAN_EXPERIMENT.md](OFFLINE_SCAN_EXPERIMENT.md). Chưa đo trên điện thoại thật, chưa có tách nền offline, không cam kết tốc độ gần 0.
 
 Bước thử nghiệm tiếp theo cần một bản Android riêng: bộ ảnh có nhãn chuẩn gồm đơn vật/nhiều vật/nền rối, ánh xạ nhãn có kiểm tra, chế độ máy bay sau cài mới, đo độ chính xác vật/nhãn, độ trễ p50/p95 và kích thước APK. Chỉ tích hợp sau khi chốt model, giấy phép và kết quả trên điện thoại thật. Video hướng dẫn để sau khi có nhu cầu đã kiểm chứng.

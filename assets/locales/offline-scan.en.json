@@ -1,0 +1,21 @@
+{
+  "title": "Offline scan experiment",
+  "entry": "Try offline scan",
+  "intro": "Processed on your device. No photo upload. Supports {categories} common object categories, up to {max} per photo.",
+  "library": "Choose photo",
+  "camera": "Take a photo",
+  "scan": "Detect on device",
+  "busy": "Detecting...",
+  "hint": "Choose a clear JPG/PNG with large, well-lit objects.",
+  "empty": "No clear objects found",
+  "retry": "Try another photo, move closer or change the angle.",
+  "limit": "Labels can be wrong. This experiment does not create stickers, examples or saved cards.",
+  "unavailable": "Requires the Android experimental build",
+  "unavailableHint": "Not available in the regular app or on iOS yet.",
+  "back": "Back to camera",
+  "photo": "Photo processed on device",
+  "settings": "Change settings",
+  "synced": "Uses your preferences within the synced system limits.",
+  "cached": "Using the last settings synced to this device.",
+  "defaults": "Server settings are unavailable; using default limits. Sign in and sync to apply your account settings."
+}

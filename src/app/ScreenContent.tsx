@@ -1,3 +1,7 @@
+import {
+  OfflineScanEntry,
+  OfflineScanScreen,
+} from '@/screens/discover/OfflineScanScreen';
 import type { ComponentType } from 'react';
 import { View } from 'react-native';
 import { layout } from '@/theme/theme';
@@ -19,6 +23,7 @@ import type { Screen, ScreenProps } from '@/types/screen';
 const screens = {
   home: HomeScreen,
   camera: CameraScreen,
+  'offline-scan': OfflineScanScreen,
   results: ResultsScreen,
   word: WordScreen,
   saved: SavedScreen,
@@ -42,6 +47,9 @@ export function ScreenContent({
   const Content = screens[screen];
   return (
     <View style={layout.page}>
+      {screen === 'camera' && (
+        <OfflineScanEntry onPress={() => props.navigate('offline-scan')} />
+      )}
       <Content {...props} />
     </View>
   );

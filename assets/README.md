@@ -8,6 +8,7 @@ Chỉ tạo nhóm tài nguyên khi đã có nội dung hoặc nơi sử dụng t
 | `locales/` | Chuỗi giao diện; tiếng Việt mặc định, chưa dịch toàn bộ ứng dụng |
 | `scenes/` | Ảnh bối cảnh; một số chủ đề dùng lại ảnh, ánh xạ tại `src/theme/sceneImages.ts` |
 | `native/fonts/` | Font Quicksand và giấy phép có sẵn |
+| `models/` | Model TFLite cục bộ, manifest và nhãn; chỉ đóng gói trong build thử `offlineScan=true` |
 | `docs/` | Bản nháp chưa xác minh, không dùng làm chính sách phát hành |
 
-Đọc `docs/OFFLINE_LEARNING.md` để hiểu phạm vi học offline và đồng bộ. Model AI và video chưa được đóng gói; không thêm file giả, thư mục rỗng hoặc thư viện không có luồng sử dụng.
+Đọc `docs/OFFLINE_LEARNING.md` để hiểu phạm vi học offline và đồng bộ. Model AI chỉ có trong bản thử Android được bật rõ; video chưa được đóng gói; không thêm file giả, thư mục rỗng hoặc thư viện không có luồng sử dụng.

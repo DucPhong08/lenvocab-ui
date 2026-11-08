@@ -6,15 +6,11 @@ import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { ScreenTitle } from '@/components/ScreenTitle';
 import { WordGrid } from '@/components/WordGrid';
+import { useI18n } from '@/i18n';
 import type { ScreenProps } from '@/types/screen';
 import { useStyles } from './styles/styles';
 
-const filters = [
-  { id: 'all', label: 'Tất cả' },
-  { id: 'new', label: 'Từ mới' },
-  { id: 'reviewed', label: 'Đã ôn' },
-] as const;
-type Filter = (typeof filters)[number]['id'];
+type Filter = 'all' | 'new' | 'reviewed';
 
 export function SavedScreen({
   navigate,
@@ -31,10 +27,17 @@ export function SavedScreen({
   reloadData,
 }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const { strings } = useI18n();
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const searching = !!query.trim() || filter !== 'all';
+
+  const filters = [
+    { id: 'all' as const, label: strings.saved.filterAll },
+    { id: 'new' as const, label: strings.saved.filterNew },
+    { id: 'reviewed' as const, label: strings.saved.filterReviewed },
+  ];
 
   useEffect(() => {
     if (searching && hasMoreCards && !loadingMoreCards && !dataError)
@@ -64,28 +67,28 @@ export function SavedScreen({
   return (
     <>
       <ScreenTitle
-        title="Kho từ của bạn"
+        title={strings.saved.screenTitle}
         subtitle={
           user
-            ? 'Chạm một thẻ để xem nghĩa, nghe và dùng lại từ.'
-            : 'Đăng nhập để giữ lại từ, sticker và tiến độ học.'
+            ? strings.saved.userSubtitle
+            : strings.saved.guestSubtitle
         }
       />
       {!user ? (
         <EmptyState
-          title="Kho từ của riêng bạn"
-          description="Quét ảnh ở chế độ khách, rồi đăng nhập khi bạn muốn lưu thẻ."
-          action="Đăng nhập"
+          title={strings.saved.emptyGuestTitle}
+          description={strings.saved.emptyGuestDescription}
+          action={strings.saved.loginAction}
           onPress={() => navigate('auth')}
         />
       ) : (
         <>
           <View style={styles.libraryTop}>
-            <Text style={styles.countText}>{totalSaved} từ đã lưu</Text>
+            <Text style={styles.countText}>{strings.saved.countText(totalSaved)}</Text>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={
-                searchOpen ? 'Đóng tìm kiếm' : 'Tìm kiếm và lọc từ'
+                searchOpen ? strings.saved.closeSearch : strings.saved.openSearch
               }
               accessibilityState={{ expanded: searchOpen }}
               style={styles.clearSearch}
@@ -106,8 +109,8 @@ export function SavedScreen({
               <View style={styles.search}>
                 <Search size={20} color={colors.muted} />
                 <TextInput
-                  accessibilityLabel="Tìm từ vựng"
-                  placeholder="Tìm từ hoặc nghĩa"
+                  accessibilityLabel={strings.saved.searchAccessibility}
+                  placeholder={strings.saved.searchPlaceholder}
                   placeholderTextColor={colors.muted}
                   value={query}
                   onChangeText={setQuery}
@@ -119,7 +122,7 @@ export function SavedScreen({
                 {!!query && (
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Xóa tìm kiếm"
+                    accessibilityLabel={strings.saved.clearSearch}
                     onPress={() => setQuery('')}
                     style={styles.clearSearch}
                   >
@@ -161,10 +164,10 @@ export function SavedScreen({
           {dataError && cards.length > 0 && (
             <View>
               <Text style={styles.hint}>
-                Chưa đồng bộ được toàn bộ kho từ. Những thẻ đã tải vẫn ở đây.
+                {strings.saved.syncWarning}
               </Text>
               <PrimaryButton
-                label="Tải lại kho từ"
+                label={strings.saved.reloadLibrary}
                 variant="secondary"
                 onPress={() => reloadData().catch(() => {})}
               />
@@ -173,48 +176,45 @@ export function SavedScreen({
           {((loadingData && cards.length > 0) || findingMore) && (
             <Text accessibilityLiveRegion="polite" style={styles.hint}>
               {findingMore
-                ? 'Đang tìm trong những từ còn lại...'
-                : 'Đang đồng bộ kho từ của bạn...'}
+                ? strings.saved.findingMore
+                : strings.saved.syncingLibrary}
             </Text>
           )}
           {dataError && cards.length === 0 ? (
             <EmptyState
-              title="Không thể tải kho từ"
+              title={strings.saved.loadErrorTitle}
               description={dataError}
               onPress={() => reloadData().catch(() => {})}
-              action="Thử lại"
+              action={strings.saved.retryAction}
             />
           ) : loadingData && cards.length === 0 ? (
-            <Text style={styles.hint}>Đang tải kho từ của bạn...</Text>
+            <Text style={styles.hint}>{strings.saved.loadingLibrary}</Text>
           ) : words.length ? (
             <>
               <Text style={styles.listCaption}>
                 {searching
-                  ? `${words.length} từ phù hợp${findingMore ? ' đã tải' : ''}`
-                  : `Đã tải ${cards.length} trong ${Math.max(
-                      totalSaved,
-                      cards.length,
-                    )} từ`}
+                  ? (findingMore ? strings.saved.matchingLoaded(words.length) : strings.saved.matchingCount(words.length))
+                  : strings.saved.loadedProgress(cards.length, Math.max(totalSaved, cards.length))}
               </Text>
               <WordGrid words={words} token={token} onOpen={openWord} />
             </>
           ) : findingMore ? null : (
             <EmptyState
               title={
-                searching ? 'Không tìm thấy từ phù hợp' : 'Bạn chưa lưu từ nào'
+                searching ? strings.saved.noMatchTitle : strings.saved.noCardsTitle
               }
               description={
                 searching
-                  ? 'Thử từ khóa khác hoặc xem lại tất cả thẻ.'
-                  : 'Chụp một vật quen thuộc và lưu thẻ kèm sticker đầu tiên.'
+                  ? strings.saved.noMatchDescription
+                  : strings.saved.noCardsDescription
               }
               onPress={searching ? resetFilters : () => navigate('camera')}
-              action={searching ? 'Xóa tìm kiếm và bộ lọc' : 'Bắt đầu quét ảnh'}
+              action={searching ? strings.saved.clearSearchAndFilters : strings.saved.startScanAction}
             />
           )}
           {hasMoreCards && (
             <PrimaryButton
-              label={loadingMoreCards ? 'Đang tải thêm...' : 'Xem thêm từ'}
+              label={loadingMoreCards ? strings.saved.loadingMore : strings.saved.viewMore}
               disabled={loadingMoreCards}
               variant="secondary"
               onPress={() => loadMoreCards().catch(() => {})}
@@ -223,7 +223,7 @@ export function SavedScreen({
           )}
           {cards.length > 0 && (
             <PrimaryButton
-              label="Luyện tập với kho từ"
+              label={strings.saved.practiceLibrary}
               onPress={() => navigate('review')}
               style={styles.actionTop20}
             />

@@ -4,34 +4,36 @@ import { Brand } from '@/components/Brand';
 import { Eyebrow } from '@/components/Eyebrow';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { sceneImage } from '@/theme/sceneImage';
+import { useI18n } from '@/i18n';
 import type { ScreenProps } from '@/types/screen';
 import { useStyles } from './styles/styles';
 
-const slides = [
-  {
-    image: 'desk',
-    label: 'Chụp một vật',
-    title: 'Học từ chính thế giới quanh bạn.',
-    description:
-      'Chụp một vật quen thuộc, chọn vật trong ảnh và xem nghĩa cùng cách phát âm.',
-  },
-  {
-    image: 'kitchen',
-    label: 'Giữ lại từ',
-    title: 'Nhìn thấy. Hiểu rõ. Nhớ lâu.',
-    description:
-      'Khám phá từ và cụm A2–B2 qua cảnh mẫu, câu ví dụ và cách dùng.',
-  },
-  {
-    image: 'library',
-    label: 'Dùng từ linh hoạt',
-    title: 'Một chút mỗi ngày, giỏi hơn mỗi ngày.',
-    description: 'Lưu từ yêu thích, ôn bằng flashcard và thử sức với quiz.',
-  },
-];
 export function OnboardingScreen({ navigate }: ScreenProps) {
   const { styles } = useStyles();
+  const { strings } = useI18n();
   const [step, setStep] = useState(0);
+
+  const slides = [
+    {
+      image: 'desk',
+      label: strings.onboarding.slide1Label,
+      title: strings.onboarding.slide1Title,
+      description: strings.onboarding.slide1Desc,
+    },
+    {
+      image: 'kitchen',
+      label: strings.onboarding.slide2Label,
+      title: strings.onboarding.slide2Title,
+      description: strings.onboarding.slide2Desc,
+    },
+    {
+      image: 'library',
+      label: strings.onboarding.slide3Label,
+      title: strings.onboarding.slide3Title,
+      description: strings.onboarding.slide3Desc,
+    },
+  ];
+
   const slide = slides[step];
   return (
     <>
@@ -42,7 +44,7 @@ export function OnboardingScreen({ navigate }: ScreenProps) {
           onPress={() => navigate('home')}
           style={styles.skip}
         >
-          <Text style={styles.skipText}>Bỏ qua</Text>
+          <Text style={styles.skipText}>{strings.onboarding.skip}</Text>
         </Pressable>
       </View>
       <Image
@@ -69,7 +71,7 @@ export function OnboardingScreen({ navigate }: ScreenProps) {
           ))}
         </View>
         <PrimaryButton
-          label={step === slides.length - 1 ? 'Bắt đầu khám phá' : 'Tiếp tục'}
+          label={step === slides.length - 1 ? strings.onboarding.startExplore : strings.onboarding.next}
           onPress={() =>
             step === slides.length - 1
               ? navigate('home')

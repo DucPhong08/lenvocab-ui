@@ -1,0 +1,7 @@
+{
+  "objects": "Số vật mỗi ảnh",
+  "effective": "Bạn chọn {requested} vật; hiện áp dụng tối đa {count} vật theo giới hạn hệ thống.",
+  "goal": "Mục tiêu ôn mỗi ngày (từ)",
+  "reviewLimit": "Hàng đợi ôn áp dụng tối đa {count} từ/ngày theo cài đặt tài khoản và trần hệ thống.",
+  "title": "Cài đặt học tập"
+}

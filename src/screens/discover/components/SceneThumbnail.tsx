@@ -1,6 +1,7 @@
 import { createStyles } from '@/theme/styles';
 import { Image, Pressable, Text } from 'react-native';
 import { getScene } from '@/data/getScene';
+import { useI18n } from '@/i18n';
 import { sceneImage } from '@/theme/sceneImage';
 
 export function SceneThumbnail({
@@ -13,11 +14,12 @@ export function SceneThumbnail({
   selected?: boolean;
 }) {
   const { styles } = useStyles();
-  const scene = getScene(id);
+  const { locale } = useI18n();
+  const scene = getScene(id, locale);
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`Chọn cảnh ${scene.title}`}
+      accessibilityLabel={locale === 'vi' ? `Chọn cảnh ${scene.title}` : `Select scene ${scene.title}`}
       accessibilityState={{ selected }}
       onPress={onPress}
       style={({ pressed }) => [

@@ -3,7 +3,12 @@ import { StyleSheet } from 'react-native';
 
 export const useStyles = createStyles(({ colors, font }) => ({
   fill: { flex: 1 },
-  speedOptions: { flexDirection: 'row', gap: 8, marginVertical: 10 },
+  speedOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginVertical: 10,
+  },
   speedOption: {
     minWidth: 60,
     minHeight: 44,

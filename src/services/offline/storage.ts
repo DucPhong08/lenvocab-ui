@@ -162,6 +162,8 @@ function sanitize(data: OfflineData): OfflineData {
     is_active,
     daily_quota_left,
     google_linked,
+    scan_settings,
+    preference_limits,
   } = snapshot.user;
   return {
     ...data,
@@ -176,6 +178,19 @@ function sanitize(data: OfflineData): OfflineData {
         is_active,
         daily_quota_left,
         google_linked,
+        scan_settings: scan_settings && {
+          max_detected_objects: scan_settings.max_detected_objects,
+          max_allowed_objects: scan_settings.max_allowed_objects,
+          confidence_threshold: scan_settings.confidence_threshold,
+        },
+        preference_limits: preference_limits && {
+          allowed_voices: preference_limits.allowed_voices,
+          allowed_speeds: preference_limits.allowed_speeds,
+          allow_neural_voice: preference_limits.allow_neural_voice,
+          max_daily_review_goal: preference_limits.max_daily_review_goal,
+          effective_daily_review_goal:
+            preference_limits.effective_daily_review_goal,
+        },
         email: null,
         preferences: {
           preferred_voice_id: preferences.preferred_voice_id,

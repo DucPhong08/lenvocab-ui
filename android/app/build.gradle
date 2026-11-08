@@ -72,8 +72,28 @@ def enableProguardInReleaseBuilds = false
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def offlineScanEnabled = project.findProperty("offlineScan") == "true"
+
+if (offlineScanEnabled) {
+    def modelFile = file('../../assets/models/efficientdet-lite0.tflite')
+    def manifest = new groovy.json.JsonSlurper().parse(file('../../assets/models/manifest.json'))
+    tasks.register("verifyOfflineModel") {
+        doLast {
+            if (!modelFile.exists()) throw new GradleException("Run python3 scripts/download_offline_model.py before building Offline Scan.")
+            def sha = java.security.MessageDigest.getInstance("SHA-256").digest(modelFile.bytes).encodeHex().toString()
+            if (sha != manifest.sha256) throw new GradleException("Offline model checksum does not match manifest.json.")
+            def labels = file('../../assets/models/labels.txt')
+            def labelsSha = java.security.MessageDigest.getInstance("SHA-256").digest(labels.bytes).encodeHex().toString()
+            if (labelsSha != manifest.labels_sha256) throw new GradleException("Offline label indices do not match the model.")
+        }
+    }
+    tasks.named("preBuild").configure { dependsOn("verifyOfflineModel") }
+}
+
 android {
     sourceSets.main.assets.srcDirs += ['../../assets/native']
+    sourceSets.main.java.srcDirs += [offlineScanEnabled ? 'src/offlineScan/java' : 'src/noOfflineScan/java']
+    if (offlineScanEnabled) sourceSets.main.assets.srcDirs += ['../../assets/models']
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
@@ -109,6 +129,7 @@ android {
 }
 
 dependencies {
+    if (offlineScanEnabled) implementation("com.google.ai.edge.litert:litert:1.4.2")
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 

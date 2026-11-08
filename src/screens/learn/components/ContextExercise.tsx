@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Keyboard, Text, TextInput, View } from 'react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
+import { useI18n } from '@/i18n';
 import type { Word } from '@/data/scenes';
 import { useStyles } from '../styles/styles';
 
@@ -16,6 +17,7 @@ export function ContextExercise({
   onAnswer: (value: string) => void;
 }) {
   const { styles, colors } = useStyles();
+  const { strings } = useI18n();
   const [value, setValue] = useState('');
   const check = () => {
     if (!value.trim() || answered) return;
@@ -26,11 +28,13 @@ export function ContextExercise({
     <>
       <View style={styles.question}>
         <Text style={styles.answerExample}>{sentence}</Text>
-        <Text style={styles.questionIpa}>Gợi ý: {word.meaning}</Text>
+        <Text style={styles.questionIpa}>
+          {strings.quiz.contextHint(word.meaning)}
+        </Text>
       </View>
       <TextInput
-        accessibilityLabel="Điền từ hoặc cụm vừa học"
-        placeholder="Nhập từ hoặc cụm vừa học"
+        accessibilityLabel={strings.quiz.contextInputLabel}
+        placeholder={strings.quiz.contextInputPlaceholder}
         placeholderTextColor={colors.muted}
         value={value}
         onChangeText={setValue}
@@ -43,7 +47,7 @@ export function ContextExercise({
       />
       {!answered && (
         <PrimaryButton
-          label="Kiểm tra"
+          label={strings.quiz.contextCheckBtn}
           disabled={!value.trim()}
           onPress={check}
         />

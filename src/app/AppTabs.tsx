@@ -34,7 +34,9 @@ export function AppTabs({
   const activeTab =
     parent === 'sync'
       ? 'profile'
-      : parent === 'results' || parent === 'history'
+      : parent === 'results' ||
+        parent === 'history' ||
+        parent === 'offline-scan'
       ? 'camera'
       : parent === 'quiz' || parent === 'flashcards'
       ? 'review'

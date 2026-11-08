@@ -1,3 +1,5 @@
+import vi from '../../../assets/locales/preferences.vi.json';
+import en from '../../../assets/locales/preferences.en.json';
 import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import {
@@ -23,6 +25,7 @@ export function ProfileScreen({
   navigate,
   totalSaved,
   onVoiceSpeedChange,
+  onPreferencesChange,
   preferencesBusy,
   history,
   user,
@@ -33,6 +36,8 @@ export function ProfileScreen({
   const { styles, colors } = useStyles();
   const { strings, locale, setLocale } = useI18n();
   const prefs = user?.preferences;
+  const limits = user?.preference_limits;
+  const copy = locale === 'vi' ? vi : en;
   const displayName =
     user?.display_name?.trim() ||
     user?.username ||
@@ -44,9 +49,7 @@ export function ProfileScreen({
         kicker={strings.profile.kicker}
         title={strings.profile.title}
         subtitle={
-          user
-            ? strings.profile.userSubtitle
-            : strings.profile.guestSubtitle
+          user ? strings.profile.userSubtitle : strings.profile.guestSubtitle
         }
       />
 
@@ -71,19 +74,25 @@ export function ProfileScreen({
       <View style={styles.profileStats}>
         <View style={styles.stat}>
           <Text style={styles.statValue}>{totalSaved}</Text>
-          <Text style={styles.statCaption}>{strings.profile.savedCountCaption}</Text>
+          <Text style={styles.statCaption}>
+            {strings.profile.savedCountCaption}
+          </Text>
         </View>
         <View style={styles.verticalLine} />
         <View style={styles.stat}>
           <Text style={styles.statValue}>{history.length}</Text>
-          <Text style={styles.statCaption}>{strings.profile.sessionScansCaption}</Text>
+          <Text style={styles.statCaption}>
+            {strings.profile.sessionScansCaption}
+          </Text>
         </View>
         {user && (
           <>
             <View style={styles.verticalLine} />
             <View style={styles.stat}>
               <Text style={styles.statValue}>{user.daily_quota_left}</Text>
-              <Text style={styles.statCaption}>{strings.profile.dailyQuotaCaption}</Text>
+              <Text style={styles.statCaption}>
+                {strings.profile.dailyQuotaCaption}
+              </Text>
             </View>
           </>
         )}
@@ -120,7 +129,7 @@ export function ProfileScreen({
             icon={<Download size={19} color={colors.primaryText} />}
             onPress={() => navigate('sync')}
           />
-          <Eyebrow>{strings.profile.voiceSettings}</Eyebrow>
+          <Eyebrow>{copy.title}</Eyebrow>
           <View style={styles.menu}>
             <SettingRow
               icon={<Headphones size={19} color={colors.primaryText} />}
@@ -128,45 +137,77 @@ export function ProfileScreen({
               description={prefs?.preferred_voice_id ?? 'Joanna'}
             />
 
-            <View style={styles.menuItem}>
-              <View style={styles.fill}>
-                <Text style={styles.menuText}>{strings.profile.voiceSpeed}</Text>
-                <View style={styles.speedOptions}>
-                  {[0.75, 1, 1.25].map(speed => (
-                    <Pressable
-                      key={speed}
-                      accessibilityRole="button"
-                      accessibilityLabel={strings.profile.voiceSpeedLabel.replace('{speed}', String(speed))}
-                      accessibilityState={{
-                        selected: (prefs?.voice_speed ?? 1) === speed,
-                      }}
-                      disabled={preferencesBusy}
-                      onPress={() => onVoiceSpeedChange(speed)}
-                      style={[
-                        styles.speedOption,
-                        (prefs?.voice_speed ?? 1) === speed &&
-                          styles.speedOptionSelected,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.speedText,
-                          (prefs?.voice_speed ?? 1) === speed &&
-                            styles.speedSelected,
-                        ]}
-                      >
-                        {speed}x
-                      </Text>
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            </View>
-            <SettingRow
-              icon={<Target size={19} color={colors.primaryText} />}
-              label="Mục tiêu ôn mỗi ngày"
-              description={`${prefs?.daily_review_goal ?? 15} từ/ngày`}
+            <PreferenceChoices
+              label={strings.profile.voiceSpeed}
+              values={limits?.allowed_speeds ?? [0.75, 1, 1.25]}
+              selected={prefs?.voice_speed ?? 1}
+              format={speed => `${speed}x`}
+              disabled={preferencesBusy}
+              onChange={onVoiceSpeedChange}
             />
+            {user.scan_settings && (
+              <PreferenceChoices
+                label={copy.objects}
+                hint={copy.effective
+                  .replace(
+                    '{requested}',
+                    String(prefs?.max_detected_objects ?? 5),
+                  )
+                  .replace(
+                    '{count}',
+                    String(user.scan_settings.max_detected_objects),
+                  )}
+                values={Array.from(
+                  { length: user.scan_settings.max_allowed_objects },
+                  (_, i) => i + 1,
+                )}
+                selected={prefs?.max_detected_objects ?? 5}
+                format={String}
+                disabled={preferencesBusy || !onPreferencesChange}
+                onChange={value =>
+                  onPreferencesChange?.({ max_detected_objects: value })
+                }
+              />
+            )}
+            {limits && onPreferencesChange ? (
+              <PreferenceChoices
+                label={copy.goal}
+                hint={
+                  limits.effective_daily_review_goal !== undefined
+                    ? copy.reviewLimit.replace(
+                        '{count}',
+                        String(limits.effective_daily_review_goal),
+                      )
+                    : undefined
+                }
+                values={[
+                  ...new Set([
+                    5,
+                    10,
+                    15,
+                    20,
+                    30,
+                    50,
+                    100,
+                    prefs?.daily_review_goal ?? 15,
+                  ]),
+                ]
+                  .filter(value => value <= limits.max_daily_review_goal)
+                  .sort((a, b) => a - b)}
+                selected={prefs?.daily_review_goal ?? 15}
+                format={String}
+                disabled={preferencesBusy}
+                onChange={value =>
+                  onPreferencesChange({ daily_review_goal: value })
+                }
+              />
+            ) : (
+              <SettingRow
+                icon={<Target size={19} color={colors.primaryText} />}
+                label={copy.goal}
+                description={`${prefs?.daily_review_goal ?? 15}`}
+              />
+            )}
             <SettingRow
               icon={<Gauge size={19} color={colors.primaryText} />}
               label="Hạn mức quét ảnh"
@@ -207,9 +248,7 @@ export function ProfileScreen({
       <View style={styles.footer}>
         <Brand />
         <Text style={styles.footerText}>
-          {user
-            ? strings.profile.footerUser
-            : strings.profile.footerGuest}
+          {user ? strings.profile.footerUser : strings.profile.footerGuest}
         </Text>
       </View>
     </>
@@ -232,6 +271,59 @@ function SettingRow({
       <View style={styles.fill}>
         <Text style={styles.menuText}>{label}</Text>
         <Text style={styles.menuHint}>{description}</Text>
+      </View>
+    </View>
+  );
+}
+
+function PreferenceChoices({
+  label,
+  hint,
+  values,
+  selected,
+  format,
+  disabled,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  values: number[];
+  selected: number;
+  format: (value: number) => string;
+  disabled: boolean;
+  onChange: (value: number) => void;
+}) {
+  const { styles } = useStyles();
+  return (
+    <View style={styles.menuItem}>
+      <View style={styles.fill}>
+        <Text style={styles.menuText}>{label}</Text>
+        {!!hint && <Text style={styles.menuHint}>{hint}</Text>}
+        <View style={styles.speedOptions}>
+          {values.map(value => (
+            <Pressable
+              key={value}
+              accessibilityRole="button"
+              accessibilityLabel={`${label}: ${format(value)}`}
+              accessibilityState={{ selected: selected === value, disabled }}
+              disabled={disabled || selected === value}
+              onPress={() => onChange(value)}
+              style={[
+                styles.speedOption,
+                selected === value && styles.speedOptionSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.speedText,
+                  selected === value && styles.speedSelected,
+                ]}
+              >
+                {format(value)}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       </View>
     </View>
   );

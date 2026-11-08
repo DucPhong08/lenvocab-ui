@@ -6,31 +6,33 @@ import { ScreenTitle } from '@/components/ScreenTitle';
 import { SectionHeader } from '@/components/SectionHeader';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
+import { useI18n } from '@/i18n';
 import type { ScreenProps } from '@/types/screen';
 import { useStyles } from './styles/styles';
 
 export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const { strings, locale } = useI18n();
   return (
     <>
       <ScreenTitle
-        kicker="NHỮNG GÌ BẠN ĐÃ THẤY"
-        title="Hành trình khám phá."
-        subtitle="Ảnh đã khám phá trong lần mở ứng dụng này. Hãy lưu thẻ để giữ lại từ lâu dài."
+        kicker={strings.history.kicker}
+        title={strings.history.title}
+        subtitle={strings.history.subtitle}
       />
       <View style={styles.countCard}>
         <BookOpen size={22} color={colors.primaryText} />
-        <Text style={styles.countText}>{history.length} lần quét</Text>
+        <Text style={styles.countText}>{strings.history.countText(history.length)}</Text>
       </View>
-      <SectionHeader kicker="GẦN ĐÂY" title="Lịch sử phiên này" />
+      <SectionHeader kicker={strings.history.recentKicker} title={strings.history.sessionTitle} />
       {history.length ? (
         history.map(entry => {
-          const scene = getScene(entry.sceneId);
+          const scene = getScene(entry.sceneId, locale);
           return (
             <Pressable
               key={entry.id}
               accessibilityRole="button"
-              accessibilityLabel={`Xem kết quả ${scene.title}`}
+              accessibilityLabel={locale === 'vi' ? `Xem kết quả ${scene.title}` : `View result ${scene.title}`}
               onPress={() => openHistory(entry)}
               style={styles.historyRow}
             >
@@ -44,7 +46,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
               />
               <View style={styles.fill}>
                 <Text style={styles.historyDate}>
-                  {new Date(entry.timestamp).toLocaleString('vi-VN', {
+                  {new Date(entry.timestamp).toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US', {
                     day: 'numeric',
                     month: 'numeric',
                     hour: '2-digit',
@@ -52,12 +54,12 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
                   })}
                 </Text>
                 <Text style={styles.historyTitle}>
-                  {entry.imageUri ? 'Ảnh của bạn' : scene.title}
+                  {entry.imageUri ? strings.history.yourPhoto : scene.title}
                 </Text>
                 <Text style={styles.historyCaption}>
                   {entry.result
-                    ? `Từ nhận diện: ${entry.result.keyword}`
-                    : `${scene.words.length} từ mẫu · ${scene.category}`}
+                    ? strings.history.scannedKeyword(entry.result.keyword || '')
+                    : strings.history.sampleCategory(scene.words.length, scene.category)}
                 </Text>
               </View>
               <ArrowRight size={17} color={colors.muted} />
@@ -66,15 +68,15 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
         })
       ) : (
         <EmptyState
-          title="Chưa có lần quét nào"
-          description="Chọn ảnh hoặc một cảnh mẫu để bắt đầu khám phá."
+          title={strings.history.emptyTitle}
+          description={strings.history.emptyDescription}
           onPress={() => navigate('camera')}
-          action="Bắt đầu khám phá"
+          action={strings.history.startDiscover}
         />
       )}
       {history.length > 0 && (
         <PrimaryButton
-          label="Khám phá thêm"
+          label={strings.history.discoverMore}
           onPress={() => navigate('camera')}
           style={styles.actionTop18}
         />

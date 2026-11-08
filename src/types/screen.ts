@@ -6,12 +6,14 @@ import type {
   ReviewCard,
   ScanResult,
   User,
+  UserPreferences,
 } from '@/api/contracts';
 import type { Word } from '@/data/scenes';
 
 export type Screen =
   | 'home'
   | 'camera'
+  | 'offline-scan'
   | 'results'
   | 'word'
   | 'saved'
@@ -59,6 +61,9 @@ export type ScreenProps = {
   loadingMoreCards: boolean;
   loadMoreCards: () => Promise<void>;
   onVoiceSpeedChange: (speed: number) => Promise<void>;
+  onPreferencesChange?: (
+    preferences: Partial<UserPreferences>,
+  ) => Promise<void>;
   preferencesBusy: boolean;
   toggleSaved: (id: string) => void;
   history: ScanEntry[];

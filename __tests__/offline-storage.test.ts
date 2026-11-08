@@ -47,6 +47,17 @@ const user = {
   email: 'private@example.com',
   display_name: 'Learner',
   preferences: { daily_review_goal: 15 },
+  scan_settings: {
+    max_detected_objects: 8,
+    max_allowed_objects: 10,
+    confidence_threshold: 0.7,
+  },
+  preference_limits: {
+    allowed_speeds: [1, 1.25],
+    allowed_voices: ['Joanna'],
+    allow_neural_voice: false,
+    max_daily_review_goal: 20,
+  },
 } as User;
 beforeEach(() => {
   mockFiles.clear();
@@ -67,6 +78,10 @@ test('offline data survives reopening and omits email, audio, signed image links
   const loaded = await loadLearning(key);
   expect(loaded?.snapshot?.cards[0].keyword).toBe('cup');
   expect(loaded?.snapshot?.total).toBe(10);
+  expect(loaded?.snapshot?.user.scan_settings).toEqual(user.scan_settings);
+  expect(loaded?.snapshot?.user.preference_limits).toEqual(
+    user.preference_limits,
+  );
   const disk = [...mockFiles.values()].join('');
   expect(disk).not.toContain('private@example.com');
   expect(disk).not.toContain('private-audio');

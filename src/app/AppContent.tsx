@@ -25,6 +25,7 @@ import { gradeReview } from '@/api/endpoints/gradeReview';
 import { useFeedback } from '@/hooks/useFeedback';
 import { useReduceMotion } from '@/hooks/useReduceMotion';
 import { scheduleDailyStudyReminder } from '@/services/notifications/scheduleDailyStudyReminder';
+import type { UserPreferences } from '@/api/contracts';
 import type { Word } from '@/data/scenes';
 import type { Screen, ScreenProps } from '@/types/screen';
 import { AppTabs } from './AppTabs';
@@ -233,6 +234,7 @@ export function AppContent() {
     if (screen === 'word') navigate(wordBack);
     else if (screen === 'results') navigate('camera');
     else if (screen === 'sync') navigate('profile');
+    else if (screen === 'offline-scan') navigate('camera');
     else if (screen === 'auth') navigate(authBack.current);
     else navigate('home');
     return true;
@@ -256,18 +258,18 @@ export function AppContent() {
     }).start();
   }, [screen, fade, reduceMotion]);
   const [preferencesBusy, setPreferencesBusy] = useState(false);
-  const onVoiceSpeedChange = async (speed: number) => {
+  const onPreferencesChange = async (preferences: Partial<UserPreferences>) => {
     if (!token || preferencesBusy) return;
     const requestToken = token;
     setPreferencesBusy(true);
     try {
-      await updatePreferences(token, { voice_speed: speed });
+      await updatePreferences(token, preferences);
       if (currentToken.current === requestToken) await reloadUser();
     } catch (error) {
       if (currentToken.current !== requestToken) return;
       if (error instanceof ApiError && error.status === 401)
         await logoutSession();
-      else Alert.alert('Chưa đổi được tốc độ đọc', errorMessage(error));
+      else Alert.alert('Chưa đổi được cài đặt', errorMessage(error));
     } finally {
       setPreferencesBusy(false);
     }
@@ -328,7 +330,8 @@ export function AppContent() {
     hasMoreCards,
     loadingMoreCards,
     loadMoreCards,
-    onVoiceSpeedChange,
+    onVoiceSpeedChange: speed => onPreferencesChange({ voice_speed: speed }),
+    onPreferencesChange,
     preferencesBusy,
     toggleSaved,
     history,

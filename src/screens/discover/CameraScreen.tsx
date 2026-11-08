@@ -7,6 +7,7 @@ import { TopBar } from '@/components/TopBar';
 import { getScene } from '@/data/getScene';
 import { scenes } from '@/data/scenes';
 import { sceneImage } from '@/theme/sceneImage';
+import { useI18n } from '@/i18n';
 import type { ScreenProps } from '@/types/screen';
 import { SceneThumbnail } from './components/SceneThumbnail';
 import { useImagePicker } from './hooks/useImagePicker';
@@ -23,27 +24,28 @@ export function CameraScreen({
   user,
 }: ScreenProps) {
   const { styles, colors } = useStyles();
-  const scene = getScene(sceneId);
+  const { strings, locale } = useI18n();
+  const scene = getScene(sceneId, locale);
   const pickImage = useImagePicker(selectImage);
   return (
     <>
       <TopBar
-        title="Tạo thẻ từ ảnh"
+        title={strings.camera.topBarTitle}
         onBack={() => navigate('home')}
         action={
           <IconButton
-            label="Lịch sử quét"
+            label={strings.camera.history}
             onPress={() => navigate('history')}
             icon={<Clock3 size={20} color={colors.text} />}
           />
         }
       />
       <ScreenTitle
-        title={imageUri ? 'Ảnh đã sẵn sàng' : 'Bạn muốn học vật gì?'}
+        title={imageUri ? strings.camera.readyTitle : strings.camera.askTitle}
         subtitle={
           imageUri
             ? undefined
-            : 'Chụp rõ vật ở nơi đủ sáng. Bạn có thể chọn từng vật sau khi quét.'
+            : strings.camera.askSubtitle
         }
       />
       <View style={styles.cameraPhoto}>
@@ -51,29 +53,29 @@ export function CameraScreen({
           source={imageUri ? { uri: imageUri } : sceneImage(sceneId)}
           style={styles.cameraImage}
           resizeMode="contain"
-          accessibilityLabel={imageUri ? 'Ảnh của bạn' : scene.title}
+          accessibilityLabel={imageUri ? strings.camera.yourPhotoLabel : scene.title}
         />
         <View style={styles.cameraTag}>
           <Text style={styles.cameraTagText}>
-            {imageUri ? 'ẢNH CỦA BẠN' : 'CẢNH MẪU'}
+            {imageUri ? strings.camera.yourPhotoTag : strings.camera.sampleSceneTag}
           </Text>
         </View>
       </View>
       <View style={styles.captureRow}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Chọn ảnh từ thư viện"
+          accessibilityLabel={strings.camera.chooseFromLibrary}
           disabled={scanning}
           accessibilityState={{ disabled: scanning }}
           onPress={() => pickImage('library')}
           style={styles.captureSide}
         >
           <ImagePlus size={23} color={colors.primaryText} />
-          <Text style={styles.captureLabel}>Thư viện</Text>
+          <Text style={styles.captureLabel}>{strings.camera.libraryBtn}</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Chụp ảnh bằng máy ảnh"
+          accessibilityLabel={strings.camera.takePhoto}
           disabled={scanning}
           accessibilityState={{ disabled: scanning }}
           onPress={() => pickImage('camera')}
@@ -83,23 +85,23 @@ export function CameraScreen({
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Dùng cảnh mẫu"
+          accessibilityLabel={strings.camera.useSample}
           disabled={scanning}
           accessibilityState={{ disabled: scanning }}
           onPress={() => selectImage(null)}
           style={styles.captureSide}
         >
           <RotateCcw size={22} color={colors.primaryText} />
-          <Text style={styles.captureLabel}>Ảnh mẫu</Text>
+          <Text style={styles.captureLabel}>{strings.camera.sampleBtn}</Text>
         </Pressable>
       </View>
       <PrimaryButton
         label={
           scanning
-            ? 'Đang nhận diện ảnh...'
+            ? strings.camera.scanningAi
             : imageUri
-            ? 'Quét ảnh bằng AI'
-            : 'Xem từ vựng minh họa'
+            ? strings.camera.scanWithAi
+            : strings.camera.viewSampleVocab
         }
         disabled={scanning}
         onPress={scan}
@@ -108,9 +110,9 @@ export function CameraScreen({
       <Text style={styles.cameraCaption}>
         {imageUri
           ? user
-            ? 'Đã chọn ảnh · nhấn Quét ảnh bằng AI'
-            : 'Đã chọn ảnh · khách có 3 lượt quét thử mỗi ngày'
-          : 'Chọn cảnh mẫu để xem từ minh họa, không cần tài khoản'}
+            ? strings.camera.captionUser
+            : strings.camera.captionGuest
+          : strings.camera.captionSample}
       </Text>
       {!imageUri && (
         <ScrollView

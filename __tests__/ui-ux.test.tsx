@@ -20,6 +20,10 @@ const mockPlay = jest.fn();
 jest.mock('@/hooks/useAudio', () => ({
   useAudio: () => ({ play: mockPlay, isPlaying: false }),
 }));
+jest.mock('@/utils/sfx', () => ({
+  playSfx: jest.fn(),
+  sfx: { play: jest.fn() },
+}));
 jest.mock('@react-native-community/image-editor', () => ({
   __esModule: true,
   default: { cropImage: jest.fn() },

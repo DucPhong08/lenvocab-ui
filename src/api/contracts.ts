@@ -11,13 +11,24 @@ export type FlashcardStatus = 'DRAFT' | 'CONFIRMED';
 export type ScanStatus = 'OK' | 'FALLBACK' | 'AI_COULD_NOT_RECOGNIZE';
 export type ScanSource = 'redis' | 'mongodb' | 'bedrock';
 
-export type UserPreferencesResponse = {
-  preferences: UserPreferences;
-  account_tier: AccountTier;
+export type ScanSettings = {
+  max_detected_objects: number;
+  max_allowed_objects: number;
+  confidence_threshold: number;
+};
+
+export type PreferenceLimits = {
   allowed_voices: string[];
   allowed_speeds: number[];
   allow_neural_voice: boolean;
   max_daily_review_goal: number;
+  effective_daily_review_goal?: number;
+};
+
+export type UserPreferencesResponse = PreferenceLimits & {
+  preferences: UserPreferences;
+  account_tier: AccountTier;
+  scan_settings?: ScanSettings;
 };
 
 export type User = {
@@ -30,6 +41,8 @@ export type User = {
   daily_quota_left: number;
   is_active: boolean;
   preferences: UserPreferences;
+  scan_settings?: ScanSettings;
+  preference_limits?: PreferenceLimits;
 };
 
 export type Box = {

@@ -116,8 +116,9 @@
     "readyTitle": "Ảnh đã sẵn sàng",
     "askTitle": "Bạn muốn học vật gì?",
     "askSubtitle": "Chụp rõ vật ở nơi đủ sáng. Bạn có thể chọn từng vật sau khi quét.",
-    "yourPhoto": "ẢNH CỦA BẠN",
-    "sampleScene": "CẢNH MẪU",
+    "yourPhotoLabel": "Ảnh của bạn",
+    "yourPhotoTag": "ẢNH CỦA BẠN",
+    "sampleSceneTag": "CẢNH MẪU",
     "chooseFromLibrary": "Chọn ảnh từ thư viện",
     "libraryBtn": "Thư viện",
     "takePhoto": "Chụp ảnh bằng máy ảnh",
@@ -242,6 +243,7 @@
     "retrySample": "Thử lại bộ mẫu"
   },
   "quiz": {
+    "correct": "Chính xác!",
     "topBarResult": "Kết quả luyện tập",
     "roundDoneKicker": "XONG MỘT LƯỢT RỒI!",
     "tryAgainTitle": "Mình thử lại vài từ nhé?",
@@ -314,5 +316,62 @@
     "logout": "Đăng xuất và xóa bản lưu",
     "audioTitle": "Âm thanh cần kết nối mạng",
     "audioMessage": "Bạn vẫn có thể học nghĩa và câu ví dụ đã tải."
+  },
+  "notifications": {
+    "channelName": "Nhắc nhở ôn tập hằng ngày",
+    "reminderTitle": "Giữ vững chuỗi học LenVocab! 🔥",
+    "reminderBody": "Bạn có từ cần ôn tập. Hãy dành vài phút để củng cố trí nhớ nhé."
+  },
+  "scenes": {
+    "desk": {
+      "title": "Góc học tập",
+      "subtitle": "Một buổi sáng đầy cảm hứng",
+      "category": "Không gian sống"
+    },
+    "kitchen": {
+      "title": "Trong căn bếp",
+      "subtitle": "Từ vựng quanh bữa ăn",
+      "category": "Đời sống"
+    },
+    "street": {
+      "title": "Dạo phố",
+      "subtitle": "Tiếng Anh trên từng góc đường",
+      "category": "Ngoài trời"
+    },
+    "library": {
+      "title": "Góc đọc sách",
+      "subtitle": "Một khoảng lặng để học thêm",
+      "category": "Học tập"
+    },
+    "cafe": {
+      "title": "Quán cà phê",
+      "subtitle": "Hương vị thư giãn và cảm hứng làm việc",
+      "category": "Đời sống"
+    },
+    "supermarket": {
+      "title": "Siêu thị",
+      "subtitle": "Chọn lựa hàng hóa và thực phẩm tươi",
+      "category": "Mua sắm"
+    },
+    "park": {
+      "title": "Công viên xanh",
+      "subtitle": "Hít thở không khí trong lành",
+      "category": "Ngoài trời"
+    },
+    "office": {
+      "title": "Văn phòng hiện đại",
+      "subtitle": "Nhịp sống công sở và sự sáng tạo",
+      "category": "Công việc"
+    },
+    "gym": {
+      "title": "Phòng tập thể hình",
+      "subtitle": "Bền bỉ nâng cao thể lực và sức khỏe",
+      "category": "Sức khỏe"
+    },
+    "airport": {
+      "title": "Sân bay quốc tế",
+      "subtitle": "Chuẩn bị cho những hành trình xa",
+      "category": "Du lịch"
+    }
   }
 }

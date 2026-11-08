@@ -116,8 +116,9 @@
     "readyTitle": "Photo is ready",
     "askTitle": "What do you want to learn?",
     "askSubtitle": "Capture objects clearly in good light. You can select objects after scanning.",
-    "yourPhoto": "YOUR PHOTO",
-    "sampleScene": "SAMPLE SCENE",
+    "yourPhotoLabel": "Your Photo",
+    "yourPhotoTag": "YOUR PHOTO",
+    "sampleSceneTag": "SAMPLE SCENE",
     "chooseFromLibrary": "Choose photo from library",
     "libraryBtn": "Gallery",
     "takePhoto": "Take photo with camera",
@@ -242,6 +243,7 @@
     "retrySample": "Retry sample set"
   },
   "quiz": {
+    "correct": "Correct!",
     "topBarResult": "Quiz Results",
     "roundDoneKicker": "ROUND FINISHED!",
     "tryAgainTitle": "Shall we retry a few words?",
@@ -314,5 +316,62 @@
     "logout": "Sign out and clear cache",
     "audioTitle": "Audio requires internet",
     "audioMessage": "You can still study downloaded definitions and example sentences."
+  },
+  "notifications": {
+    "channelName": "Daily Study Reminder",
+    "reminderTitle": "Keep your LenVocab streak alive! 🔥",
+    "reminderBody": "You have words due for review. Take a few minutes to reinforce your memory."
+  },
+  "scenes": {
+    "desk": {
+      "title": "Study Desk",
+      "subtitle": "An inspiring morning",
+      "category": "Living Space"
+    },
+    "kitchen": {
+      "title": "In the Kitchen",
+      "subtitle": "Vocabulary around meals",
+      "category": "Daily Life"
+    },
+    "street": {
+      "title": "On the Street",
+      "subtitle": "English on every corner",
+      "category": "Outdoors"
+    },
+    "library": {
+      "title": "Reading Corner",
+      "subtitle": "A quiet moment to learn more",
+      "category": "Study"
+    },
+    "cafe": {
+      "title": "Coffee Shop",
+      "subtitle": "Relaxing aroma and work inspiration",
+      "category": "Daily Life"
+    },
+    "supermarket": {
+      "title": "Supermarket",
+      "subtitle": "Selecting goods and fresh food",
+      "category": "Shopping"
+    },
+    "park": {
+      "title": "Green Park",
+      "subtitle": "Breathe the fresh air",
+      "category": "Outdoors"
+    },
+    "office": {
+      "title": "Modern Office",
+      "subtitle": "Workplace rhythm and creativity",
+      "category": "Work"
+    },
+    "gym": {
+      "title": "Fitness Gym",
+      "subtitle": "Build endurance and health",
+      "category": "Health & Fitness"
+    },
+    "airport": {
+      "title": "International Airport",
+      "subtitle": "Getting ready for distant journeys",
+      "category": "Travel"
+    }
   }
 }

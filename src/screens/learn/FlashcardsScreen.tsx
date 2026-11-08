@@ -6,6 +6,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { PrimaryButton } from '@/components/PrimaryButton';
 import { TopBar } from '@/components/TopBar';
 import { useAudio } from '@/hooks/useAudio';
+import { useI18n } from '@/i18n';
+import { playSfx } from '@/utils/sfx';
 import { memoryLevels, SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
 import { useStudyExit } from './hooks/useStudyExit';
@@ -23,6 +25,7 @@ export function FlashcardsScreen({
   reloadData,
 }: ScreenProps) {
   const { styles } = useStyles();
+  const { strings } = useI18n();
   const {
     flip,
     flipped,
@@ -39,35 +42,40 @@ export function FlashcardsScreen({
   const loading = loadingData && queue === null;
   const finished = index > 0 && !word;
   const exit = useStudyExit({ navigate, active: !!word, busy: submitting });
+
+  const onFlip = () => {
+    playSfx('flip');
+    flip();
+  };
   if (!word)
     return (
       <>
-        <TopBar title="Ôn nhanh" onBack={exit} />
+        <TopBar title={strings.flashcards.topBarTitle} onBack={exit} />
         <EmptyState
           loading={loading}
           title={
             loading
-              ? 'Đang tải thẻ ôn tập'
+              ? strings.flashcards.loadingTitle
               : dataError
-              ? 'Không thể tải thẻ ôn tập'
+              ? strings.flashcards.loadErrorTitle
               : finished
-              ? 'Xong một lượt rồi!'
-              : 'Chưa có từ cần ôn'
+              ? strings.flashcards.finishedRound
+              : strings.flashcards.noWordsDue
           }
           description={
             dataError ||
             (loading
-              ? 'Đang tải thẻ ôn tập...'
+              ? strings.flashcards.loadingDescription
               : finished
-              ? `Bạn vừa ôn ${words.length} từ.${
+              ? `${strings.flashcards.reviewedCount(words.length)}${
                   user && due.length
-                    ? ` Còn ${due.length} từ đến hạn, học tiếp khi bạn sẵn sàng.`
+                    ? strings.flashcards.remainingDue(due.length)
                     : ''
                 }`
-              : 'Quay lại khi có từ đến hạn, hoặc thử Quiz.')
+              : strings.flashcards.comeBackLater)
           }
           action={
-            loading ? undefined : dataError ? 'Thử lại' : 'Trở lại ôn tập'
+            loading ? undefined : dataError ? strings.common.retry : strings.flashcards.backToReview
           }
           onPress={dataError ? () => reloadData() : () => navigate('review')}
         />
@@ -75,8 +83,8 @@ export function FlashcardsScreen({
           <PrimaryButton
             label={
               user
-                ? `Ôn thêm ${Math.min(SESSION_SIZE, due.length)} từ`
-                : 'Thử lại bộ mẫu'
+                ? strings.flashcards.reviewMore(Math.min(SESSION_SIZE, due.length))
+                : strings.flashcards.retrySample
             }
             onPress={restart}
             style={styles.actionTop20}
@@ -87,7 +95,7 @@ export function FlashcardsScreen({
   return (
     <>
       <TopBar
-        title="Ôn nhanh"
+        title={strings.flashcards.topBarTitle}
         onBack={exit}
         action={
           <Text style={styles.counter}>
@@ -98,17 +106,17 @@ export function FlashcardsScreen({
       <StudyProgress current={index + 1} total={words.length} />
       <Text style={styles.hint}>
         {flipped
-          ? 'Đọc câu ví dụ. Bạn nhớ từ này đến đâu?'
-          : 'Thử nhớ nghĩa trước khi xem đáp án.'}
+          ? strings.flashcards.hintAnswer
+          : strings.flashcards.hintQuestion}
       </Text>
       <View style={[styles.studyFace, flipped && styles.studyAnswer]}>
         <View style={styles.flashcardTop}>
           <Text style={[styles.flashcardSmall, flipped && styles.answerInk]}>
-            {flipped ? 'NGHĨA VÀ CÁCH DÙNG' : `TỪ SỐ ${index + 1}`}
+            {flipped ? strings.flashcards.meaningAndUsage : strings.flashcards.wordNumber(index + 1)}
           </Text>
           {(word.audio || word.userFlashcardId) && (
             <AudioButton
-              label="Nghe phát âm"
+              label={strings.flashcards.listenAudio}
               onPress={() => play(word.audio, word.userFlashcardId)}
               playing={isPlaying}
             />
@@ -140,7 +148,7 @@ export function FlashcardsScreen({
         )}
       </View>
       {!flipped ? (
-        <PrimaryButton label="Xem nghĩa" onPress={flip} />
+        <PrimaryButton label={strings.flashcards.viewMeaning} onPress={onFlip} />
       ) : user ? (
         <View style={styles.grades}>
           {memoryLevels.map(({ label, quality }) => (
@@ -158,7 +166,7 @@ export function FlashcardsScreen({
           ))}
         </View>
       ) : (
-        <PrimaryButton label="Từ tiếp theo" onPress={next} />
+        <PrimaryButton label={strings.common.continue} onPress={next} />
       )}
     </>
   );

@@ -10,6 +10,7 @@ import { TopBar } from '@/components/TopBar';
 import { getScene } from '@/data/getScene';
 import { sceneImage } from '@/theme/sceneImage';
 import { useAudio } from '@/hooks/useAudio';
+import { useI18n } from '@/i18n';
 import type { ScreenProps } from '@/types/screen';
 import { isWordSaved } from '@/data/isWordSaved';
 import { useStyles } from './styles/styles';
@@ -33,8 +34,9 @@ export function WordScreen({
   currentScanSaved = false,
 }: ScreenProps) {
   const { styles, colors } = useStyles();
+  const { strings, locale } = useI18n();
   const word = wordForId(wordId);
-  const scene = getScene(word.scene);
+  const scene = getScene(word.scene, locale);
   const { play } = useAudio();
   const isSaved = isWordSaved(word.id, { saved, cards, scanResult });
   const isScan = wordId.startsWith('scan:') && !!scanResult;
@@ -43,7 +45,7 @@ export function WordScreen({
   return (
     <>
       <TopBar
-        title="Khám phá từ vựng"
+        title={strings.word.topBarTitle}
         onBack={() => navigate(wordBack)}
         action={
           isSaved ? (
@@ -80,7 +82,7 @@ export function WordScreen({
           {word.ipa ? <Text style={styles.ipa}>{word.ipa}</Text> : null}
           {(word.audio || word.userFlashcardId) && (
             <AudioButton
-              label="Phát âm từ"
+              label={strings.word.pronounceWord}
               onPress={() => play(word.audio, word.userFlashcardId)}
             />
           )}
@@ -108,11 +110,11 @@ export function WordScreen({
         />
       ) : null}
       <View style={styles.detailBlock}>
-        <Eyebrow>Nghĩa tiếng Việt</Eyebrow>
+        <Eyebrow>{strings.word.meaningTitle}</Eyebrow>
         <Text style={styles.meaning}>{word.meaning}</Text>
       </View>
       <View style={styles.detailBlock}>
-        <Eyebrow>Dùng trong một câu</Eyebrow>
+        <Eyebrow>{strings.word.sentenceTitle}</Eyebrow>
         <View style={styles.example}>
           <Text style={styles.exampleEnglish}>"{word.example}"</Text>
           {word.example2 ? (
@@ -123,7 +125,7 @@ export function WordScreen({
         </View>
       </View>
       <View style={styles.detailBlock}>
-        <Eyebrow>Cách dùng cần nhớ</Eyebrow>
+        <Eyebrow>{strings.word.tipTitle}</Eyebrow>
         <View style={styles.tip}>
           <Lightbulb size={20} color={colors.primaryText} />
           <Text style={styles.tipText}>{word.note}</Text>
@@ -131,7 +133,7 @@ export function WordScreen({
       </View>
       {isSample && (
         <View style={styles.detailBlock}>
-          <Eyebrow>Khám phá trong cảnh</Eyebrow>
+          <Eyebrow>{strings.word.exploreInScene}</Eyebrow>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Xem cảnh ${scene.title}`}
@@ -154,18 +156,18 @@ export function WordScreen({
       <PrimaryButton
         label={
           saving
-            ? 'Đang lưu...'
+            ? strings.word.saving
             : isSample
-            ? 'Chụp ảnh để tạo thẻ của bạn'
+            ? strings.word.captureToCreateCard
             : canUpdateSticker
-            ? 'Đổi sticker của thẻ đã lưu'
+            ? strings.word.changeSticker
             : isSaved
-            ? 'Đã lưu trên tài khoản'
+            ? strings.word.savedOnAccount
             : user && scanResult && word.id.startsWith('scan:')
-            ? 'Lưu vào tài khoản'
+            ? strings.word.saveToAccount
             : user
-            ? 'Quét ảnh để tạo từ mới'
-            : 'Đăng nhập để lưu từ'
+            ? strings.word.scanToCreateWord
+            : strings.word.loginToSaveWord
         }
         disabled={saving || (isSaved && !canUpdateSticker)}
         onPress={() =>
