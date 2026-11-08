@@ -39,21 +39,21 @@ export function ResultsScreen({
 }: ScreenProps) {
   const { styles, colors } = useStyles();
   const { strings, locale } = useI18n();
-  const [level, setLevel] = useState('Tất cả');
+  const [level, setLevel] = useState('all');
   const scene = getScene(sceneId, locale);
   const scanId = scanResult ? scanWord(scanResult).id : null;
   const words = scanId ? [wordForId(scanId)] : scene.words;
   const isStored = (id: string) =>
     isWordSaved(id, { saved, cards, scanResult });
   const visible =
-    scanId || level === 'Tất cả'
+    scanId || level === 'all'
       ? words
       : words.filter(word => word.level === level);
   const practiceWords = [
     ...visible,
     ...allWords.filter(
       word =>
-        word.scene !== scene.id && (level === 'Tất cả' || word.level === level),
+        word.scene !== scene.id && (level === 'all' || word.level === level),
     ),
   ];
   const unsaved = words.filter(word => !isStored(word.id));
@@ -80,7 +80,7 @@ export function ResultsScreen({
             cardId={word.userFlashcardId}
             token={token}
             isSticker
-            label={`Sticker đã lưu: ${word.term}`}
+            label={strings.results.savedStickerLabel(word.term)}
           />
         ) : scanResult.bounding_box ? (
           <CropPreview uri={imageUri} box={scanResult.bounding_box} />
@@ -131,7 +131,7 @@ export function ResultsScreen({
           source={imageUri ? { uri: imageUri } : sceneImage(sceneId)}
           style={styles.resultImage}
           resizeMode="cover"
-          accessibilityLabel={imageUri ? 'Ảnh đã chọn' : scene.title}
+          accessibilityLabel={imageUri ? strings.results.selectedImageLabel : scene.title}
         />
         <View style={styles.resultOverlay}>
           <Eyebrow light>
@@ -170,17 +170,17 @@ export function ResultsScreen({
         </Text>
       </View>
       <SectionHeader
-        kicker={scanResult ? 'TỪ ĐƯỢC NHẬN DIỆN' : 'TỪ TRONG CẢNH MẪU'}
-        title={scanResult ? 'Khám phá từng từ' : `${visible.length} từ và cụm`}
+        kicker={scanResult ? strings.results.recognizedKicker : strings.results.sampleWordsKicker}
+        title={scanResult ? strings.results.exploreEachWord : strings.results.sampleCount(visible.length)}
       />
       {!scanResult && (
         <>
           <View style={styles.levelFilters}>
-            {['Tất cả', 'A2', 'B1', 'B2'].map(item => (
+            {['all', 'A2', 'B1', 'B2'].map(item => (
               <Pressable
                 key={item}
                 accessibilityRole="button"
-                accessibilityLabel={`Lọc từ mẫu ${item}`}
+                accessibilityLabel={strings.results.filterLevel(item === 'all' ? strings.results.allLevels : item)}
                 accessibilityState={{ selected: item === level }}
                 onPress={() => setLevel(item)}
                 style={[
@@ -194,38 +194,37 @@ export function ResultsScreen({
                     item === level && styles.levelFilterTextActive,
                   ]}
                 >
-                  {item}
+                  {item === 'all' ? strings.results.allLevels : item}
                 </Text>
               </Pressable>
             ))}
           </View>
           <Text style={styles.levelCaption}>
             {level === 'B2'
-              ? 'B2: chú ý cụm đi kèm và cách dùng trong câu. '
+              ? strings.results.b2Hint
               : ''}
             {visible.length > 0 && visible.length < SESSION_SIZE
-              ? `Lượt luyện có thêm từ${
-                  level === 'Tất cả' ? '' : ` ${level}`
-                } ở cảnh mẫu khác. `
+              ? level === 'all'
+                ? strings.results.extraSceneWords
+                : strings.results.extraSceneWordsAtLevel(level)
               : ''}
-            Cấp độ của nội dung mẫu là tham khảo, không phải kết quả đánh giá
-            trình độ.
+            {strings.results.levelDisclaimer}
           </Text>
           {!!visible.length && (
             <PrimaryButton
-              label={`Luyện ${Math.min(SESSION_SIZE, practiceWords.length)} từ${
-                level === 'Tất cả' ? '' : ` ${level}`
-              }`}
+              label={level === 'all'
+                ? strings.results.practiceAllWords(Math.min(SESSION_SIZE, practiceWords.length))
+                : strings.results.practiceLevelWords(Math.min(SESSION_SIZE, practiceWords.length), level)}
               onPress={() => startPractice(practiceWords)}
               style={styles.practiceAction}
             />
           )}
           {!visible.length && (
             <EmptyState
-              title="Cảnh này chưa có từ ở mức đã chọn"
-              description="Chọn Tất cả để tiếp tục khám phá."
-              action="Xem tất cả từ mẫu"
-              onPress={() => setLevel('Tất cả')}
+              title={strings.results.emptyLevelTitle}
+              description={strings.results.emptyLevelDescription}
+              action={strings.results.emptyLevelAction}
+              onPress={() => setLevel('all')}
             />
           )}
         </>
@@ -248,14 +247,14 @@ export function ResultsScreen({
       <PrimaryButton
         label={
           saving
-            ? 'Đang lưu...'
+            ? strings.results.saving
             : !scanResult
-            ? 'Chọn ảnh thật để tạo thẻ'
+            ? strings.results.captureToCreateCard
             : !user
-            ? 'Đăng nhập để lưu từ'
+            ? strings.results.loginToSaveWord
             : unsaved.length
-            ? 'Lưu từ vào tài khoản'
-            : 'Xem từ đã lưu'
+            ? strings.results.saveToAccount
+            : strings.results.viewSavedWords
         }
         disabled={saving}
         onPress={() => {

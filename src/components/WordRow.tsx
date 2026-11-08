@@ -2,6 +2,7 @@ import { Pressable, Text, View } from 'react-native';
 import { Bookmark, ChevronRight } from 'lucide-react-native';
 import type { Word } from '@/data/scenes';
 import { useAudio } from '@/hooks/useAudio';
+import { useI18n } from '@/i18n';
 import { AudioButton } from './AudioButton';
 import { CardImage } from './CardImage';
 import { useStyles } from './styles/content.styles';
@@ -23,12 +24,13 @@ export function WordRow({
 }) {
   const { styles, colors } = useStyles();
   const { play } = useAudio();
+  const { strings } = useI18n();
 
   return (
     <View style={styles.wordRow}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`Xem từ ${word.term}, nghĩa là ${word.meaning}`}
+        accessibilityLabel={strings.word.openLabel(word.term, word.meaning)}
         disabled={disabled}
         accessibilityState={{ disabled }}
         onPress={onOpen}
@@ -43,7 +45,7 @@ export function WordRow({
             isSticker={word.imageStyle === 'sticker'}
             cardId={word.userFlashcardId}
             token={token}
-            label={`Ảnh của bạn: ${word.term}`}
+            label={strings.word.photoLabel(word.term)}
             variant="thumbnail"
             fallback={word.term[0].toUpperCase()}
           />
@@ -66,7 +68,7 @@ export function WordRow({
       {(word.audio || word.userFlashcardId) && (
         <AudioButton
           disabled={disabled}
-          label={`Nghe phát âm từ ${word.term}`}
+          label={strings.word.listenLabel(word.term)}
           onPress={() => play(word.audio, word.userFlashcardId)}
         />
       )}
@@ -75,7 +77,7 @@ export function WordRow({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={
-            saved ? `Đã lưu ${word.term}` : `Lưu ${word.term}`
+            saved ? strings.word.savedLabel(word.term) : strings.word.saveLabel(word.term)
           }
           accessibilityState={{ selected: saved, disabled: saved || disabled }}
           disabled={saved || disabled}

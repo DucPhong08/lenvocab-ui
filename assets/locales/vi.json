@@ -14,7 +14,10 @@
     "or": "hoặc",
     "check": "Kiểm tra",
     "done": "Xong",
-    "all": "Tất cả"
+    "all": "Tất cả",
+    "sampleAudioNotice": "Audio mẫu được tạo bằng giọng AI (Amazon Polly).",
+    "audioErrorTitle": "Không thể phát âm thanh",
+    "retryMessage": "Vui lòng thử lại."
   },
   "nav": {
     "home": "Trang chủ",
@@ -149,7 +152,29 @@
     "wordsToExplore": "{count} từ vựng để khám phá",
     "tapToLearnMore": "Chạm vào một từ để tìm hiểu thêm",
     "sampleNotice": "Từ và câu trong cảnh là nội dung mẫu, không tạo từ ảnh của bạn.",
-    "mainWordNotice": "Từ chính được nhận diện: {keyword}. Lưu thẻ để giữ lại từ và ảnh của bạn."
+    "mainWordNotice": "Từ chính được nhận diện: {keyword}. Lưu thẻ để giữ lại từ và ảnh của bạn.",
+    "savedStickerLabel": "Sticker đã lưu: {term}",
+    "selectedImageLabel": "Ảnh đã chọn",
+    "recognizedKicker": "TỪ ĐƯỢC NHẬN DIỆN",
+    "sampleWordsKicker": "TỪ TRONG CẢNH MẪU",
+    "exploreEachWord": "Khám phá từng từ",
+    "sampleCount": "{count} từ và cụm",
+    "allLevels": "Tất cả",
+    "filterLevel": "Lọc từ mẫu {level}",
+    "b2Hint": "B2: chú ý cụm đi kèm và cách dùng trong câu. ",
+    "extraSceneWords": "Lượt luyện có thêm từ ở cảnh mẫu khác. ",
+    "extraSceneWordsAtLevel": "Lượt luyện có thêm từ {level} ở cảnh mẫu khác. ",
+    "levelDisclaimer": "Cấp độ của nội dung mẫu là tham khảo, không phải kết quả đánh giá trình độ.",
+    "practiceAllWords": "Luyện {count} từ",
+    "practiceLevelWords": "Luyện {count} từ {level}",
+    "emptyLevelTitle": "Cảnh này chưa có từ ở mức đã chọn",
+    "emptyLevelDescription": "Chọn Tất cả để tiếp tục khám phá.",
+    "emptyLevelAction": "Xem tất cả từ mẫu",
+    "saving": "Đang lưu...",
+    "captureToCreateCard": "Chọn ảnh thật để tạo thẻ",
+    "loginToSaveWord": "Đăng nhập để lưu từ",
+    "saveToAccount": "Lưu từ vào tài khoản",
+    "viewSavedWords": "Xem từ đã lưu"
   },
   "word": {
     "topBarTitle": "Khám phá từ vựng",
@@ -164,7 +189,12 @@
     "savedOnAccount": "Đã lưu trên tài khoản",
     "saveToAccount": "Lưu vào tài khoản",
     "scanToCreateWord": "Quét ảnh để tạo từ mới",
-    "loginToSaveWord": "Đăng nhập để lưu từ"
+    "loginToSaveWord": "Đăng nhập để lưu từ",
+    "openLabel": "Xem từ {term}, nghĩa là {meaning}",
+    "photoLabel": "Ảnh của bạn: {term}",
+    "listenLabel": "Nghe phát âm từ {term}",
+    "savedLabel": "Đã lưu {term}",
+    "saveLabel": "Lưu {term}"
   },
   "saved": {
     "screenTitle": "Kho từ của bạn",
@@ -265,7 +295,12 @@
     "contextInputPlaceholder": "Nhập từ hoặc cụm vừa học",
     "contextInputLabel": "Điền từ hoặc cụm vừa học",
     "contextCheckBtn": "Kiểm tra",
-    "contextHint": "Gợi ý: {meaning}"
+    "contextHint": "Gợi ý: {meaning}",
+    "sampleProgressLoading": "Đang tải tiến độ trên máy",
+    "samplePoolCompleteTitle": "Đã hoàn thành bộ từ mẫu",
+    "samplePoolCompleteDescription": "Bạn đã hoàn thành các nhóm trong bộ này. Chọn luyện lại để bắt đầu vòng mới.",
+    "sampleRestart": "Luyện lại bộ mẫu",
+    "sampleProgressUnavailable": "Chưa lưu được tiến độ trên máy. Bạn vẫn có thể luyện tập; khi mở lại có thể cần làm lại nhóm."
   },
   "history": {
     "kicker": "NHỮNG GÌ BẠN ĐÃ THẤY",
@@ -373,5 +408,12 @@
       "subtitle": "Chuẩn bị cho những hành trình xa",
       "category": "Du lịch"
     }
+  },
+  "study": {
+    "savingTitle": "Đang lưu lần ôn",
+    "savingMessage": "Chờ lưu xong rồi hãy rời lượt học nhé.",
+    "exitTitle": "Rời lượt học này?",
+    "exitMessage": "Lượt đang học sẽ bắt đầu lại. Các lần ôn đã lưu vẫn được giữ.",
+    "exitAction": "Rời lượt học"
   }
 }

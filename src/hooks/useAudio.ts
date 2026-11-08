@@ -5,7 +5,7 @@ import { getCardAudio } from '@/api/endpoints/getCardAudio';
 import { AudioContext } from './audioContext';
 import RNFS from 'react-native-fs';
 import Sound from 'react-native-sound';
-import { vi } from '@/i18n/vi';
+import { useI18n } from '@/i18n';
 import { errorMessage } from '@/utils/errorMessage';
 
 try {
@@ -22,6 +22,9 @@ let nextPlayerId = 0;
 
 export function useAudio() {
   const [playerId] = useState(() => ++nextPlayerId);
+  const { strings } = useI18n();
+  const copy = useRef(strings);
+  copy.current = strings;
   const { token, speed, onUnauthorized, offline } = useContext(AudioContext);
   const soundRef = useRef<Sound | null>(null);
   const fileRef = useRef<string | null>(null);
@@ -71,7 +74,7 @@ export function useAudio() {
   const play = useCallback(
     async (base64: string | null | undefined, cardId?: string) => {
       if (offline && !base64) {
-        Alert.alert(vi.offline.audioTitle, vi.offline.audioMessage);
+        Alert.alert(copy.current.offline.audioTitle, copy.current.offline.audioMessage);
         return;
       }
       if (!base64 && (!cardId || !token)) return;
@@ -134,8 +137,8 @@ export function useAudio() {
           return;
         }
         Alert.alert(
-          'Không thể phát âm thanh',
-          errorMessage(cause, 'Vui lòng thử lại.'),
+          copy.current.common.audioErrorTitle,
+          errorMessage(cause, copy.current.common.retryMessage),
         );
         if (fileRef.current) {
           RNFS.unlink(fileRef.current).catch(() => {});

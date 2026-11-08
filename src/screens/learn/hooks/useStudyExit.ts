@@ -1,6 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { Alert, BackHandler } from 'react-native';
 import type { ScreenProps } from '@/types/screen';
+import { useI18n } from '@/i18n';
 
 export function useStudyExit({
   navigate,
@@ -11,9 +12,10 @@ export function useStudyExit({
   active: boolean;
   busy?: boolean;
 }) {
+  const { strings } = useI18n();
   const exit = useCallback(() => {
     if (busy) {
-      Alert.alert('Đang lưu lần ôn', 'Chờ lưu xong rồi hãy rời lượt học nhé.');
+      Alert.alert(strings.study.savingTitle, strings.study.savingMessage);
       return;
     }
     if (!active) {
@@ -21,14 +23,14 @@ export function useStudyExit({
       return;
     }
     Alert.alert(
-      'Rời lượt học này?',
-      'Lượt đang học sẽ bắt đầu lại. Các lần ôn đã lưu vẫn được giữ.',
+      strings.study.exitTitle,
+      strings.study.exitMessage,
       [
-        { text: 'Học tiếp', style: 'cancel' },
-        { text: 'Rời lượt học', onPress: () => navigate('review') },
+        { text: strings.common.continue, style: 'cancel' },
+        { text: strings.study.exitAction, onPress: () => navigate('review') },
       ],
     );
-  }, [active, busy, navigate]);
+  }, [active, busy, navigate, strings]);
   useEffect(() => {
     const listener = BackHandler.addEventListener('hardwareBackPress', () => {
       exit();

@@ -14,7 +14,10 @@
     "or": "or",
     "check": "Check",
     "done": "Done",
-    "all": "All"
+    "all": "All",
+    "sampleAudioNotice": "Sample audio is generated with an AI voice (Amazon Polly).",
+    "audioErrorTitle": "Unable to play audio",
+    "retryMessage": "Please try again."
   },
   "nav": {
     "home": "Home",
@@ -149,7 +152,29 @@
     "wordsToExplore": "{count} words to explore",
     "tapToLearnMore": "Tap a word to learn more",
     "sampleNotice": "Words and sentences in scene are sample content, not generated from your photo.",
-    "mainWordNotice": "Primary recognized word: {keyword}. Save card to keep your word and photo."
+    "mainWordNotice": "Primary recognized word: {keyword}. Save card to keep your word and photo.",
+    "savedStickerLabel": "Saved sticker: {term}",
+    "selectedImageLabel": "Selected photo",
+    "recognizedKicker": "RECOGNIZED WORDS",
+    "sampleWordsKicker": "WORDS IN SAMPLE SCENE",
+    "exploreEachWord": "Explore each word",
+    "sampleCount": "{count} words and phrases",
+    "allLevels": "All levels",
+    "filterLevel": "Filter sample words: {level}",
+    "b2Hint": "B2: focus on collocations and use in sentences. ",
+    "extraSceneWords": "This round includes words from other sample scenes. ",
+    "extraSceneWordsAtLevel": "This round includes {level} words from other sample scenes. ",
+    "levelDisclaimer": "Sample levels are approximate and do not assess your proficiency.",
+    "practiceAllWords": "Practice {count} words",
+    "practiceLevelWords": "Practice {count} {level} words",
+    "emptyLevelTitle": "This scene has no words at the selected level yet",
+    "emptyLevelDescription": "Choose All levels to keep exploring.",
+    "emptyLevelAction": "View all sample words",
+    "saving": "Saving...",
+    "captureToCreateCard": "Choose a real photo to create a card",
+    "loginToSaveWord": "Sign in to save this word",
+    "saveToAccount": "Save word to account",
+    "viewSavedWords": "View saved words"
   },
   "word": {
     "topBarTitle": "Explore Vocabulary",
@@ -164,7 +189,12 @@
     "savedOnAccount": "Saved to account",
     "saveToAccount": "Save to account",
     "scanToCreateWord": "Scan photo to create new word",
-    "loginToSaveWord": "Sign in to save word"
+    "loginToSaveWord": "Sign in to save word",
+    "openLabel": "Open {term}, meaning {meaning}",
+    "photoLabel": "Your photo: {term}",
+    "listenLabel": "Listen to {term}",
+    "savedLabel": "Saved {term}",
+    "saveLabel": "Save {term}"
   },
   "saved": {
     "screenTitle": "Your Vocabulary",
@@ -265,7 +295,12 @@
     "contextInputPlaceholder": "Type the word or phrase just learned",
     "contextInputLabel": "Fill in the word or phrase just learned",
     "contextCheckBtn": "Check",
-    "contextHint": "Hint: {meaning}"
+    "contextHint": "Hint: {meaning}",
+    "sampleProgressLoading": "Loading progress on this device",
+    "samplePoolCompleteTitle": "Sample set completed",
+    "samplePoolCompleteDescription": "You have completed the groups in this set. Practice again to start a new round.",
+    "sampleRestart": "Practice sample set again",
+    "sampleProgressUnavailable": "Progress could not be saved on this device. You can keep practicing, but may need to repeat a group when you return."
   },
   "history": {
     "kicker": "WHAT YOU HAVE SEEN",
@@ -373,5 +408,12 @@
       "subtitle": "Getting ready for distant journeys",
       "category": "Travel"
     }
+  },
+  "study": {
+    "savingTitle": "Saving review",
+    "savingMessage": "Wait for this review to save before leaving.",
+    "exitTitle": "Leave this study round?",
+    "exitMessage": "This round will start over. Reviews already saved will be kept.",
+    "exitAction": "Leave round"
   }
 }

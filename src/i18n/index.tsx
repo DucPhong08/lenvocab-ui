@@ -1,12 +1,16 @@
 import {
   createContext,
+  useCallback,
+  useEffect,
   useContext,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 import { vi, type Translations } from './vi';
 import { en } from './en';
+import { loadLocale, saveLocale } from './storage';
 
 export type Language = 'vi' | 'en';
 
@@ -65,26 +69,44 @@ const I18nContext = createContext<I18nContextType>({
 
 export function I18nProvider({
   children,
-  initialLocale = 'vi',
+  initialLocale,
 }: {
   children: ReactNode;
   initialLocale?: Language;
 }) {
-  const [locale, setLocaleState] = useState<Language>(initialLocale);
+  const [locale, setLocaleState] = useState<Language>(initialLocale ?? 'vi');
+  const changes = useRef(0);
+
+  useEffect(() => {
+    setLocale(initialLocale ?? 'vi');
+    if (initialLocale !== undefined) return;
+    let active = true;
+    const version = changes.current;
+    loadLocale().then(next => {
+      if (!active || changes.current !== version || !next) return;
+      setLocaleState(next);
+      setLocale(next);
+    });
+    return () => { active = false; };
+  }, [initialLocale]);
+
+  const changeLocale = useCallback((next: Language) => {
+    changes.current += 1;
+    setLocaleState(next);
+    setLocale(next);
+    saveLocale(next);
+  }, []);
 
   const value = useMemo<I18nContextType>(() => {
     const strings = dictionaries[locale] ?? dictionaries.vi;
     return {
       locale,
-      setLocale: (next: Language) => {
-        setLocaleState(next);
-        setLocale(next);
-      },
+      setLocale: changeLocale,
       strings,
       t: (path: string, params?: Record<string, string | number>) =>
         t(path, params, locale),
     };
-  }, [locale]);
+  }, [locale, changeLocale]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

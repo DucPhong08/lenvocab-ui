@@ -44,6 +44,9 @@ export function QuizScreen(props: ScreenProps) {
     selected,
     selectOption,
     word,
+    loadingProgress,
+    sampleComplete,
+    progressError,
   } = useQuiz(props);
   const exit = useStudyExit({ navigate, active: !!word && !done });
   const { play, isPlaying } = useAudio();
@@ -77,14 +80,34 @@ export function QuizScreen(props: ScreenProps) {
       : 'Sample Practice'
     : strings.review.quiz;
 
+  if (sampleComplete)
+    return (
+      <>
+        <TopBar title={title} onBack={exit} />
+        <EmptyState
+          title={strings.quiz.samplePoolCompleteTitle}
+          description={strings.quiz.samplePoolCompleteDescription}
+          action={strings.quiz.sampleRestart}
+          onPress={restart}
+        />
+        {progressError && (
+          <Text style={styles.finishDescription}>
+            {strings.quiz.sampleProgressUnavailable}
+          </Text>
+        )}
+      </>
+    );
+
   if (!word)
     return (
       <>
         <TopBar title={title} onBack={exit} />
         <EmptyState
-          loading={loadingData}
+          loading={loadingProgress || loadingData}
           title={
-            loadingData
+            loadingProgress
+              ? strings.quiz.sampleProgressLoading
+              : loadingData
               ? locale === 'vi'
                 ? 'Đang chuẩn bị câu hỏi'
                 : 'Preparing questions'
@@ -93,12 +116,14 @@ export function QuizScreen(props: ScreenProps) {
               : strings.review.noWordsTitle
           }
           description={
-            loadingData
+            loadingProgress || loadingData
               ? strings.review.loadingDescription
               : dataError ?? strings.review.noWordsDescription
           }
           action={
-            dataError
+            loadingProgress
+              ? undefined
+              : dataError
               ? strings.common.retry
               : !loadingData
               ? strings.review.scanNewWord
@@ -114,6 +139,11 @@ export function QuizScreen(props: ScreenProps) {
       <>
         <TopBar title={strings.quiz.topBarResult} onBack={exit} />
         <View style={styles.finish}>
+          {progressError && (
+            <Text style={styles.finishDescription}>
+              {strings.quiz.sampleProgressUnavailable}
+            </Text>
+          )}
           <LottieAnimation
             source={celebration}
             colorFilters={[
@@ -205,6 +235,11 @@ export function QuizScreen(props: ScreenProps) {
           </Text>
         }
       />
+      {progressError && (
+        <Text style={styles.finishDescription}>
+          {strings.quiz.sampleProgressUnavailable}
+        </Text>
+      )}
       <ScreenTitle
         title={isContext ? strings.quiz.contextTitle : strings.quiz.chooseTitle}
         subtitle={

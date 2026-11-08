@@ -37,7 +37,7 @@ export function WordScreen({
   const { strings, locale } = useI18n();
   const word = wordForId(wordId);
   const scene = getScene(word.scene, locale);
-  const { play } = useAudio();
+  const { play, isPlaying } = useAudio();
   const isSaved = isWordSaved(word.id, { saved, cards, scanResult });
   const isScan = wordId.startsWith('scan:') && !!scanResult;
   const isSample = !isScan && !word.userFlashcardId;
@@ -83,11 +83,17 @@ export function WordScreen({
           {(word.audio || word.userFlashcardId) && (
             <AudioButton
               label={strings.word.pronounceWord}
+              playing={isPlaying}
               onPress={() => play(word.audio, word.userFlashcardId)}
             />
           )}
         </View>
       </View>
+      {isSample && word.audio && (
+        <Text style={styles.levelCaption}>
+          {strings.common.sampleAudioNotice}
+        </Text>
+      )}
       {word.userFlashcardId ? (
         <CardPhoto
           showImage={word.imageStyle !== 'sticker'}
