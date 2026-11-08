@@ -18,6 +18,7 @@ import { SyncNotice } from '@/components/SyncNotice';
 import { Bookmark } from 'lucide-react-native';
 import { ApiError } from '@/api/client/ApiError';
 import { updatePreferences } from '@/api/endpoints/updatePreferences';
+import { EffectsContext } from '@/hooks/effectsContext';
 import { AudioContext } from '@/hooks/audioContext';
 import { linkGoogle } from '@/api/endpoints/googleAuth';
 import { googleIdToken } from '@/services/auth/googleSignIn';
@@ -129,6 +130,8 @@ export function AppContent() {
     setSceneId,
     token,
   });
+  const animationsEnabled = user?.preferences?.animations_enabled ?? true;
+  const animate = animationsEnabled && !reduceMotion;
   const previousToken = useRef(token);
   useEffect(() => {
     if (previousToken.current && previousToken.current !== token) {
@@ -190,8 +193,8 @@ export function AppContent() {
     if (id) toggleSaved(id);
   }, [navigate, screen, token, toggleSaved]);
   const scrollToEnd = useCallback(
-    () => scrollRef.current?.scrollToEnd({ animated: !reduceMotion.current }),
-    [reduceMotion],
+    () => scrollRef.current?.scrollToEnd({ animated: animate }),
+    [animate],
   );
   const scrollToTop = useCallback(
     () => scrollRef.current?.scrollTo({ y: 0, animated: false }),
@@ -246,21 +249,25 @@ export function AppContent() {
     return () => listener.remove();
   }, [goBack, screen]);
   useEffect(() => {
-    if (reduceMotion.current) {
+    if (!animate) {
       fade.setValue(1);
       return;
     }
     fade.setValue(0);
-    Animated.timing(fade, {
+    const transition = Animated.timing(fade, {
       toValue: 1,
       duration: 220,
       useNativeDriver: true,
-    }).start();
-  }, [screen, fade, reduceMotion]);
+    });
+    transition.start();
+    return () => transition.stop();
+  }, [screen, fade, animate]);
   const [preferencesBusy, setPreferencesBusy] = useState(false);
+  const preferencesPending = useRef(false);
   const onPreferencesChange = async (preferences: Partial<UserPreferences>) => {
-    if (!token || preferencesBusy) return;
+    if (!token || preferencesPending.current) return;
     const requestToken = token;
+    preferencesPending.current = true;
     setPreferencesBusy(true);
     try {
       await updatePreferences(token, preferences);
@@ -271,6 +278,7 @@ export function AppContent() {
         await logoutSession();
       else Alert.alert('Chưa đổi được cài đặt', errorMessage(error));
     } finally {
+      preferencesPending.current = false;
       setPreferencesBusy(false);
     }
   };
@@ -376,74 +384,85 @@ export function AppContent() {
     );
 
   return (
-    <AudioContext.Provider
+    <EffectsContext.Provider
       value={{
-        token,
-        offline: usingCache,
-        speed: user?.preferences?.voice_speed ?? 1,
-        onUnauthorized: logoutSession,
+        animationsEnabled,
+        soundEnabled: user?.preferences?.sound_effects_enabled ?? true,
       }}
     >
-      <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <KeyboardAvoidingView
-          style={styles.container}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
-          <Animated.View
-            style={[
-              styles.container,
-              {
-                opacity: fade,
-                transform: [
-                  {
-                    translateY: fade.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [7, 0],
-                    }),
-                  },
-                ],
-              },
-            ]}
+      <AudioContext.Provider
+        value={{
+          token,
+          offline: usingCache,
+          speed: user?.preferences?.voice_speed ?? 1,
+          onUnauthorized: logoutSession,
+        }}
+      >
+        <SafeAreaView edges={['top', 'bottom']} style={styles.container}>
+          <StatusBar barStyle="dark-content" />
+          <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           >
-            <ScrollView
-              ref={scrollRef}
-              keyboardShouldPersistTaps="handled"
-              keyboardDismissMode="on-drag"
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-              key={screen}
-            >
-              {!!token && (
-                <SyncNotice
-                  cached={usingCache}
-                  pending={reviewQueue.filter(item => !item.error).length}
-                  failed={reviewQueue.filter(item => !!item.error).length}
-                  syncing={syncingReviews}
-                  storageError={storageError}
-                  onPress={() => navigate('sync')}
-                />
-              )}
-              <ScreenContent screen={screen} props={props} />
-            </ScrollView>
-          </Animated.View>
-          {feedback && (
-            <View
+            <Animated.View
               style={[
-                styles.toast,
-                showTabs ? styles.toastWithTabs : styles.toastWithoutTabs,
+                styles.container,
+                {
+                  opacity: fade,
+                  transform: [
+                    {
+                      translateY: fade.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [7, 0],
+                      }),
+                    },
+                  ],
+                },
               ]}
-              accessibilityLiveRegion="polite"
             >
-              <Bookmark size={16} color={colors.onOverlay} />
-              <Text style={styles.toastText}>{feedback}</Text>
-            </View>
-          )}
-          {showTabs && (
-            <AppTabs screen={screen} wordBack={wordBack} navigate={navigate} />
-          )}
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </AudioContext.Provider>
+              <ScrollView
+                ref={scrollRef}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+                key={screen}
+              >
+                {!!token && (
+                  <SyncNotice
+                    cached={usingCache}
+                    pending={reviewQueue.filter(item => !item.error).length}
+                    failed={reviewQueue.filter(item => !!item.error).length}
+                    syncing={syncingReviews}
+                    storageError={storageError}
+                    onPress={() => navigate('sync')}
+                  />
+                )}
+                <ScreenContent screen={screen} props={props} />
+              </ScrollView>
+            </Animated.View>
+            {feedback && (
+              <View
+                style={[
+                  styles.toast,
+                  showTabs ? styles.toastWithTabs : styles.toastWithoutTabs,
+                ]}
+                accessibilityLiveRegion="polite"
+              >
+                <Bookmark size={16} color={colors.onOverlay} />
+                <Text style={styles.toastText}>{feedback}</Text>
+              </View>
+            )}
+            {showTabs && (
+              <AppTabs
+                screen={screen}
+                wordBack={wordBack}
+                navigate={navigate}
+              />
+            )}
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </AudioContext.Provider>
+    </EffectsContext.Provider>
   );
 }

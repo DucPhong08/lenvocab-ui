@@ -10,7 +10,9 @@ import { ScreenTitle } from '@/components/ScreenTitle';
 import { TopBar } from '@/components/TopBar';
 import { useAudio } from '@/hooks/useAudio';
 import { useI18n } from '@/i18n';
-import { playSfx } from '@/utils/sfx';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { LottieAnimation } from '@/components/LottieAnimation';
+import celebration from '../../../assets/animations/celebration-confetti.json';
 import { SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
 import { ContextExercise } from './components/ContextExercise';
@@ -45,6 +47,7 @@ export function QuizScreen(props: ScreenProps) {
   } = useQuiz(props);
   const exit = useStudyExit({ navigate, active: !!word && !done });
   const { play, isPlaying } = useAudio();
+  const playSfx = useSoundEffects();
   const prevDoneRef = useRef(done);
 
   useEffect(() => {
@@ -52,7 +55,7 @@ export function QuizScreen(props: ScreenProps) {
       playSfx('levelUp');
     }
     prevDoneRef.current = done;
-  }, [done]);
+  }, [done, playSfx]);
 
   const onSelectOption = (optionId: string) => {
     if (selected || !word) return;
@@ -69,7 +72,9 @@ export function QuizScreen(props: ScreenProps) {
   };
 
   const title = practiceWords
-    ? (locale === 'vi' ? 'Luyện từ mẫu' : 'Sample Practice')
+    ? locale === 'vi'
+      ? 'Luyện từ mẫu'
+      : 'Sample Practice'
     : strings.review.quiz;
 
   if (!word)
@@ -80,7 +85,9 @@ export function QuizScreen(props: ScreenProps) {
           loading={loadingData}
           title={
             loadingData
-              ? (locale === 'vi' ? 'Đang chuẩn bị câu hỏi' : 'Preparing questions')
+              ? locale === 'vi'
+                ? 'Đang chuẩn bị câu hỏi'
+                : 'Preparing questions'
               : dataError
               ? strings.review.loadErrorTitle
               : strings.review.noWordsTitle
@@ -91,7 +98,11 @@ export function QuizScreen(props: ScreenProps) {
               : dataError ?? strings.review.noWordsDescription
           }
           action={
-            dataError ? strings.common.retry : !loadingData ? strings.review.scanNewWord : undefined
+            dataError
+              ? strings.common.retry
+              : !loadingData
+              ? strings.review.scanNewWord
+              : undefined
           }
           onPress={dataError ? () => reloadData() : () => navigate('camera')}
         />
@@ -103,12 +114,26 @@ export function QuizScreen(props: ScreenProps) {
       <>
         <TopBar title={strings.quiz.topBarResult} onBack={exit} />
         <View style={styles.finish}>
-          <View style={styles.finishIcon}>
-            <Sparkles size={32} color={colors.primaryText} />
-          </View>
+          <LottieAnimation
+            source={celebration}
+            colorFilters={[
+              { keypath: 'Primary', color: colors.primary },
+              { keypath: 'Accent', color: colors.accent },
+              { keypath: 'Highlight', color: colors.highlight },
+              { keypath: 'Badge', color: colors.primaryTint },
+              { keypath: 'Star', color: colors.primary },
+            ]}
+            fallback={
+              <View style={styles.finishIcon}>
+                <Sparkles size={32} color={colors.primaryText} />
+              </View>
+            }
+          />
           <Eyebrow>{strings.quiz.roundDoneKicker}</Eyebrow>
           <Text style={styles.finishTitle}>
-            {missed.length ? strings.quiz.tryAgainTitle : strings.quiz.wellDoneTitle}
+            {missed.length
+              ? strings.quiz.tryAgainTitle
+              : strings.quiz.wellDoneTitle}
           </Text>
           <Text style={styles.finishDescription}>
             {missed.length
@@ -119,7 +144,9 @@ export function QuizScreen(props: ScreenProps) {
             <Text style={styles.scoreValue}>
               {score}/{total}
             </Text>
-            <Text style={styles.scoreCaption}>{strings.quiz.correctCountCaption}</Text>
+            <Text style={styles.scoreCaption}>
+              {strings.quiz.correctCountCaption}
+            </Text>
           </View>
           {!!missed.length && (
             <View style={styles.missedList}>
@@ -141,7 +168,9 @@ export function QuizScreen(props: ScreenProps) {
           )}
           {remaining > 0 ? (
             <PrimaryButton
-              label={strings.quiz.practiceMore(Math.min(SESSION_SIZE, remaining))}
+              label={strings.quiz.practiceMore(
+                Math.min(SESSION_SIZE, remaining),
+              )}
               onPress={more}
               variant={missed.length ? 'secondary' : 'primary'}
               style={styles.stretch}
@@ -181,7 +210,9 @@ export function QuizScreen(props: ScreenProps) {
         subtitle={
           isContext
             ? strings.quiz.contextSubtitle
-            : `${strings.quiz.chooseSubtitle(questions.length)}${context ? strings.quiz.plusContext : ''}`
+            : `${strings.quiz.chooseSubtitle(questions.length)}${
+                context ? strings.quiz.plusContext : ''
+              }`
         }
       />
       <StudyProgress current={index + 1} total={total} />
@@ -228,9 +259,13 @@ export function QuizScreen(props: ScreenProps) {
                   }}
                   accessibilityLabel={`${letter}. ${option.meaning}${
                     selected && correct
-                      ? (locale === 'vi' ? ', đáp án đúng' : ', correct answer')
+                      ? locale === 'vi'
+                        ? ', đáp án đúng'
+                        : ', correct answer'
                       : selected && chosen
-                      ? (locale === 'vi' ? ', chưa đúng' : ', incorrect')
+                      ? locale === 'vi'
+                        ? ', chưa đúng'
+                        : ', incorrect'
                       : ''
                   }`}
                   disabled={!!selected}
@@ -281,8 +316,12 @@ export function QuizScreen(props: ScreenProps) {
         <PrimaryButton
           label={
             index === total - 1
-              ? (locale === 'vi' ? 'Xem kết quả' : 'View Results')
-              : (locale === 'vi' ? 'Câu tiếp theo' : 'Next Question')
+              ? locale === 'vi'
+                ? 'Xem kết quả'
+                : 'View Results'
+              : locale === 'vi'
+              ? 'Câu tiếp theo'
+              : 'Next Question'
           }
           onPress={nextQuestion}
           disabled={!selected}

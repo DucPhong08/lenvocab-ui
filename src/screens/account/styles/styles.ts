@@ -243,6 +243,7 @@ export const useStyles = createStyles(({ colors, font }) => ({
     fontSize: font.size.small,
     marginBottom: 14,
   },
+  googleButton: { width: '100%', height: 48, marginBottom: 4 },
   authSwitch: { padding: 15, alignItems: 'center', marginBottom: 12 },
   authSwitchText: { color: colors.primaryText, fontWeight: font.weight.bold },
   authNotice: {

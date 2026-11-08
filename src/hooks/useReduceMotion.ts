@@ -1,21 +1,27 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
 export function useReduceMotion() {
-  const reduceMotion = useRef(false);
-
+  const [reduced, setReduced] = useState(true);
   useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(value => {
-      reduceMotion.current = value;
-    });
+    let active = true;
+    let changed = false;
     const listener = AccessibilityInfo.addEventListener(
       'reduceMotionChanged',
       value => {
-        reduceMotion.current = value;
+        changed = true;
+        setReduced(value);
       },
     );
-    return () => listener.remove();
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then(value => {
+        if (active && !changed) setReduced(value);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+      listener.remove();
+    };
   }, []);
-
-  return reduceMotion;
+  return reduced;
 }

@@ -3,5 +3,11 @@
   "effective": "Bạn chọn {requested} vật; hiện áp dụng tối đa {count} vật theo giới hạn hệ thống.",
   "goal": "Mục tiêu ôn mỗi ngày (từ)",
   "reviewLimit": "Hàng đợi ôn áp dụng tối đa {count} từ/ngày theo cài đặt tài khoản và trần hệ thống.",
-  "title": "Cài đặt học tập"
+  "title": "Cài đặt học tập",
+  "animations_enabled": "Hiệu ứng chuyển động",
+  "sound_effects_enabled": "Âm thanh hiệu ứng",
+  "animations_enabled_hint": "Hiệu ứng hoàn thành bài và chuyển màn; luôn ưu tiên Giảm chuyển động của điện thoại.",
+  "sound_effects_enabled_hint": "Âm lật thẻ, đúng/sai và hoàn thành. Giọng đọc từ vựng vẫn giữ riêng.",
+  "effectsUnavailable": "Backend chưa hỗ trợ tùy chọn này. Cần cập nhật backend và đồng bộ tài khoản.",
+  "effectsOffline": "Đang dùng cài đặt đã lưu. Kết nối mạng để thay đổi và đồng bộ."
 }

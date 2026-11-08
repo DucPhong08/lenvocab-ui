@@ -2,6 +2,8 @@ export type UserPreferences = {
   preferred_voice_id: string;
   voice_speed: number;
   daily_review_goal: number;
+  animations_enabled?: boolean;
+  sound_effects_enabled?: boolean;
   target_language: string;
   max_detected_objects: number;
 };

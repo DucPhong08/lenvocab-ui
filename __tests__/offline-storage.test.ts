@@ -46,7 +46,11 @@ const user = {
   id: 'user-1',
   email: 'private@example.com',
   display_name: 'Learner',
-  preferences: { daily_review_goal: 15 },
+  preferences: {
+    daily_review_goal: 15,
+    animations_enabled: false,
+    sound_effects_enabled: false,
+  },
   scan_settings: {
     max_detected_objects: 8,
     max_allowed_objects: 10,
@@ -78,6 +82,8 @@ test('offline data survives reopening and omits email, audio, signed image links
   const loaded = await loadLearning(key);
   expect(loaded?.snapshot?.cards[0].keyword).toBe('cup');
   expect(loaded?.snapshot?.total).toBe(10);
+  expect(loaded?.snapshot?.user.preferences.animations_enabled).toBe(false);
+  expect(loaded?.snapshot?.user.preferences.sound_effects_enabled).toBe(false);
   expect(loaded?.snapshot?.user.scan_settings).toEqual(user.scan_settings);
   expect(loaded?.snapshot?.user.preference_limits).toEqual(
     user.preference_limits,

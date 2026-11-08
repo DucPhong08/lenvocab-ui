@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
 import { Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 import { Eye, EyeOff, Settings2, Sparkles } from 'lucide-react-native';
 import { PrimaryButton } from '@/components/PrimaryButton';
@@ -154,9 +155,13 @@ export function AuthScreen({
         <Text style={styles.fieldHint}>{strings.common.or}</Text>
         <View style={styles.dividerLine} />
       </View>
-      <PrimaryButton
-        label={strings.auth.googleAction}
-        variant="secondary"
+      <GoogleSigninButton
+        accessibilityRole="button"
+        accessibilityLabel={strings.auth.googleAction}
+        accessibilityState={{ disabled: authBusy }}
+        size={GoogleSigninButton.Size.Wide}
+        color={GoogleSigninButton.Color.Light}
+        style={styles.googleButton}
         disabled={authBusy}
         onPress={() => {
           setError('');

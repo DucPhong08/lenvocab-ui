@@ -197,6 +197,8 @@ function sanitize(data: OfflineData): OfflineData {
           voice_speed: preferences.voice_speed,
           daily_review_goal: preferences.daily_review_goal,
           target_language: preferences.target_language,
+          animations_enabled: preferences.animations_enabled,
+          sound_effects_enabled: preferences.sound_effects_enabled,
           max_detected_objects: preferences.max_detected_objects,
         },
       },

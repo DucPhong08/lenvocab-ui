@@ -3,5 +3,11 @@
   "effective": "You selected {requested}; currently up to {count} objects within the system limit.",
   "goal": "Daily review goal (words)",
   "reviewLimit": "Review queue: up to {count} words per day within your account and system limits.",
-  "title": "Learning settings"
+  "title": "Learning settings",
+  "animations_enabled": "Motion effects",
+  "sound_effects_enabled": "Sound effects",
+  "animations_enabled_hint": "Completion and screen transitions. Your device Reduce Motion setting takes priority.",
+  "sound_effects_enabled_hint": "Card flips, answers and completion sounds. Vocabulary speech is separate.",
+  "effectsUnavailable": "This server does not support these settings yet. Update the backend and sync your account.",
+  "effectsOffline": "Using saved settings. Connect to change and sync them."
 }

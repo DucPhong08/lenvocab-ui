@@ -31,42 +31,42 @@
     "id": "cafe",
     "title": "Quán cà phê",
     "subtitle": "Hương vị thư giãn và cảm hứng làm việc",
-    "image": "/scenes/cafe.png",
+    "image": "/scenes/cafe.jpg",
     "category": "Đời sống"
   },
   {
     "id": "supermarket",
     "title": "Siêu thị",
     "subtitle": "Chọn lựa hàng hóa và thực phẩm tươi",
-    "image": "/scenes/supermarket.png",
+    "image": "/scenes/supermarket.jpg",
     "category": "Mua sắm"
   },
   {
     "id": "park",
     "title": "Công viên xanh",
     "subtitle": "Hít thở không khí trong lành",
-    "image": "/scenes/park.png",
+    "image": "/scenes/park.jpg",
     "category": "Ngoài trời"
   },
   {
     "id": "office",
     "title": "Văn phòng hiện đại",
     "subtitle": "Nhịp sống công sở và sự sáng tạo",
-    "image": "/scenes/office.png",
+    "image": "/scenes/office.jpg",
     "category": "Công việc"
   },
   {
     "id": "gym",
     "title": "Phòng tập thể hình",
     "subtitle": "Bền bỉ nâng cao thể lực và sức khỏe",
-    "image": "/scenes/gym.png",
+    "image": "/scenes/gym.jpg",
     "category": "Sức khỏe"
   },
   {
     "id": "airport",
     "title": "Sân bay quốc tế",
     "subtitle": "Chuẩn bị cho những hành trình xa",
-    "image": "/scenes/airport.png",
+    "image": "/scenes/airport.jpg",
     "category": "Du lịch"
   }
 ]

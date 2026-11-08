@@ -7,7 +7,7 @@ import { PrimaryButton } from '@/components/PrimaryButton';
 import { TopBar } from '@/components/TopBar';
 import { useAudio } from '@/hooks/useAudio';
 import { useI18n } from '@/i18n';
-import { playSfx } from '@/utils/sfx';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { memoryLevels, SESSION_SIZE } from '@/data/study';
 import type { ScreenProps } from '@/types/screen';
 import { useStudyExit } from './hooks/useStudyExit';
@@ -39,6 +39,7 @@ export function FlashcardsScreen({
     words,
   } = useFlashcards({ due, loadingData, dataError, submitReview, user });
   const { play, isPlaying } = useAudio();
+  const playSfx = useSoundEffects();
   const loading = loadingData && queue === null;
   const finished = index > 0 && !word;
   const exit = useStudyExit({ navigate, active: !!word, busy: submitting });
@@ -75,7 +76,11 @@ export function FlashcardsScreen({
               : strings.flashcards.comeBackLater)
           }
           action={
-            loading ? undefined : dataError ? strings.common.retry : strings.flashcards.backToReview
+            loading
+              ? undefined
+              : dataError
+              ? strings.common.retry
+              : strings.flashcards.backToReview
           }
           onPress={dataError ? () => reloadData() : () => navigate('review')}
         />
@@ -83,7 +88,9 @@ export function FlashcardsScreen({
           <PrimaryButton
             label={
               user
-                ? strings.flashcards.reviewMore(Math.min(SESSION_SIZE, due.length))
+                ? strings.flashcards.reviewMore(
+                    Math.min(SESSION_SIZE, due.length),
+                  )
                 : strings.flashcards.retrySample
             }
             onPress={restart}
@@ -112,7 +119,9 @@ export function FlashcardsScreen({
       <View style={[styles.studyFace, flipped && styles.studyAnswer]}>
         <View style={styles.flashcardTop}>
           <Text style={[styles.flashcardSmall, flipped && styles.answerInk]}>
-            {flipped ? strings.flashcards.meaningAndUsage : strings.flashcards.wordNumber(index + 1)}
+            {flipped
+              ? strings.flashcards.meaningAndUsage
+              : strings.flashcards.wordNumber(index + 1)}
           </Text>
           {(word.audio || word.userFlashcardId) && (
             <AudioButton
@@ -148,7 +157,10 @@ export function FlashcardsScreen({
         )}
       </View>
       {!flipped ? (
-        <PrimaryButton label={strings.flashcards.viewMeaning} onPress={onFlip} />
+        <PrimaryButton
+          label={strings.flashcards.viewMeaning}
+          onPress={onFlip}
+        />
       ) : user ? (
         <View style={styles.grades}>
           {memoryLevels.map(({ label, quality }) => (

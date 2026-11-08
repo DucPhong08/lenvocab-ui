@@ -1,7 +1,7 @@
 import vi from '../../../assets/locales/preferences.vi.json';
 import en from '../../../assets/locales/preferences.en.json';
 import type { ReactNode } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, Switch, Text, View } from 'react-native';
 import {
   Bookmark,
   Download,
@@ -27,6 +27,7 @@ export function ProfileScreen({
   onVoiceSpeedChange,
   onPreferencesChange,
   preferencesBusy,
+  offline,
   history,
   user,
   onGoogleLink,
@@ -131,6 +132,37 @@ export function ProfileScreen({
           />
           <Eyebrow>{copy.title}</Eyebrow>
           <View style={styles.menu}>
+            {(['animations_enabled', 'sound_effects_enabled'] as const).map(
+              field => (
+                <View style={styles.menuItem} key={field}>
+                  <View style={styles.fill}>
+                    <Text style={styles.menuText}>{copy[field]}</Text>
+                    <Text style={styles.menuHint}>
+                      {typeof prefs?.[field] !== 'boolean'
+                        ? copy.effectsUnavailable
+                        : offline
+                        ? copy.effectsOffline
+                        : copy[`${field}_hint`]}
+                    </Text>
+                  </View>
+                  <Switch
+                    accessibilityLabel={copy[field]}
+                    value={prefs?.[field] ?? true}
+                    disabled={
+                      preferencesBusy ||
+                      offline ||
+                      !onPreferencesChange ||
+                      typeof prefs?.[field] !== 'boolean'
+                    }
+                    trackColor={{ false: colors.line, true: colors.primary }}
+                    thumbColor={colors.onPrimary}
+                    onValueChange={value =>
+                      onPreferencesChange?.({ [field]: value })
+                    }
+                  />
+                </View>
+              ),
+            )}
             <SettingRow
               icon={<Headphones size={19} color={colors.primaryText} />}
               label={strings.profile.standardVoice}
