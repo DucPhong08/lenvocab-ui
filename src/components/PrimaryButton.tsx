@@ -14,6 +14,7 @@ export function PrimaryButton({
   onPress,
   variant = 'primary',
   icon,
+  iconPosition = 'right',
   disabled = false,
   style,
   textStyle,
@@ -22,11 +23,21 @@ export function PrimaryButton({
   onPress: () => void;
   variant?: 'primary' | 'secondary';
   icon?: ReactNode;
+  iconPosition?: 'left' | 'right';
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
 }) {
   const { styles, colors } = useStyles();
+  const renderIcon =
+    icon ??
+    (iconPosition === 'right' ? (
+      <ArrowRight
+        size={19}
+        color={variant === 'primary' ? colors.onPrimary : colors.primaryText}
+      />
+    ) : null);
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -42,6 +53,7 @@ export function PrimaryButton({
         style,
       ]}
     >
+      {iconPosition === 'left' && renderIcon}
       <Text
         style={[
           styles.primaryButtonText,
@@ -51,12 +63,7 @@ export function PrimaryButton({
       >
         {label}
       </Text>
-      {icon ?? (
-        <ArrowRight
-          size={19}
-          color={variant === 'primary' ? colors.onPrimary : colors.primaryText}
-        />
-      )}
+      {iconPosition === 'right' && renderIcon}
     </Pressable>
   );
 }

@@ -12,11 +12,13 @@ export function LottieAnimation({
   source,
   fallback,
   size = 128,
+  loop = false,
   colorFilters,
 }: {
   source: AnimationObject;
   fallback: ReactNode;
   size?: number;
+  loop?: boolean;
   colorFilters?: LottieViewProps['colorFilters'];
 }) {
   const animation = useRef<LottieView>(null);
@@ -56,12 +58,12 @@ export function LottieAnimation({
         source={source}
         colorFilters={colorFilters}
         autoPlay={false}
-        loop={false}
+        loop={loop}
         style={[StyleSheet.absoluteFill, !(visible && ready) && styles.hidden]}
         onAnimationLoaded={() => setReady(true)}
         onAnimationFailure={() => setFailed(true)}
         onAnimationFinish={cancelled => {
-          if (!cancelled) setFinished(true);
+          if (!loop && !cancelled) setFinished(true);
         }}
       />
     </View>
