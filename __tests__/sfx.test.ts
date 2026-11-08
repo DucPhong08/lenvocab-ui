@@ -50,7 +50,7 @@ describe('SFX Utility (Sound Effects)', () => {
 
   test('handles sound load failure gracefully', async () => {
     const onEnd = jest.fn();
-    jest.mocked(Sound).mockImplementationOnce((filename, basePath, callback) => {
+    jest.mocked(Sound).mockImplementationOnce((_filename, _basePath, callback) => {
       const instance = {
         play: mockPlay,
         stop: mockStop,
@@ -72,7 +72,7 @@ describe('SFX Utility (Sound Effects)', () => {
   });
 
   test('cleans up and stops sound when returned cleanup function is invoked', async () => {
-    jest.mocked(Sound).mockImplementationOnce((filename, basePath, callback) => {
+    jest.mocked(Sound).mockImplementationOnce(() => {
       return {
         play: mockPlay,
         stop: mockStop,
