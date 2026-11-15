@@ -1,6 +1,7 @@
 import { ApiError } from '@/api/client/ApiError';
 import { gradeReview } from '@/api/endpoints/gradeReview';
 import type { SubmitReviewResponse } from '@/api/contracts';
+import { applyReviewToCards } from '@/services/learning/applyReviewToCards';
 import { errorMessage } from '@/utils/errorMessage';
 import { loadLearning, updateLearning, type OfflineData } from './storage';
 
@@ -45,17 +46,7 @@ export function syncLearning({
           ),
           snapshot: current.snapshot && {
             ...current.snapshot,
-            cards: current.snapshot.cards.map(card =>
-              card.user_flashcard_id === result.user_flashcard_id
-                ? {
-                    ...card,
-                    interval: result.interval_after,
-                    repetitions: result.repetitions_after,
-                    efactor: result.efactor_after,
-                    next_review_date: result.next_review_date,
-                  }
-                : card,
-            ),
+            cards: applyReviewToCards(current.snapshot.cards, result),
             due: current.snapshot.due.filter(
               card => card.user_flashcard_id !== result.user_flashcard_id,
             ),

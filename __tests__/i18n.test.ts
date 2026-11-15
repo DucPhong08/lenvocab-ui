@@ -1,6 +1,6 @@
 import { vi, en, t, setLocale, getLocale } from '../src/i18n';
 import { getScene } from '../src/data/getScene';
-import { getScenes } from '../src/data/scenes';
+import { getScenes, localizeScene } from '../src/data/scenes';
 
 describe('i18n localization system', () => {
   beforeEach(() => {
@@ -73,5 +73,11 @@ describe('i18n localization system', () => {
     const enScenes = getScenes('en');
     expect(enScenes).toHaveLength(10);
     expect(enScenes.find(s => s.id === 'kitchen')?.title).toBe('In the Kitchen');
+  });
+
+  test('uses the first scene for an unknown ID and keeps labels without translations', () => {
+    expect(getScene('unknown', 'en')).toEqual(getScenes('en')[0]);
+    const scene = { ...getScene('desk', 'vi'), id: 'untranslated' };
+    expect(localizeScene(scene, 'en')).toEqual(scene);
   });
 });

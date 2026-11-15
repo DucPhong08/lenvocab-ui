@@ -12,24 +12,27 @@ export const allWords: Word[] = vocabulary.words.map(word => ({
   audio: audioById[word.id] ?? null,
 }));
 
+export function localizeScene(scene: Scene, locale: Language): Scene {
+  function label(field: 'title' | 'subtitle' | 'category') {
+    const key = `scenes.${scene.id}.${field}`;
+    const value = t(key, undefined, locale);
+    return value === key ? scene[field] : value;
+  }
+  return {
+    ...scene,
+    title: label('title'),
+    subtitle: label('subtitle'),
+    category: label('category'),
+  };
+}
+
 export function getScenes(locale: Language = getLocale()): Scene[] {
-  return topics.map(topic => {
-    const titleKey = `scenes.${topic.id}.title`;
-    const subtitleKey = `scenes.${topic.id}.subtitle`;
-    const categoryKey = `scenes.${topic.id}.category`;
-
-    const title = t(titleKey, undefined, locale);
-    const subtitle = t(subtitleKey, undefined, locale);
-    const category = t(categoryKey, undefined, locale);
-
-    return {
-      ...topic,
-      title: title !== titleKey ? title : topic.title,
-      subtitle: subtitle !== subtitleKey ? subtitle : topic.subtitle,
-      category: category !== categoryKey ? category : topic.category,
-      words: allWords.filter(word => word.scene === topic.id),
-    };
-  });
+  return topics.map(topic =>
+    localizeScene(
+      { ...topic, words: allWords.filter(word => word.scene === topic.id) },
+      locale,
+    ),
+  );
 }
 
 export const scenes: Scene[] = getScenes('vi');

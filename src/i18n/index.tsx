@@ -11,6 +11,7 @@ import {
 import { vi, type Translations } from './vi';
 import { en } from './en';
 import { loadLocale, saveLocale } from './storage';
+import { formatMessage } from './translations';
 
 export type Language = 'vi' | 'en';
 
@@ -20,13 +21,11 @@ export type { Translations };
 const dictionaries: Record<Language, Translations> = { vi, en };
 
 let currentLanguage: Language = 'vi';
-const listeners = new Set<(lang: Language) => void>();
 
 export const getLocale = (): Language => currentLanguage;
 
 export const setLocale = (lang: Language) => {
   currentLanguage = lang;
-  listeners.forEach(fn => fn(lang));
 };
 
 export function t(
@@ -44,11 +43,7 @@ export function t(
     return curr(params?.count ?? 0);
   }
   if (typeof curr === 'string') {
-    if (!params) return curr;
-    return Object.entries(params).reduce(
-      (acc, [k, v]) => acc.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v)),
-      curr,
-    );
+    return params ? formatMessage(curr, params) : curr;
   }
   return path;
 }

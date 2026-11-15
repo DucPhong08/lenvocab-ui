@@ -10,6 +10,7 @@ import type {
   FlashcardPage,
   SubmitReviewResponse,
 } from '@/api/contracts';
+import { applyReviewToCards } from '@/services/learning/applyReviewToCards';
 import { useOfflineLearning } from './useOfflineLearning';
 import { errorMessage } from '@/utils/errorMessage';
 
@@ -211,25 +212,18 @@ export function useLearningData(
     ]);
   };
   const applyReview = async (result: SubmitReviewResponse) => {
-    const updateCard = <T extends { user_flashcard_id: string }>(card: T) =>
-      card.user_flashcard_id === result.user_flashcard_id
-        ? {
-            ...card,
-            interval: result.interval_after,
-            repetitions: result.repetitions_after,
-            efactor: result.efactor_after,
-            next_review_date: result.next_review_date,
-          }
-        : card;
     setPending(current =>
       current?.token === token
-        ? { ...current, cards: current.cards.map(updateCard) }
+        ? { ...current, cards: applyReviewToCards(current.cards, result) }
         : current,
     );
     await Promise.all([
       cardsQuery.mutate(
         data =>
-          data?.map(page => ({ ...page, items: page.items.map(updateCard) })),
+          data?.map(page => ({
+            ...page,
+            items: applyReviewToCards(page.items, result),
+          })),
         { revalidate: false },
       ),
       dueQuery.mutate(
@@ -245,7 +239,6 @@ export function useLearningData(
   const pendingIds = new Set(offline.queue.map(item => item.cardId));
   return {
     usingCache,
-    offlineReady: offline.ready,
     savedAt: snapshot?.savedAt ?? null,
     cachedCount: snapshot?.cards.length ?? 0,
     reviewQueue: offline.queue,
