@@ -29,7 +29,7 @@ export type Screen =
 export type ScanEntry = {
   id: number;
   sceneId: string;
-  imageUri?: string;
+  asset?: Asset;
   timestamp: number;
   result?: ScanResult;
 };

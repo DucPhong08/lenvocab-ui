@@ -57,7 +57,7 @@ export function WordScreen({
           ) : undefined
         }
       />
-      {word.imageStyle === 'sticker' && word.imageUrl ? (
+      {word.imageStyle === 'sticker' && (word.imageUrl || word.hasImage) ? (
         <View style={styles.wordSticker}>
           <CardImage
             imageUrl={word.imageUrl}

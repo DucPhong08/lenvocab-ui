@@ -48,6 +48,12 @@ const chosen: ScanResult = {
   selected_object_id: 'cup-2',
   detected_objects: [],
 };
+const scenePhoto = {
+  uri: 'file:///scene.png',
+  fileName: 'scene.png',
+  fileSize: 1024,
+  type: 'image/png',
+};
 beforeEach(() => jest.clearAllMocks());
 async function mount() {
   let flow!: ReturnType<typeof useScanFlow>;
@@ -68,13 +74,58 @@ async function mount() {
     renderer = ReactTestRenderer.create(<Harness token="token" />);
   });
   await ReactTestRenderer.act(async () => {
-    flow.selectImage({ uri: 'file:///scene.png' });
+    flow.selectImage(scenePhoto);
   });
   await ReactTestRenderer.act(async () => {
     await flow.scan();
   });
   return { get: () => flow, renderer, Harness };
 }
+test('rescanning a history entry uploads the original photo shown on screen', async () => {
+  const h = await mount();
+  const original = h.get().history[0];
+  try {
+    await ReactTestRenderer.act(async () =>
+      h.get().selectImage({ uri: 'file:///book.jpg' }),
+    );
+    await ReactTestRenderer.act(async () => h.get().scan());
+    await ReactTestRenderer.act(async () => h.get().openHistory(original));
+    expect(h.get().imageUri).toBe(scenePhoto.uri);
+    expect(mockScanImage).toHaveBeenCalledTimes(2);
+    await ReactTestRenderer.act(async () => h.get().scan());
+    expect(mockScanImage).toHaveBeenLastCalledWith('token', scenePhoto);
+  } finally {
+    await ReactTestRenderer.act(async () => h.renderer.unmount());
+  }
+});
+
+test('opening history ends a pending scan and ignores its late result', async () => {
+  const h = await mount();
+  const original = h.get().history[0];
+  let finish!: (result: ScanResult) => void;
+  mockScanImage.mockReturnValueOnce(
+    new Promise<ScanResult>(done => {
+      finish = done;
+    }),
+  );
+  let pending!: Promise<void>;
+  try {
+    await ReactTestRenderer.act(async () => {
+      pending = h.get().scan();
+    });
+    await ReactTestRenderer.act(async () => h.get().openHistory(original));
+    expect(h.get().scanning).toBe(false);
+    await ReactTestRenderer.act(async () => {
+      finish(chosen);
+      await pending;
+    });
+    expect(h.get().scanResult).toEqual(first);
+    expect(h.get().history).toHaveLength(1);
+  } finally {
+    await ReactTestRenderer.act(async () => h.renderer.unmount());
+  }
+});
+
 test('selects a second region without rescanning and retains the complete object list', async () => {
   const h = await mount();
   mockSelect.mockResolvedValue(chosen);

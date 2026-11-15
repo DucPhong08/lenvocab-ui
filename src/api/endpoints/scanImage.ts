@@ -1,5 +1,6 @@
 import type { Asset } from 'react-native-image-picker';
 import { ApiError } from '@/api/client/ApiError';
+import { json } from '@/api/client/json';
 import { request } from '@/api/client/request';
 import type { ScanResult } from '@/api/contracts';
 import { MAX_IMAGE_BYTES } from '@/services/images/options';
@@ -33,11 +34,7 @@ export function scanImage(token: string | null, asset: Asset) {
 export function selectScanObject(token: string | null, selectionToken: string) {
   return request<ScanResult>(
     token ? '/vision/objects/select' : '/vision/objects/select/guest',
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ selection_token: selectionToken }),
-    },
+    json({ selection_token: selectionToken }),
     token ?? undefined,
   );
 }

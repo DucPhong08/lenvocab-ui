@@ -26,7 +26,6 @@ export function useScanFlow({
 }: UseScanFlowOptions) {
   const [asset, setAsset] = useState<Asset | null>(null);
   const [history, setHistory] = useState<ScanEntry[]>([]);
-  const [imageUri, setImageUri] = useState<string | null>(null);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [scanning, setScanning] = useState(false);
   const scanId = useRef(0);
@@ -49,26 +48,22 @@ export function useScanFlow({
   const previousToken = useRef(token);
   currentToken.current = token;
 
-  const resetSelection = useCallback(() => {
+  const resetScanRequests = useCallback(() => {
     selections.current.clear();
     generation.current += 1;
     selecting.current = false;
     setSelectingObject(false);
+    setScanning(false);
   }, []);
 
   useEffect(() => {
-    if (previousToken.current !== token) {
-      resetSelection();
-      setScanning(false);
-    }
+    if (previousToken.current !== token) resetScanRequests();
     previousToken.current = token;
-  }, [token, resetSelection]);
+  }, [token, resetScanRequests]);
 
   const selectImage = (picked: Asset | null) => {
-    resetSelection();
-    setScanning(false);
+    resetScanRequests();
     setAsset(picked);
-    setImageUri(picked?.uri ?? null);
     setScanResult(null);
   };
 
@@ -106,7 +101,7 @@ export function useScanFlow({
           id: ++scanId.current,
           timestamp: Date.now(),
           sceneId,
-          imageUri: imageUri ?? undefined,
+          asset,
           result,
         },
         ...current,
@@ -171,27 +166,25 @@ export function useScanFlow({
   };
 
   const openHistory = (entry: ScanEntry) => {
-    resetSelection();
+    resetScanRequests();
     if (entry.result && Date.now() - entry.timestamp < 5 * 60_000)
       remember(entry.result, entry.timestamp);
     setSceneId(entry.sceneId);
-    setImageUri(entry.imageUri ?? null);
+    setAsset(entry.asset ?? null);
     setScanResult(entry.result ?? null);
     navigate('results');
   };
 
   const resetScan = useCallback(() => {
-    resetSelection();
+    resetScanRequests();
     setAsset(null);
     setHistory([]);
-    setImageUri(null);
     setScanResult(null);
-    setScanning(false);
-  }, [resetSelection]);
+  }, [resetScanRequests]);
 
   return {
     history,
-    imageUri,
+    imageUri: asset?.uri ?? null,
     openHistory,
     resetScan,
     scan,

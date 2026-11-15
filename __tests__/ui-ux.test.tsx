@@ -1,6 +1,7 @@
 import React from 'react';
 import Renderer from 'react-test-renderer';
-import { Alert, Text } from 'react-native';
+import { Alert, Image, Text } from 'react-native';
+import * as cardImages from '@/api/endpoints/cardImage';
 import { ResultsScreen } from '@/screens/discover/ResultsScreen';
 import { cardWord } from '@/api/mappers/cardWord';
 import { HomeScreen } from '@/screens/discover/HomeScreen';
@@ -294,6 +295,40 @@ test('word details can retry the current scan after only the word was saved', as
     button('Đổi sticker của thẻ đã lưu').props.onPress(),
   );
   expect(data.toggleSaved).toHaveBeenCalledWith('scan:my cup');
+});
+
+test('word details can reload a saved sticker that has no download URL', async () => {
+  const sticker = cardWord({
+    ...card,
+    image_style: 'sticker',
+    image_url: null,
+    has_image: true,
+  });
+  const uri = 'https://example.test/refreshed.png';
+  const refresh = jest.spyOn(cardImages, 'getCardImage').mockResolvedValue({
+    image_url: uri,
+    has_image: true,
+  });
+  try {
+    await mount(
+      <WordScreen
+        {...props({
+          token: 'token',
+          wordId: sticker.id,
+          wordForId: () => sticker,
+        })}
+      />,
+    );
+    await Renderer.act(async () =>
+      button('Tải lại ảnh').props.onPress({ stopPropagation: jest.fn() }),
+    );
+    expect(refresh).toHaveBeenCalledWith('token', card.user_flashcard_id);
+    const image = view.root.findByType(Image);
+    expect(image.props.source.uri).toBe(uri);
+    expect(image.props.resizeMode).toBe('contain');
+  } finally {
+    refresh.mockRestore();
+  }
 });
 
 test('flashcards recover after an initial fetch error instead of retaining an empty queue', async () => {

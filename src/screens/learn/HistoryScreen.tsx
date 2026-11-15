@@ -28,6 +28,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
       {history.length ? (
         history.map(entry => {
           const scene = getScene(entry.sceneId, locale);
+          const uri = entry.asset?.uri;
           return (
             <Pressable
               key={entry.id}
@@ -37,11 +38,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
               style={styles.historyRow}
             >
               <Image
-                source={
-                  entry.imageUri
-                    ? { uri: entry.imageUri }
-                    : sceneImage(scene.id)
-                }
+                source={uri ? { uri } : sceneImage(scene.id)}
                 style={styles.historyImage}
               />
               <View style={styles.fill}>
@@ -54,7 +51,7 @@ export function HistoryScreen({ navigate, history, openHistory }: ScreenProps) {
                   })}
                 </Text>
                 <Text style={styles.historyTitle}>
-                  {entry.imageUri ? strings.history.yourPhoto : scene.title}
+                  {uri ? strings.history.yourPhoto : scene.title}
                 </Text>
                 <Text style={styles.historyCaption}>
                   {entry.result
